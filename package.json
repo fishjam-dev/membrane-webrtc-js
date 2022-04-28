@@ -1,22 +1,26 @@
 {
-  "name": "membrane_rtc_engine",
-  "version": "0.1.0",
-  "description": "Client library for Membrane RTC Engine.",
-  "license": "Apache 2.0",
+  "name": "membrane-webrtc-js",
+  "version": "0.2.0",
+  "description": "JS/TS client library for Membrane RTC Engine.",
+  "license": "Apache-2.0",
   "author": "Membrane Team",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "git://github.com/membraneframework/membrane_rtc_engine.git"
+    "url": "git://github.com/membraneframework/membrane-webrtc-js.git"
   },
+  "files": [
+    "LICENSE",
+    "dist"
+  ],
   "scripts": {
-    "ts-types": " tsc --emitDeclarationOnly --outDir ../priv/static",
-    "build": "rimraf lib && node ./esbuild.js && npm run ts-types",
-    "docs": "typedoc js/index.ts --out ../doc/js",
+    "build": "rimraf dist && tsc",
+    "docs": "typedoc src/index.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
   "devDependencies": {
-    "esbuild": "^0.12.23",
     "eslint": "^7.21.0",
     "prettier": "^2.2.1",
     "rimraf": "^3.0.2",

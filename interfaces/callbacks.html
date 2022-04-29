@@ -1,0 +1,784 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Callbacks | membrane-webrtc-js</title>
+	<meta name="description" content="Documentation for membrane-webrtc-js">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+	<script async src="../assets/js/search.js" id="search-script"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">membrane-webrtc-js</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../modules.html">membrane-webrtc-js</a>
+				</li>
+				<li>
+					<a href="callbacks.html">Callbacks</a>
+				</li>
+			</ul>
+			<h1>Interface Callbacks</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Callbacks that has to be implemented by user.</p>
+					</div>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="target">Callbacks</span>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="callbacks.html#onconnectionerror" class="tsd-kind-icon">on<wbr>Connection<wbr>Error</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="callbacks.html#onjoinerror" class="tsd-kind-icon">on<wbr>Join<wbr>Error</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="callbacks.html#onjoinsuccess" class="tsd-kind-icon">on<wbr>Join<wbr>Success</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="callbacks.html#onpeerjoined" class="tsd-kind-icon">on<wbr>Peer<wbr>Joined</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="callbacks.html#onpeerleft" class="tsd-kind-icon">on<wbr>Peer<wbr>Left</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="callbacks.html#onpeerupdated" class="tsd-kind-icon">on<wbr>Peer<wbr>Updated</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="callbacks.html#onremoved" class="tsd-kind-icon">on<wbr>Removed</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="callbacks.html#onsendmediaevent" class="tsd-kind-icon">on<wbr>Send<wbr>Media<wbr>Event</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="callbacks.html#ontrackadded" class="tsd-kind-icon">on<wbr>Track<wbr>Added</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="callbacks.html#ontrackencodingchanged" class="tsd-kind-icon">on<wbr>Track<wbr>Encoding<wbr>Changed</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="callbacks.html#ontrackready" class="tsd-kind-icon">on<wbr>Track<wbr>Ready</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="callbacks.html#ontrackremoved" class="tsd-kind-icon">on<wbr>Track<wbr>Removed</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="callbacks.html#ontrackupdated" class="tsd-kind-icon">on<wbr>Track<wbr>Updated</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="callbacks.html#ontracksprioritychanged" class="tsd-kind-icon">on<wbr>Tracks<wbr>Priority<wbr>Changed</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="onconnectionerror" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> on<wbr>Connection<wbr>Error</h3>
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Connection<wbr>Error<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/membraneframework/membrane-webrtc-js/blob/869455c/src/membraneWebRTC.ts#L164">membraneWebRTC.ts:164</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-interface">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<div class="tsd-comment tsd-typography">
+											<div class="lead">
+												<p>Called in case of errors related to multimedia session e.g. ICE connection.</p>
+											</div>
+										</div>
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>message: <span class="tsd-signature-type">string</span></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="onjoinerror" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> on<wbr>Join<wbr>Error</h3>
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Join<wbr>Error<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>metadata<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/membraneframework/membrane-webrtc-js/blob/869455c/src/membraneWebRTC.ts#L124">membraneWebRTC.ts:124</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-interface">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>metadata<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<div class="tsd-comment tsd-typography">
+											<div class="lead">
+												<p>Called when peer was not accepted. Triggered by <a href="../classes/membranewebrtc.html#join">join</a></p>
+											</div>
+										</div>
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>metadata: <span class="tsd-signature-type">any</span></h5>
+												<div class="tsd-comment tsd-typography">
+													<div class="lead">
+														<p>Passthru for client application to communicate further actions to frontend</p>
+													</div>
+												</div>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="onjoinsuccess" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> on<wbr>Join<wbr>Success</h3>
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Join<wbr>Success<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>peerId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, peersInRoom<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">[</span><a href="peer.html" class="tsd-signature-type" data-tsd-kind="Interface">Peer</a><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/membraneframework/membrane-webrtc-js/blob/869455c/src/membraneWebRTC.ts#L119">membraneWebRTC.ts:119</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-interface">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>peerId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, peersInRoom<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">[</span><a href="peer.html" class="tsd-signature-type" data-tsd-kind="Interface">Peer</a><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<div class="tsd-comment tsd-typography">
+											<div class="lead">
+												<p>Called when peer was accepted. Triggered by <a href="../classes/membranewebrtc.html#join">join</a></p>
+											</div>
+										</div>
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>peerId: <span class="tsd-signature-type">string</span></h5>
+											</li>
+											<li>
+												<h5>peersInRoom: <span class="tsd-signature-symbol">[</span><a href="peer.html" class="tsd-signature-type" data-tsd-kind="Interface">Peer</a><span class="tsd-signature-symbol">]</span></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="onpeerjoined" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> on<wbr>Peer<wbr>Joined</h3>
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Peer<wbr>Joined<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>peer<span class="tsd-signature-symbol">: </span><a href="peer.html" class="tsd-signature-type" data-tsd-kind="Interface">Peer</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/membraneframework/membrane-webrtc-js/blob/869455c/src/membraneWebRTC.ts#L151">membraneWebRTC.ts:151</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-interface">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>peer<span class="tsd-signature-symbol">: </span><a href="peer.html" class="tsd-signature-type" data-tsd-kind="Interface">Peer</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<div class="tsd-comment tsd-typography">
+											<div class="lead">
+												<p>Called each time new peer joins the room.</p>
+											</div>
+										</div>
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>peer: <a href="peer.html" class="tsd-signature-type" data-tsd-kind="Interface">Peer</a></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="onpeerleft" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> on<wbr>Peer<wbr>Left</h3>
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Peer<wbr>Left<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>peer<span class="tsd-signature-symbol">: </span><a href="peer.html" class="tsd-signature-type" data-tsd-kind="Interface">Peer</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/membraneframework/membrane-webrtc-js/blob/869455c/src/membraneWebRTC.ts#L155">membraneWebRTC.ts:155</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-interface">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>peer<span class="tsd-signature-symbol">: </span><a href="peer.html" class="tsd-signature-type" data-tsd-kind="Interface">Peer</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<div class="tsd-comment tsd-typography">
+											<div class="lead">
+												<p>Called each time peer leaves the room.</p>
+											</div>
+										</div>
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>peer: <a href="peer.html" class="tsd-signature-type" data-tsd-kind="Interface">Peer</a></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="onpeerupdated" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> on<wbr>Peer<wbr>Updated</h3>
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Peer<wbr>Updated<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>peer<span class="tsd-signature-symbol">: </span><a href="peer.html" class="tsd-signature-type" data-tsd-kind="Interface">Peer</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/membraneframework/membrane-webrtc-js/blob/869455c/src/membraneWebRTC.ts#L159">membraneWebRTC.ts:159</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-interface">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>peer<span class="tsd-signature-symbol">: </span><a href="peer.html" class="tsd-signature-type" data-tsd-kind="Interface">Peer</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<div class="tsd-comment tsd-typography">
+											<div class="lead">
+												<p>Called each time peer has its metadata updated.</p>
+											</div>
+										</div>
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>peer: <a href="peer.html" class="tsd-signature-type" data-tsd-kind="Interface">Peer</a></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="onremoved" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> on<wbr>Removed</h3>
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Removed<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>reason<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/membraneframework/membrane-webrtc-js/blob/869455c/src/membraneWebRTC.ts#L192">membraneWebRTC.ts:192</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-interface">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>reason<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<div class="tsd-comment tsd-typography">
+											<div class="lead">
+												<p>Called every time a local peer is removed by the server.</p>
+											</div>
+										</div>
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>reason: <span class="tsd-signature-type">string</span></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="onsendmediaevent" class="tsd-anchor"></a>
+					<h3>on<wbr>Send<wbr>Media<wbr>Event</h3>
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Send<wbr>Media<wbr>Event<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>mediaEvent<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/membraneframework/membrane-webrtc-js/blob/869455c/src/membraneWebRTC.ts#L114">membraneWebRTC.ts:114</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-interface">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>mediaEvent<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<div class="tsd-comment tsd-typography">
+											<div class="lead">
+												<p>Called each time MembraneWebRTC need to send some data to the server.</p>
+											</div>
+										</div>
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>mediaEvent: <span class="tsd-signature-type">string</span></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="ontrackadded" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> on<wbr>Track<wbr>Added</h3>
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Track<wbr>Added<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>ctx<span class="tsd-signature-symbol">: </span><a href="trackcontext.html" class="tsd-signature-type" data-tsd-kind="Interface">TrackContext</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/membraneframework/membrane-webrtc-js/blob/869455c/src/membraneWebRTC.ts#L137">membraneWebRTC.ts:137</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-interface">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>ctx<span class="tsd-signature-symbol">: </span><a href="trackcontext.html" class="tsd-signature-type" data-tsd-kind="Interface">TrackContext</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<div class="tsd-comment tsd-typography">
+											<div class="lead">
+												<p>Called each time the peer which was already in the room, adds new track. Fields track and stream will be set to null.
+												These fields will be set to non-null value in <a href="callbacks.html#ontrackready">onTrackReady</a></p>
+											</div>
+										</div>
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>ctx: <a href="trackcontext.html" class="tsd-signature-type" data-tsd-kind="Interface">TrackContext</a></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="ontrackencodingchanged" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> on<wbr>Track<wbr>Encoding<wbr>Changed</h3>
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Track<wbr>Encoding<wbr>Changed<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>peerId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, trackId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, encoding<span class="tsd-signature-symbol">: </span><a href="../modules.html#trackencoding" class="tsd-signature-type" data-tsd-kind="Type alias">TrackEncoding</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/membraneframework/membrane-webrtc-js/blob/869455c/src/membraneWebRTC.ts#L187">membraneWebRTC.ts:187</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-interface">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>peerId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, trackId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, encoding<span class="tsd-signature-symbol">: </span><a href="../modules.html#trackencoding" class="tsd-signature-type" data-tsd-kind="Type alias">TrackEncoding</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<div class="tsd-comment tsd-typography">
+											<div class="lead">
+												<p>Called each time track encoding has changed.</p>
+											</div>
+											<p>Track encoding can change in the following cases:</p>
+											<ul>
+												<li>when user requested a change</li>
+												<li>when sender stopped sending some encoding (because of bandwidth change)</li>
+											</ul>
+										</div>
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>peerId: <span class="tsd-signature-type">string</span></h5>
+												<div class="tsd-comment tsd-typography">
+													<div class="lead">
+														<p>id of peer that owns track</p>
+													</div>
+												</div>
+											</li>
+											<li>
+												<h5>trackId: <span class="tsd-signature-type">string</span></h5>
+												<div class="tsd-comment tsd-typography">
+													<div class="lead">
+														<p>id of track that changed encoding</p>
+													</div>
+												</div>
+											</li>
+											<li>
+												<h5>encoding: <a href="../modules.html#trackencoding" class="tsd-signature-type" data-tsd-kind="Type alias">TrackEncoding</a></h5>
+												<div class="tsd-comment tsd-typography">
+													<div class="lead">
+														<p>new encoding</p>
+													</div>
+												</div>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="ontrackready" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> on<wbr>Track<wbr>Ready</h3>
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Track<wbr>Ready<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>ctx<span class="tsd-signature-symbol">: </span><a href="trackcontext.html" class="tsd-signature-type" data-tsd-kind="Interface">TrackContext</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/membraneframework/membrane-webrtc-js/blob/869455c/src/membraneWebRTC.ts#L132">membraneWebRTC.ts:132</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-interface">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>ctx<span class="tsd-signature-symbol">: </span><a href="trackcontext.html" class="tsd-signature-type" data-tsd-kind="Interface">TrackContext</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<div class="tsd-comment tsd-typography">
+											<div class="lead">
+												<p>Called when data in a new track arrives.</p>
+											</div>
+											<p>This callback is always called after <a href="callbacks.html#ontrackadded">onTrackAdded</a>.
+											It informs user that data related to the given track arrives and can be played or displayed.</p>
+										</div>
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>ctx: <a href="trackcontext.html" class="tsd-signature-type" data-tsd-kind="Interface">TrackContext</a></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="ontrackremoved" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> on<wbr>Track<wbr>Removed</h3>
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Track<wbr>Removed<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>ctx<span class="tsd-signature-symbol">: </span><a href="trackcontext.html" class="tsd-signature-type" data-tsd-kind="Interface">TrackContext</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/membraneframework/membrane-webrtc-js/blob/869455c/src/membraneWebRTC.ts#L143">membraneWebRTC.ts:143</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-interface">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>ctx<span class="tsd-signature-symbol">: </span><a href="trackcontext.html" class="tsd-signature-type" data-tsd-kind="Interface">TrackContext</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<div class="tsd-comment tsd-typography">
+											<div class="lead">
+												<p>Called when some track will no longer be sent.</p>
+											</div>
+											<p>It will also be called before <a href="callbacks.html#onpeerleft">onPeerLeft</a> for each track of this peer.</p>
+										</div>
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>ctx: <a href="trackcontext.html" class="tsd-signature-type" data-tsd-kind="Interface">TrackContext</a></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="ontrackupdated" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> on<wbr>Track<wbr>Updated</h3>
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Track<wbr>Updated<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>ctx<span class="tsd-signature-symbol">: </span><a href="trackcontext.html" class="tsd-signature-type" data-tsd-kind="Interface">TrackContext</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/membraneframework/membrane-webrtc-js/blob/869455c/src/membraneWebRTC.ts#L147">membraneWebRTC.ts:147</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-interface">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>ctx<span class="tsd-signature-symbol">: </span><a href="trackcontext.html" class="tsd-signature-type" data-tsd-kind="Interface">TrackContext</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<div class="tsd-comment tsd-typography">
+											<div class="lead">
+												<p>Called each time peer has its track metadata updated.</p>
+											</div>
+										</div>
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>ctx: <a href="trackcontext.html" class="tsd-signature-type" data-tsd-kind="Interface">TrackContext</a></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="ontracksprioritychanged" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> on<wbr>Tracks<wbr>Priority<wbr>Changed</h3>
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Tracks<wbr>Priority<wbr>Changed<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>enabledTracks<span class="tsd-signature-symbol">: </span><a href="trackcontext.html" class="tsd-signature-type" data-tsd-kind="Interface">TrackContext</a><span class="tsd-signature-symbol">[]</span>, disabledTracks<span class="tsd-signature-symbol">: </span><a href="trackcontext.html" class="tsd-signature-type" data-tsd-kind="Interface">TrackContext</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/membraneframework/membrane-webrtc-js/blob/869455c/src/membraneWebRTC.ts#L174">membraneWebRTC.ts:174</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-interface">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>enabledTracks<span class="tsd-signature-symbol">: </span><a href="trackcontext.html" class="tsd-signature-type" data-tsd-kind="Interface">TrackContext</a><span class="tsd-signature-symbol">[]</span>, disabledTracks<span class="tsd-signature-symbol">: </span><a href="trackcontext.html" class="tsd-signature-type" data-tsd-kind="Interface">TrackContext</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<div class="tsd-comment tsd-typography">
+											<div class="lead">
+												<p>Currently, this callback is only invoked when DisplayManager in RTC Engine is
+												enabled and simulcast is disabled.</p>
+											</div>
+											<p>Called when priority of video tracks have changed.</p>
+										</div>
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>enabledTracks: <a href="trackcontext.html" class="tsd-signature-type" data-tsd-kind="Interface">TrackContext</a><span class="tsd-signature-symbol">[]</span></h5>
+												<div class="tsd-comment tsd-typography">
+													<div class="lead">
+														<p>list of tracks which will be sent to client from SFU</p>
+													</div>
+												</div>
+											</li>
+											<li>
+												<h5>disabledTracks: <a href="trackcontext.html" class="tsd-signature-type" data-tsd-kind="Interface">TrackContext</a><span class="tsd-signature-symbol">[]</span></h5>
+												<div class="tsd-comment tsd-typography">
+													<div class="lead">
+														<p>list of tracks which will not be sent to client from SFU</p>
+													</div>
+												</div>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class=" ">
+						<a href="../modules.html">Exports</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-class">
+						<a href="../classes/membranewebrtc.html" class="tsd-kind-icon">Membrane<wbr>WebRTC</a>
+					</li>
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-interface">
+						<a href="callbacks.html" class="tsd-kind-icon">Callbacks</a>
+						<ul>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="callbacks.html#onconnectionerror" class="tsd-kind-icon">on<wbr>Connection<wbr>Error</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="callbacks.html#onjoinerror" class="tsd-kind-icon">on<wbr>Join<wbr>Error</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="callbacks.html#onjoinsuccess" class="tsd-kind-icon">on<wbr>Join<wbr>Success</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="callbacks.html#onpeerjoined" class="tsd-kind-icon">on<wbr>Peer<wbr>Joined</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="callbacks.html#onpeerleft" class="tsd-kind-icon">on<wbr>Peer<wbr>Left</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="callbacks.html#onpeerupdated" class="tsd-kind-icon">on<wbr>Peer<wbr>Updated</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="callbacks.html#onremoved" class="tsd-kind-icon">on<wbr>Removed</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="callbacks.html#onsendmediaevent" class="tsd-kind-icon">on<wbr>Send<wbr>Media<wbr>Event</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="callbacks.html#ontrackadded" class="tsd-kind-icon">on<wbr>Track<wbr>Added</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="callbacks.html#ontrackencodingchanged" class="tsd-kind-icon">on<wbr>Track<wbr>Encoding<wbr>Changed</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="callbacks.html#ontrackready" class="tsd-kind-icon">on<wbr>Track<wbr>Ready</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="callbacks.html#ontrackremoved" class="tsd-kind-icon">on<wbr>Track<wbr>Removed</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="callbacks.html#ontrackupdated" class="tsd-kind-icon">on<wbr>Track<wbr>Updated</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="callbacks.html#ontracksprioritychanged" class="tsd-kind-icon">on<wbr>Tracks<wbr>Priority<wbr>Changed</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-interface">
+						<a href="membranewebrtcconfig.html" class="tsd-kind-icon">Membrane<wbr>WebRTCConfig</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="peer.html" class="tsd-kind-icon">Peer</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="simulcastconfig.html" class="tsd-kind-icon">Simulcast<wbr>Config</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="trackcontext.html" class="tsd-kind-icon">Track<wbr>Context</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="../modules.html#bandwidthlimit" class="tsd-kind-icon">Bandwidth<wbr>Limit</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="../modules.html#serializedmediaevent" class="tsd-kind-icon">Serialized<wbr>Media<wbr>Event</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="../modules.html#trackencoding" class="tsd-kind-icon">Track<wbr>Encoding</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

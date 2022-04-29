@@ -1,5 +1,7 @@
 # membrane-webrtc-js
 
+[![NPM version](https://img.shields.io/npm/v/membrane-webrtc-js)](https://www.npmjs.com/package/membrane-webrtc-js)
+
 Official JS/TS client library for [Membrane RTC Engine](https://github.com/membraneframework/membrane_rtc_engine)
 
 ## Documentation

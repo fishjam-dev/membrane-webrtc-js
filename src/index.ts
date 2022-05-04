@@ -1,8 +1,3 @@
-/**
- * some test docs
- * @module
- */
-
 export {
   BandwidthLimit,
   Callbacks,

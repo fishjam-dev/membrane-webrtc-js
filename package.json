@@ -19,7 +19,8 @@
     "docs": "typedoc src/index.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "postinstall": "rimraf dist && tsc"
   },
   "devDependencies": {
     "eslint": "^7.21.0",

@@ -20,7 +20,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "npm run build",
-    "postinstall": "rimraf dist && tsc"
+    "postinstall": "tsc"
   },
   "devDependencies": {
     "eslint": "^7.21.0",

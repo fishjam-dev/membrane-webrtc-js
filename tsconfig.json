@@ -11,6 +11,5 @@
     "strict": true,
     "target": "es2018"
   },
-  "include": ["src/index.ts"],
   "exclude": ["/node_modules/**/*"]
 }

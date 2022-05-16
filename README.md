@@ -9,13 +9,13 @@ Official JS/TS client library for [Membrane RTC Engine](https://github.com/membr
 Using **npm**:
 
 ```
-npm install membraneframework/membrane-webrtc-js
+npm install @membraneframework/membrane-webrtc-js
 ```
 
 or 
 
 ```
-yarn add membraneframework/membrane-webrtc-js
+yarn add @membraneframework/membrane-webrtc-js
 ```
 
 Using **GitHub**:

@@ -1,11 +1,19 @@
 {
-  "name": "membrane-webrtc-js",
+  "name": "@membraneframework/membrane-webrtc-js",
   "version": "0.1.0",
   "description": "JS/TS client library for Membrane RTC Engine.",
   "license": "Apache-2.0",
   "author": "Membrane Team",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "bugs": {
+    "url": "https://github.com/membraneframework/membrane-webrtc-js/issues"
+  },
+  "homepage": "https://github.com/membraneframework/membrane-webrtc-js#readme",
+  "keywords": [
+    "webrtc",
+    "membrane"
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/membraneframework/membrane-webrtc-js.git"

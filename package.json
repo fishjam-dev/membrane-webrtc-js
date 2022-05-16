@@ -1,6 +1,6 @@
 {
   "name": "@membraneframework/membrane-webrtc-js",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "JS/TS client library for Membrane RTC Engine.",
   "license": "Apache-2.0",
   "author": "Membrane Team",

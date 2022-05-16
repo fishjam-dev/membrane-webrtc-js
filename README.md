@@ -4,6 +4,32 @@
 
 Official JS/TS client library for [Membrane RTC Engine](https://github.com/membraneframework/membrane_rtc_engine)
 
+## Installation
+
+Using **npm**:
+
+```
+npm install membraneframework/membrane-webrtc-js
+```
+
+or 
+
+```
+yarn add membraneframework/membrane-webrtc-js
+```
+
+Using **GitHub**:
+
+```
+npm install membraneframework/membrane-webrtc-js#<branch>
+```
+
+or
+
+```
+yarn add membraneframework/membrane-webrtc-js#<branch>
+```
+
 ## Documentation
 
 Docummentation is available [here](https://tutorials.membraneframework.org/membrane-webrtc-js/)

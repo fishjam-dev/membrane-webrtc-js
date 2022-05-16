@@ -18,16 +18,11 @@
     "type": "git",
     "url": "git://github.com/membraneframework/membrane-webrtc-js.git"
   },
-  "files": [
-    "LICENSE",
-    "dist"
-  ],
   "scripts": {
     "build": "rimraf dist && tsc",
     "docs": "typedoc src/index.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepare": "npm run build",
     "postinstall": "rimraf dist && tsc"
   },
   "devDependencies": {

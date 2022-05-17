@@ -28,6 +28,14 @@ npm install membraneframework/membrane-webrtc-js#<branch>
 
 Docummentation is available [here](https://tutorials.membraneframework.org/membrane-webrtc-js/)
 
+## Supported Membrane RTC Engine versions
+
+Below table presents mappings between JS SDK and RTC Engine versions that can be used together.
+
+| JS SDK  | RTC Engine  |
+|---------|-------------|
+| 0.1.0   | 0.2.0       |
+
 ## Copyright and License
 
 Copyright 2022, [Software Mansion](https://swmansion.com/?utm_source=git&utm_medium=readme&utm_campaign=membrane-webrtc-js)

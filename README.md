@@ -24,12 +24,6 @@ Using **GitHub**:
 npm install membraneframework/membrane-webrtc-js#<branch>
 ```
 
-or
-
-```
-yarn add membraneframework/membrane-webrtc-js#<branch>
-```
-
 ## Documentation
 
 Docummentation is available [here](https://tutorials.membraneframework.org/membrane-webrtc-js/)

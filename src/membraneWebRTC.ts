@@ -36,8 +36,8 @@ export type BandwidthLimit = number;
 /**
  * Config passed to {@link MembraneWebRTC}.
  */
-export interface MembraneWebRTCConfig {
-  callbacks: Callbacks;
+export interface MembraneWebRTCConfig<TrackMetadata> {
+  callbacks: Callbacks<TrackMetadata>;
 }
 
 /**
@@ -64,7 +64,7 @@ export interface SimulcastConfig {
 /**
  * Track's context i.e. all data that can be useful when operating on track.
  */
-export interface TrackContext {
+export interface TrackContext<TrackMetadata> {
   track: MediaStreamTrack | null;
   /**
    * Stream this track belongs to.
@@ -86,7 +86,7 @@ export interface TrackContext {
   /**
    * Any info that was passed in {@link addTrack}.
    */
-  metadata: any;
+  metadata: TrackMetadata;
 
   maxBandwidth?: BandwidthLimit;
 }
@@ -107,7 +107,7 @@ export type TrackEncoding = "l" | "m" | "h";
 /**
  * Callbacks that has to be implemented by user.
  */
-export interface Callbacks {
+export interface Callbacks<TrackMetadata> {
   /**
    * Called each time MembraneWebRTC need to send some data to the server.
    */
@@ -129,22 +129,22 @@ export interface Callbacks {
    * This callback is always called after {@link onTrackAdded}.
    * It informs user that data related to the given track arrives and can be played or displayed.
    */
-  onTrackReady?: (ctx: TrackContext) => void;
+  onTrackReady?: (ctx: TrackContext<TrackMetadata>) => void;
   /**
    * Called each time the peer which was already in the room, adds new track. Fields track and stream will be set to null.
    * These fields will be set to non-null value in {@link onTrackReady}
    */
-  onTrackAdded?: (ctx: TrackContext) => void;
+  onTrackAdded?: (ctx: TrackContext<TrackMetadata>) => void;
   /**
    * Called when some track will no longer be sent.
    *
    * It will also be called before {@link onPeerLeft} for each track of this peer.
    */
-  onTrackRemoved?: (ctx: TrackContext) => void;
+  onTrackRemoved?: (ctx: TrackContext<TrackMetadata>) => void;
   /**
    * Called each time peer has its track metadata updated.
    */
-  onTrackUpdated?: (ctx: TrackContext) => void;
+  onTrackUpdated?: (ctx: TrackContext<TrackMetadata>) => void;
   /**
    * Called each time new peer joins the room.
    */
@@ -171,7 +171,7 @@ export interface Callbacks {
    * @param enabledTracks - list of tracks which will be sent to client from SFU
    * @param disabledTracks - list of tracks which will not be sent to client from SFU
    */
-  onTracksPriorityChanged?: (enabledTracks: TrackContext[], disabledTracks: TrackContext[]) => void;
+  onTracksPriorityChanged?: (enabledTracks: TrackContext<TrackMetadata>[], disabledTracks: TrackContext<TrackMetadata>[]) => void;
 
   /**
    * Called each time track encoding has changed.
@@ -195,16 +195,16 @@ export interface Callbacks {
 /**
  * Main class that is responsible for connecting to the RTC Engine, sending and receiving media.
  */
-export class MembraneWebRTC {
+export class MembraneWebRTC<TrackMetadata> {
   private localTracksWithStreams: {
     track: MediaStreamTrack;
     stream: MediaStream;
   }[] = [];
-  private trackIdToTrack: Map<string, TrackContext> = new Map();
+  private trackIdToTrack: Map<string, TrackContext<TrackMetadata>> = new Map();
   private connection?: RTCPeerConnection;
   private idToPeer: Map<String, Peer> = new Map();
   private localPeer: Peer = { id: "", metadata: {}, trackIdToMetadata: new Map() };
-  private localTrackIdToTrack: Map<string, TrackContext> = new Map();
+  private localTrackIdToTrack: Map<string, TrackContext<TrackMetadata>> = new Map();
   private midToTrackId: Map<string, string> = new Map();
   private disabledTrackEncodings: Map<string, TrackEncoding[]> = new Map();
   private rtcConfig: RTCConfiguration = {
@@ -212,9 +212,9 @@ export class MembraneWebRTC {
     iceTransportPolicy: "relay",
   };
 
-  private readonly callbacks: Callbacks;
+  private readonly callbacks: Callbacks<TrackMetadata>;
 
-  constructor(config: MembraneWebRTCConfig) {
+  constructor(config: MembraneWebRTCConfig<TrackMetadata>) {
     const { callbacks } = config;
     this.callbacks = callbacks;
   }
@@ -507,13 +507,13 @@ export class MembraneWebRTC {
     return trackId;
   }
 
-  private addTrackToConnection = (trackContext: TrackContext) => {
+  private addTrackToConnection = (trackContext: TrackContext<TrackMetadata>) => {
     let transceiverConfig = this.createTransceiverConfig(trackContext);
     const track = trackContext.track!!;
     this.connection!.addTransceiver(track, transceiverConfig);
   };
 
-  private createTransceiverConfig(trackContext: TrackContext): RTCRtpTransceiverInit {
+  private createTransceiverConfig(trackContext: TrackContext<TrackMetadata>): RTCRtpTransceiverInit {
     let transceiverConfig: RTCRtpTransceiverInit;
 
     if (trackContext.track!!.kind === "audio") {
@@ -525,11 +525,11 @@ export class MembraneWebRTC {
     return transceiverConfig;
   }
 
-  private createAudioTransceiverConfig(_trackContext: TrackContext): RTCRtpTransceiverInit {
+  private createAudioTransceiverConfig(_trackContext: TrackContext<TrackMetadata>): RTCRtpTransceiverInit {
     return { direction: "sendonly" };
   }
 
-  private createVideoTransceiverConfig(trackContext: TrackContext): RTCRtpTransceiverInit {
+  private createVideoTransceiverConfig(trackContext: TrackContext<TrackMetadata>): RTCRtpTransceiverInit {
     let transceiverConfig: RTCRtpTransceiverInit;
     if (trackContext.simulcastConfig.enabled) {
       transceiverConfig = simulcastTransceiverConfig;

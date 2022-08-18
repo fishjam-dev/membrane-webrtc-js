@@ -12,7 +12,7 @@ Using **npm**:
 npm install @membraneframework/membrane-webrtc-js
 ```
 
-or 
+or
 
 ```
 yarn add @membraneframework/membrane-webrtc-js
@@ -26,7 +26,7 @@ npm install membraneframework/membrane-webrtc-js#<branch>
 
 ## Documentation
 
-Docummentation is available [here](https://tutorials.membraneframework.org/membrane-webrtc-js/)
+Docummentation is available [here](https://membraneframework.github.io/membrane-webrtc-js/)
 
 ## Supported Membrane RTC Engine versions
 

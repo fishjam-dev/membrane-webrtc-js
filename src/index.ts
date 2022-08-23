@@ -1,5 +1,5 @@
 export {
-  BandwidthLimit,
+  TrackBandwidthLimit,
   Callbacks,
   MembraneWebRTCConfig,
   MembraneWebRTC,

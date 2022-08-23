@@ -576,12 +576,13 @@ export class MembraneWebRTC {
   }
   
   private applyBitrateLimitation(encodings: RTCRtpEncodingParameters[], max_bitrate: TrackBandwidthLimit) {
-    if(max_bitrate instanceof Number) {
+    if(typeof max_bitrate === "number") {
       // non-simulcast limitation
       this.splitBitrate(encodings, (max_bitrate as number) * 1024)
     } else {
       // simulcast bandwidth limit
       encodings.filter(encoding => encoding.rid).forEach(encoding => {
+        console.log(max_bitrate);
         const limit = (max_bitrate as SimulcastBandwidthLimit).get(encoding.rid!) || 0
 
         if(limit > 0)
@@ -730,6 +731,11 @@ export class MembraneWebRTC {
    */
   public setLayerBandwidth(trackId: string, layer: string, bandwidth: BandwidthLimit): Promise<boolean> {
     const trackContext = this.localTrackIdToTrack.get(trackId)!;
+
+    if(!trackContext) {
+      return Promise.reject(`Track '${trackId}' doesn't exist`)
+    }
+
     const sender = this.findSender(trackContext.track!!.id);
     const parameters = sender.getParameters();
     const encoding = parameters.encodings.find(encoding => encoding.rid === layer)

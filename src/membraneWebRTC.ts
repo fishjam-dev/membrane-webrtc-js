@@ -764,20 +764,22 @@ export class MembraneWebRTC {
 
   /**
    * Selects track encoding that server should send to the client library.
-   * @param {string} peerId - id of peer that owns track
    * @param {string} trackId - id of track
    * @param {TrackEncoding} encoding - encoding to receive
    * @example
    * ```ts
-   * webrtc.selectTrackEncoding(incomingTrackCtx.peer.id, incomingTrackCtx.trackId, "l")
+   * webrtc.selectTrackEncoding(incomingTrackCtx.trackId, "l")
    * ```
    */
-  public selectTrackEncoding(peerId: string, trackId: string, encoding: TrackEncoding) {
-    let mediaEvent = generateMediaEvent("selectEncoding", {
-      peerId: peerId,
-      trackId: trackId,
-      encoding: encoding,
+  public selectTrackEncoding(trackId: string, encoding: TrackEncoding) {
+    let mediaEvent = generateCustomEvent({
+      type: "selectEncoding",
+      data: {
+        trackId: trackId,
+        encoding: encoding,
+      }
     });
+
     this.sendMediaEvent(mediaEvent);
   }
 

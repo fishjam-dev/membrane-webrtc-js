@@ -30,9 +30,7 @@ export interface Peer {
 
 
 /**
- * Type describing track's Bandwidth limit in kbps. 0 is interpreted as unlimited bandwidth.
- * 
- * This type also describes bandwidth limit for non-simulcast tracks or overall bandwidth limitation for simulcast tracks.
+ * Type describing maximal bandwidth that can be used, in kbps. 0 is interpreted as unlimited bandwidth.
  */
 export type BandwidthLimit = number;
 

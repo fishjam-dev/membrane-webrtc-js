@@ -28,10 +28,24 @@ export interface Peer {
   trackIdToMetadata: Map<string, any>;
 }
 
+
 /**
- * Type describing track's Bandwidth limit in kbps. 0 is interpreted as unlimited bandwidth.
+ * Type describing maximal bandwidth that can be used, in kbps. 0 is interpreted as unlimited bandwidth.
  */
 export type BandwidthLimit = number;
+
+/**
+ * Type describing bandwidth limit for simulcast track.
+ * It is a mapping (encoding => BandwidthLimit).
+ * If encoding isn't present in this mapping, it will be assumed that this particular encoding shouldn't have any bandwidth limit 
+ */
+export type SimulcastBandwidthLimit = Map<string, BandwidthLimit>;
+
+/**
+ * Type describing bandwidth limitation of a Track, including simulcast and non-simulcast tracks.
+ * A sum type of `BandwidthLimit` and `SimulcastBandwidthLimit`
+ */
+export type TrackBandwidthLimit = BandwidthLimit | SimulcastBandwidthLimit;
 
 /**
  * Config passed to {@link MembraneWebRTC}.
@@ -88,7 +102,7 @@ export interface TrackContext {
    */
   metadata: any;
 
-  maxBandwidth?: BandwidthLimit;
+  maxBandwidth?: TrackBandwidthLimit;
 }
 
 /**
@@ -472,7 +486,7 @@ export class MembraneWebRTC {
     stream: MediaStream,
     trackMetadata: any = new Map(),
     simulcastConfig: SimulcastConfig = { enabled: false, active_encodings: [] },
-    maxBandwidth: BandwidthLimit = 0 // unlimited bandwidth
+    maxBandwidth: TrackBandwidthLimit = 0 // unlimited bandwidth
   ): string {
     if (this.getPeerId() === "") throw "Cannot add tracks before being accepted by the server";
     const trackId = this.getTrackId(uuidv4());
@@ -552,13 +566,58 @@ export class MembraneWebRTC {
           },
         ],
       };
-
-      if (trackContext.maxBandwidth !== undefined && trackContext.maxBandwidth > 0) {
-        transceiverConfig.sendEncodings![0].maxBitrate = trackContext.maxBandwidth * 1024; // convert to bps;
-      }
     }
+    
+    if(trackContext.maxBandwidth && transceiverConfig.sendEncodings && trackContext.maxBandwidth > 0)
+      this.applyBandwidthLimitation(transceiverConfig.sendEncodings, trackContext.maxBandwidth);
 
     return transceiverConfig;
+  }
+  
+  private applyBandwidthLimitation(encodings: RTCRtpEncodingParameters[], max_bandwidth: TrackBandwidthLimit) {
+    if(typeof max_bandwidth === "number") {
+      // non-simulcast limitation
+      this.splitBandwidth(encodings, (max_bandwidth as number) * 1024)
+    } else {
+      // simulcast bandwidth limit
+      encodings.filter(encoding => encoding.rid).forEach(encoding => {
+        const limit = (max_bandwidth as SimulcastBandwidthLimit).get(encoding.rid!) || 0
+
+        if(limit > 0)
+          encoding.maxBitrate = limit * 1024
+        else
+          delete encoding.maxBitrate
+      })
+    }
+  }
+  
+  private splitBandwidth(encodings: RTCRtpEncodingParameters[], bandwidth: number) {
+    if(bandwidth === 0) {
+      encodings.forEach(encoding => delete encoding.maxBitrate) 
+      return;
+    }
+
+    if(encodings.length == 0) {
+      // This most likely is a race condition. Log an error and prevent catastrophic failure
+      console.error("Attempted to limit bandwidth of the track that doesn't have any encodings")
+      return;
+    }
+
+    // We are solving the following equation:
+    // x + (k0/k1)^2 * x + (k0/k2)^2 * x + ... + (k0/kn)^2 * x = bandwidth
+    // where x is the bitrate for the first encoding, kn are scaleResolutionDownBy factors
+    // square is dictated by the fact that k0/kn is a scale factor, but we are interested in the total number of pixels in the image
+    const firstScaleDownBy = encodings![0].scaleResolutionDownBy || 1;
+    const bitrate_parts = encodings.reduce(
+      (acc, value) => acc + (firstScaleDownBy / (value.scaleResolutionDownBy || 1)) ** 2,
+      0
+    );
+    const x = bandwidth / bitrate_parts;
+
+    encodings.forEach(
+      (value) =>
+        (value.maxBitrate = x * (firstScaleDownBy / (value.scaleResolutionDownBy || 1)) ** 2)
+    );
   }
 
   /**
@@ -633,47 +692,65 @@ export class MembraneWebRTC {
   /**
    * Updates maximum bandwidth for the track identified by trackId.
    * This value directly translates to quality of the stream and, in case of video, to the amount of RTP packets being sent.
-   * In case trackId points at the simulcast track, bandwidth is split between all of the variant streams proportionally to their resolution.
+   * In case trackId points at the simulcast track bandwidth is split between all of the variant streams proportionally to their resolution.
    *
    * @param {string} trackId
-   * @param {BandwidthLimit} bandwidth
+   * @param {BandwidthLimit} bandwidth in kbps
    * @returns {Promise<boolean>} success
    */
   public setTrackBandwidth(trackId: string, bandwidth: BandwidthLimit): Promise<boolean> {
-    const sender = this.findSender(trackId);
+    const trackContext = this.localTrackIdToTrack.get(trackId);
+    
+    if(!trackContext) {
+      return Promise.reject(`Track '${trackId}' doesn't exist`)
+    }
+
+    const sender = this.findSender(trackContext.track!!.id);
     const parameters = sender.getParameters();
 
     if (parameters.encodings.length === 0) {
       parameters.encodings = [{}];
-    }
-    if (bandwidth === 0) {
-      // bandwidth is unlimited, remove any constraints
-      parameters.encodings.forEach((value) => delete value.maxBitrate);
     } else {
-      // We are solving the following equation:
-      // x + (k0/k1)^2 * x + (k0/k2)^2 * x + ... + (k0/kn)^2 * x = bandwidth
-      // where x is the bitrate for the first encoding, kn are scaleResolutionDownBy factors
-      // square is dictated by the fact that k0/kn is a scale factor, but we are interested in the total number of pixels in the image
-      const firstScaleDownBy = parameters.encodings![0].scaleResolutionDownBy || 1;
-      const bitrate_parts = parameters.encodings.reduce(
-        (acc, value) => acc + (firstScaleDownBy / (value.scaleResolutionDownBy || 1)) ** 2,
-        0
-      );
-      const x = bandwidth / bitrate_parts;
-
-      parameters.encodings.forEach(
-        (value) =>
-          (value.maxBitrate = x * (firstScaleDownBy / (value.scaleResolutionDownBy || 1)) ** 2)
-      );
+      this.applyBandwidthLimitation(parameters.encodings, bandwidth);
     }
 
     return sender
       .setParameters(parameters)
       .then(() => true)
-      .catch((error) => {
-        console.log(error);
-        return false;
-      });
+      .catch(() => false)
+  }
+  
+  /**
+   * Updates maximum bandwidth for the given simulcast encoding of the given track.
+   * 
+   * @param {string} trackId - id of the track
+   * @param {string} rid - rid of the encoding
+   * @param {BandwidthLimit} bandwidth - desired max bandwidth used by the encoding (in kbps)
+   * @returns 
+   */
+  public setEncodingBandwidth(trackId: string, rid: string, bandwidth: BandwidthLimit): Promise<boolean> {
+    const trackContext = this.localTrackIdToTrack.get(trackId)!;
+
+    if(!trackContext) {
+      return Promise.reject(`Track '${trackId}' doesn't exist`)
+    }
+
+    const sender = this.findSender(trackContext.track!!.id);
+    const parameters = sender.getParameters();
+    const encoding = parameters.encodings.find(encoding => encoding.rid === rid)
+
+    if(!encoding) {
+      return Promise.reject(`Encoding with rid '${rid}' doesn't exist`)
+    } else if(bandwidth === 0) {
+      delete encoding.maxBitrate
+    } else {
+      encoding.maxBitrate = bandwidth * 1024;
+    }
+
+    return sender
+      .setParameters(parameters)
+      .then(() => true)
+      .catch((_error) => false)
   }
 
   /**

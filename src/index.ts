@@ -1,5 +1,7 @@
 export {
   TrackBandwidthLimit,
+  SimulcastBandwidthLimit,
+  BandwidthLimit,
   Callbacks,
   MembraneWebRTCConfig,
   MembraneWebRTC,

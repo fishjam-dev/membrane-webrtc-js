@@ -80,7 +80,9 @@
 						<section class="tsd-index-section ">
 							<h3>Type aliases</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-type-alias"><a href="modules.html#bandwidthlimit" class="tsd-kind-icon">Bandwidth<wbr>Limit</a></li>
 								<li class="tsd-kind-type-alias"><a href="modules.html#serializedmediaevent" class="tsd-kind-icon">Serialized<wbr>Media<wbr>Event</a></li>
+								<li class="tsd-kind-type-alias"><a href="modules.html#simulcastbandwidthlimit" class="tsd-kind-icon">Simulcast<wbr>Bandwidth<wbr>Limit</a></li>
 								<li class="tsd-kind-type-alias"><a href="modules.html#trackbandwidthlimit" class="tsd-kind-icon">Track<wbr>Bandwidth<wbr>Limit</a></li>
 								<li class="tsd-kind-type-alias"><a href="modules.html#trackencoding" class="tsd-kind-icon">Track<wbr>Encoding</a></li>
 							</ul>
@@ -91,22 +93,54 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Type aliases</h2>
 				<section class="tsd-panel tsd-member tsd-kind-type-alias">
+					<a name="bandwidthlimit" class="tsd-anchor"></a>
+					<h3>Bandwidth<wbr>Limit</h3>
+					<div class="tsd-signature tsd-kind-icon">Bandwidth<wbr>Limit<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/membraneframework/membrane-webrtc-js/blob/62b6daa/src/membraneWebRTC.ts#L35">membraneWebRTC.ts:35</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Type describing maximal bandwidth that can be used, in kbps. 0 is interpreted as unlimited bandwidth.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias">
 					<a name="serializedmediaevent" class="tsd-anchor"></a>
 					<h3>Serialized<wbr>Media<wbr>Event</h3>
 					<div class="tsd-signature tsd-kind-icon">Serialized<wbr>Media<wbr>Event<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/membraneframework/membrane-webrtc-js/blob/b612116/src/mediaEvent.ts#L1">mediaEvent.ts:1</a></li>
+							<li>Defined in <a href="https://github.com/membraneframework/membrane-webrtc-js/blob/62b6daa/src/mediaEvent.ts#L1">mediaEvent.ts:1</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-type-alias">
-					<a name="trackbandwidthlimit" class="tsd-anchor"></a>
-					<h3>Track<wbr>Bandwidth<wbr>Limit</h3>
-					<div class="tsd-signature tsd-kind-icon">Track<wbr>Bandwidth<wbr>Limit<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">BandwidthLimit</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">SimulcastBandwidthLimit</span></div>
+					<a name="simulcastbandwidthlimit" class="tsd-anchor"></a>
+					<h3>Simulcast<wbr>Bandwidth<wbr>Limit</h3>
+					<div class="tsd-signature tsd-kind-icon">Simulcast<wbr>Bandwidth<wbr>Limit<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><a href="modules.html#bandwidthlimit" class="tsd-signature-type" data-tsd-kind="Type alias">BandwidthLimit</a><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/membraneframework/membrane-webrtc-js/blob/b612116/src/membraneWebRTC.ts#L48">membraneWebRTC.ts:48</a></li>
+							<li>Defined in <a href="https://github.com/membraneframework/membrane-webrtc-js/blob/62b6daa/src/membraneWebRTC.ts#L42">membraneWebRTC.ts:42</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Type describing bandwidth limit for simulcast track.
+								It is a mapping (encoding =&gt; BandwidthLimit).
+							If encoding isn&#39;t present in this mapping, it will be assumed that this particular encoding shouldn&#39;t have any bandwidth limit</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias">
+					<a name="trackbandwidthlimit" class="tsd-anchor"></a>
+					<h3>Track<wbr>Bandwidth<wbr>Limit</h3>
+					<div class="tsd-signature tsd-kind-icon">Track<wbr>Bandwidth<wbr>Limit<span class="tsd-signature-symbol">:</span> <a href="modules.html#bandwidthlimit" class="tsd-signature-type" data-tsd-kind="Type alias">BandwidthLimit</a><span class="tsd-signature-symbol"> | </span><a href="modules.html#simulcastbandwidthlimit" class="tsd-signature-type" data-tsd-kind="Type alias">SimulcastBandwidthLimit</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/membraneframework/membrane-webrtc-js/blob/62b6daa/src/membraneWebRTC.ts#L48">membraneWebRTC.ts:48</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -122,7 +156,7 @@
 					<div class="tsd-signature tsd-kind-icon">Track<wbr>Encoding<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;l&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;m&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;h&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/membraneframework/membrane-webrtc-js/blob/b612116/src/membraneWebRTC.ts#L119">membraneWebRTC.ts:119</a></li>
+							<li>Defined in <a href="https://github.com/membraneframework/membrane-webrtc-js/blob/62b6daa/src/membraneWebRTC.ts#L119">membraneWebRTC.ts:119</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -169,7 +203,13 @@
 						<a href="interfaces/trackcontext.html" class="tsd-kind-icon">Track<wbr>Context</a>
 					</li>
 					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#bandwidthlimit" class="tsd-kind-icon">Bandwidth<wbr>Limit</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
 						<a href="modules.html#serializedmediaevent" class="tsd-kind-icon">Serialized<wbr>Media<wbr>Event</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#simulcastbandwidthlimit" class="tsd-kind-icon">Simulcast<wbr>Bandwidth<wbr>Limit</a>
 					</li>
 					<li class=" tsd-kind-type-alias">
 						<a href="modules.html#trackbandwidthlimit" class="tsd-kind-icon">Track<wbr>Bandwidth<wbr>Limit</a>

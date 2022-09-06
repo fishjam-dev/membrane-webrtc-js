@@ -73,6 +73,12 @@ export interface SimulcastConfig {
    * enabled using {@link enableTrackEncoding}.
    */
   active_encodings: TrackEncoding[];
+  /**
+   * List of allowed encodings.
+   * 
+   * Encodings not present in this list will be permanently disabled
+   */
+  all_encodings?: TrackEncoding[];
 }
 
 /**
@@ -549,6 +555,10 @@ export class MembraneWebRTC {
       transceiverConfig = simulcastTransceiverConfig;
       let trackActiveEncodings = trackContext.simulcastConfig.active_encodings;
       let disabledTrackEncodings: TrackEncoding[] = [];
+
+      if(trackContext.simulcastConfig.all_encodings)
+        transceiverConfig.sendEncodings = transceiverConfig.sendEncodings?.filter((encoding) => trackContext.simulcastConfig.all_encodings?.includes(encoding.rid! as TrackEncoding))
+
       transceiverConfig.sendEncodings?.forEach((encoding) => {
         if (trackActiveEncodings.includes(encoding.rid! as TrackEncoding)) {
           encoding.active = true;
@@ -871,7 +881,14 @@ export class MembraneWebRTC {
    * ```
    */
   public enableTrackEncoding(trackId: string, encoding: TrackEncoding) {
-    let track = this.localTrackIdToTrack.get(trackId)?.track;
+    const track_context = this.localTrackIdToTrack.get(trackId)
+    let track = track_context?.track;
+    const encodings = track_context?.simulcastConfig.all_encodings
+
+    if(encodings && !encodings.includes(encoding)) {
+      throw `Encoding ${encoding} is not available`
+    }
+
     let newDisabledTrackEncodings = this.disabledTrackEncodings
       .get(trackId)
       ?.filter((en) => en !== encoding)!;

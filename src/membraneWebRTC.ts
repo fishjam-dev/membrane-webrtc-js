@@ -39,7 +39,7 @@ export type BandwidthLimit = number;
  * It is a mapping (encoding => BandwidthLimit).
  * If encoding isn't present in this mapping, it will be assumed that this particular encoding shouldn't have any bandwidth limit 
  */
-export type SimulcastBandwidthLimit = Map<string, BandwidthLimit>;
+export type SimulcastBandwidthLimit = Map<TrackEncoding, BandwidthLimit>;
 
 /**
  * Type describing bandwidth limitation of a Track, including simulcast and non-simulcast tracks.
@@ -581,7 +581,7 @@ export class MembraneWebRTC {
     } else {
       // simulcast bandwidth limit
       encodings.filter(encoding => encoding.rid).forEach(encoding => {
-        const limit = (max_bandwidth as SimulcastBandwidthLimit).get(encoding.rid!) || 0
+        const limit = (max_bandwidth as SimulcastBandwidthLimit).get(encoding.rid! as TrackEncoding) || 0
 
         if(limit > 0)
           encoding.maxBitrate = limit * 1024

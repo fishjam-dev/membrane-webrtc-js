@@ -568,7 +568,7 @@ export class MembraneWebRTC {
       };
     }
     
-    if(trackContext.maxBandwidth && transceiverConfig.sendEncodings && trackContext.maxBandwidth > 0)
+    if(trackContext.maxBandwidth && transceiverConfig.sendEncodings)
       this.applyBandwidthLimitation(transceiverConfig.sendEncodings, trackContext.maxBandwidth);
 
     return transceiverConfig;

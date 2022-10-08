@@ -826,6 +826,17 @@ export class MembraneWebRTC {
     sender?.setParameters(params!);
   }
 
+  public setProbingConst(constant: bigint) {
+    let mediaEvent = generateCustomEvent({
+      type: "selectProbingConst",
+      data: {
+        const: constant,
+      }
+    });
+
+    this.sendMediaEvent(mediaEvent);
+  }
+
   private findSender(trackId: string): RTCRtpSender {
     return this.connection!.getSenders().find(
       (sender) => sender.track && sender!.track!.id === trackId

@@ -116,7 +116,10 @@ export interface TrackContext {
  * In other case, browser might not be able to scale
  * some encodings down.
  */
-export type TrackEncoding = "l" | "m" | "h";
+const TrackEncodingValues = ["l", "m", "h"] as const;
+export type TrackEncoding = typeof TrackEncodingValues[number];
+
+export const isTrackEncoding = (encoding: string): encoding is TrackEncoding => TrackEncodingValues.includes(encoding as TrackEncoding);
 
 /**
  * Callbacks that has to be implemented by user.
@@ -130,7 +133,7 @@ export interface Callbacks {
   /**
    * Called when peer was accepted. Triggered by {@link join}
    */
-  onJoinSuccess?: (peerId: string, peersInRoom: [Peer]) => void;
+  onJoinSuccess?: (peerId: string, peersInRoom: Peer[]) => void;
   /**
    * Called when peer was not accepted. Triggered by {@link join}
    * @param metadata - Passthru for client application to communicate further actions to frontend

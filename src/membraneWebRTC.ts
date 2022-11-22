@@ -786,6 +786,8 @@ export class MembraneWebRTC {
     this.connection!.removeTrack(sender);
     let mediaEvent = generateCustomEvent({ type: "renegotiateTracks" });
     this.sendMediaEvent(mediaEvent);
+    this.localTrackIdToTrack.delete(trackId);
+    this.localPeer.trackIdToMetadata.delete(trackId);
   }
 
   /**
@@ -956,11 +958,8 @@ export class MembraneWebRTC {
     this.connection.getTransceivers().forEach((transceiver) => {
       const localTrackId = transceiver.sender.track?.id;
       const mid = transceiver.mid;
-      const trackIds = this.localPeer.trackIdToMetadata.keys();
-      const tracks = Array.from(trackIds).map((track) => this.localTrackIdToTrack.get(track));
-
       if (localTrackId && mid) {
-        const trackContext = tracks.find(
+        const trackContext = Array.from(this.localTrackIdToTrack.values()).find(
           (trackContext) => trackContext!.track!!.id === localTrackId
         )!;
         localTrackMidToTrackId[mid] = trackContext.trackId;

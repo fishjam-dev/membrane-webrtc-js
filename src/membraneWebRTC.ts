@@ -55,7 +55,7 @@ interface TrackDescription {
   track_id: string;
   mid: string;
   metadata: any;
-  properties: string[];
+  active_speaker_detection: boolean;
 }
 
 /**
@@ -69,7 +69,7 @@ export interface AddTrackOptions {
   simulcast?: SimulcastConfig;
   metadata?: any;
   bandwidth_limit?: BandwidthLimit;
-  properties?: TrackProperty[];
+  active_speaker_detection?: boolean;
 }
 
 /**
@@ -122,7 +122,7 @@ export interface TrackContext {
 
   maxBandwidth?: TrackBandwidthLimit;
 
-  properties?: TrackProperty[];
+  active_speaker_detection?: boolean;
 }
 
 /**
@@ -538,7 +538,7 @@ export class MembraneWebRTC {
       active_encodings: [],
     };
     const maxBandwidth = options.bandwidth_limit || 0;
-    const properties = options.properties || [];
+    const active_speaker_detection = options.active_speaker_detection || false;
     const trackMetadata = options.metadata || [];
 
     if (this.getPeerId() === "")
@@ -555,7 +555,7 @@ export class MembraneWebRTC {
       metadata: trackMetadata,
       simulcastConfig,
       maxBandwidth,
-      properties,
+      active_speaker_detection,
     };
     this.localTrackIdToTrack.set(trackId, trackContext);
 
@@ -586,15 +586,11 @@ export class MembraneWebRTC {
       const track_id = mid_to_track_id[mid];
       const track = this.localTrackIdToTrack.get(track_id);
 
-      const properties = (track!.properties || []).map(
-        (property) => TrackProperty[property]
-      );
-
       const description = <TrackDescription>{
         track_id,
         mid,
         metadata: track!.metadata,
-        properties,
+        active_speaker_detection: track!.active_speaker_detection!,
       };
 
       result.set(mid, description);

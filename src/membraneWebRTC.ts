@@ -578,27 +578,25 @@ export class MembraneWebRTC {
     return trackId;
   }
 
-  private describeLocalTracks(): Map<string, TrackDescription> {
-    let result = new Map() as Map<string, TrackDescription>;
+  private describeLocalTracks(): { [key: string]: TrackDescription } {
+    let result = {} as { [key: string]: TrackDescription };
     const mid_to_track_id = this.getMidToTrackId()!;
 
     for (var mid in mid_to_track_id) {
       const track_id = mid_to_track_id[mid];
       const track = this.localTrackIdToTrack.get(track_id);
 
-      const description = <TrackDescription>{
+      result[mid] = <TrackDescription>{
         track_id,
         mid,
         metadata: track!.metadata,
         active_speaker_detection: track!.active_speaker_detection!,
       };
-
-      result.set(mid, description);
     }
 
-    console.log(result);
+    console.log(JSON.stringify(result));
 
-    return new Map();
+    return result;
   }
 
   private addTrackToConnection = (trackContext: TrackContext) => {

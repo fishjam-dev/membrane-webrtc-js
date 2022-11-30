@@ -55,7 +55,7 @@ interface TrackDescription {
   track_id: string;
   mid: string;
   metadata: any;
-  properties: TrackProperty[];
+  properties: string[];
 }
 
 /**
@@ -531,11 +531,16 @@ export class MembraneWebRTC {
   public addTrack(
     track: MediaStreamTrack,
     stream: MediaStream,
-    trackMetadata: any = new Map(),
-    simulcastConfig: SimulcastConfig = { enabled: false, active_encodings: [] },
-    maxBandwidth: TrackBandwidthLimit = 0, // unlimited bandwidth
-    properties: TrackProperty[] = []
+    options: AddTrackOptions
   ): string {
+    const simulcastConfig = options.simulcast || {
+      enabled: false,
+      active_encodings: [],
+    };
+    const maxBandwidth = options.bandwidth_limit || 0;
+    const properties = options.properties || [];
+    const trackMetadata = options.metadata || [];
+
     if (this.getPeerId() === "")
       throw "Cannot add tracks before being accepted by the server";
     const trackId = this.getTrackId(uuidv4());
@@ -581,15 +586,21 @@ export class MembraneWebRTC {
       const track_id = mid_to_track_id[mid];
       const track = this.localTrackIdToTrack.get(track_id);
 
+      const properties = (track!.properties || []).map(
+        (property) => TrackProperty[property]
+      );
+
       const description = <TrackDescription>{
         track_id,
         mid,
         metadata: track!.metadata,
-        properties: track!.properties,
+        properties,
       };
 
       result.set(mid, description);
     }
+
+    console.log(result);
 
     return new Map();
   }
@@ -1171,9 +1182,10 @@ export class MembraneWebRTC {
         type: "sdpOffer",
         data: {
           sdpOffer: offer,
-          tracks_desciption: this.describeLocalTracks(),
+          tracks_description: this.describeLocalTracks(),
         },
       });
+
       this.sendMediaEvent(mediaEvent);
     } catch (error) {
       console.error(error);

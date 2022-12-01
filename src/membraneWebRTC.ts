@@ -526,7 +526,7 @@ export class MembraneWebRTC {
   public addTrack(
     track: MediaStreamTrack,
     stream: MediaStream,
-    options: AddTrackOptions
+    options: AddTrackOptions = {}
   ): string {
     const simulcastConfig = options.simulcast || {
       enabled: false,
@@ -534,7 +534,7 @@ export class MembraneWebRTC {
     };
     const maxBandwidth = options.bandwidth_limit || 0;
     const active_speaker_detection = options.active_speaker_detection || false;
-    const trackMetadata = options.metadata || [];
+    const trackMetadata = options.metadata || {};
 
     if (this.getPeerId() === "")
       throw "Cannot add tracks before being accepted by the server";

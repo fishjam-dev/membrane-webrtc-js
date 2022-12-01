@@ -46,11 +46,6 @@ export type SimulcastBandwidthLimit = Map<TrackEncoding, BandwidthLimit>;
  */
 export type TrackBandwidthLimit = BandwidthLimit | SimulcastBandwidthLimit;
 
-export enum TrackProperty {
-  SpeakerDetection,
-  Screenshare,
-}
-
 interface TrackDescription {
   track_id: string;
   mid: string;

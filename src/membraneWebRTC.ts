@@ -50,7 +50,7 @@ interface TrackDescription {
   track_id: string;
   mid: string;
   metadata: any;
-  active_speaker_detection: boolean;
+  vad: boolean;
 }
 
 /**
@@ -64,7 +64,7 @@ export interface AddTrackOptions {
   simulcast?: SimulcastConfig;
   metadata?: any;
   bandwidth_limit?: BandwidthLimit;
-  active_speaker_detection?: boolean;
+  vad?: boolean;
 }
 
 /**
@@ -117,7 +117,7 @@ export interface TrackContext {
 
   maxBandwidth?: TrackBandwidthLimit;
 
-  active_speaker_detection?: boolean;
+  vad?: boolean;
 }
 
 /**
@@ -533,11 +533,16 @@ export class MembraneWebRTC {
       active_encodings: [],
     };
     const maxBandwidth = options.bandwidth_limit || 0;
-    const active_speaker_detection = options.active_speaker_detection || false;
+    const vad = options.vad || false;
     const trackMetadata = options.metadata || {};
 
     if (this.getPeerId() === "")
       throw "Cannot add tracks before being accepted by the server";
+    else if (vad && track.kind !== "audio")
+      throw "Attempted to enable VAD on video track";
+    else if (vad && this.hasVADTrack())
+      throw "Attempted to enable VAD on two audio tracks";
+
     const trackId = this.getTrackId(uuidv4());
     this.localTracksWithStreams.push({ track, stream });
 
@@ -550,7 +555,7 @@ export class MembraneWebRTC {
       metadata: trackMetadata,
       simulcastConfig,
       maxBandwidth,
-      active_speaker_detection,
+      vad,
     };
     this.localTrackIdToTrack.set(trackId, trackContext);
 
@@ -573,6 +578,13 @@ export class MembraneWebRTC {
     return trackId;
   }
 
+  private hasVADTrack() {
+    for (let id in this.localTrackIdToTrack)
+      if (this.localTrackIdToTrack.get(id)?.vad) return true;
+
+    return false;
+  }
+
   private describeLocalTracks(): { [key: string]: TrackDescription } {
     let result = {} as { [key: string]: TrackDescription };
     const mid_to_track_id = this.getMidToTrackId()!;
@@ -585,7 +597,7 @@ export class MembraneWebRTC {
         track_id,
         mid,
         metadata: track!.metadata,
-        active_speaker_detection: track!.active_speaker_detection!,
+        vad: track!.vad!,
       };
     }
 

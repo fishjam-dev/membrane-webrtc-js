@@ -60,10 +60,36 @@ export interface MembraneWebRTCConfig {
   callbacks: Callbacks;
 }
 
+/**
+ * Interface describing options that can be passed to `{@link addTrack}`
+ */
 export interface AddTrackOptions {
+  /**
+   * Simulcast configuration. By default simulcast is disabled.
+   * For more information refer to {@link SimulcastConfig}.
+   */
   simulcast?: SimulcastConfig;
+  /**
+   * Any information about this track that other peers will
+   * receive in {@link onPeerJoined}. E.g. this can source of the track - wheather it's
+   * screensharing, webcam or some other media device.
+   */
+
   metadata?: any;
+
+  /**
+   * Bandwidth this track can use.
+   * Defaults to 0 which is unlimited.
+   * This option has no effect for simulcast and audio tracks.
+   * For simulcast tracks use `{@link setTrackBandwidth}.
+   */
   bandwidth_limit?: BandwidthLimit;
+
+  /**
+   * Flag controlling Voice Acitivity Detection feature.
+   *
+   * Can only be enabled for one audio track at a time.
+   */
   vad?: boolean;
 }
 
@@ -483,15 +509,7 @@ export class MembraneWebRTC {
    * Adds track that will be sent to the RTC Engine.
    * @param track - Audio or video track e.g. from your microphone or camera.
    * @param stream  - Stream that this track belongs to.
-   * @param trackMetadata - Any information about this track that other peers will
-   * receive in {@link onPeerJoined}. E.g. this can source of the track - wheather it's
-   * screensharing, webcam or some other media device.
-   * @param simulcastConfig - Simulcast configuration. By default simulcast is disabled.
-   * For more information refer to {@link SimulcastConfig}.
-   * @param maxBandwidth - maximal bandwidth this track can use.
-   * Defaults to 0 which is unlimited.
-   * This option has no effect for simulcast and audio tracks.
-   * For simulcast tracks use `{@link setTrackBandwidth}.
+   * @param options - AddTrackOptions
    * @returns {string} Returns id of added track
    * @example
    * ```ts

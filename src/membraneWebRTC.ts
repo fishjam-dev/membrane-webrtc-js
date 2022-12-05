@@ -204,6 +204,12 @@ export interface Callbacks {
    * Called every time a local peer is removed by the server.
    */
   onRemoved?: (reason: string) => void;
+
+  /**
+   * Called every time an update about voice activity is received from the server
+   * `vad_status` has two possible values: "silence" and "speech"
+   */
+  onVadNotification?: (peer_id: string, vad_status: string) => void;
 }
 
 /**
@@ -429,6 +435,13 @@ export class MembraneWebRTC {
       case "error":
         this.callbacks.onConnectionError?.(deserializedMediaEvent.data.message);
         this.leave();
+        break;
+
+      case "vadNotification":
+        this.callbacks.onVadNotification?.(
+          deserializedMediaEvent.data.peerId,
+          deserializedMediaEvent.data.status
+        );
         break;
 
       default:

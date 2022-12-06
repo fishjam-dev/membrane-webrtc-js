@@ -28,7 +28,6 @@ export interface Peer {
   trackIdToMetadata: Map<string, any>;
 }
 
-
 /**
  * Type describing maximal bandwidth that can be used, in kbps. 0 is interpreted as unlimited bandwidth.
  */
@@ -37,7 +36,7 @@ export type BandwidthLimit = number;
 /**
  * Type describing bandwidth limit for simulcast track.
  * It is a mapping (encoding => BandwidthLimit).
- * If encoding isn't present in this mapping, it will be assumed that this particular encoding shouldn't have any bandwidth limit 
+ * If encoding isn't present in this mapping, it will be assumed that this particular encoding shouldn't have any bandwidth limit
  */
 export type SimulcastBandwidthLimit = Map<TrackEncoding, BandwidthLimit>;
 
@@ -185,7 +184,10 @@ export interface Callbacks {
    * @param enabledTracks - list of tracks which will be sent to client from SFU
    * @param disabledTracks - list of tracks which will not be sent to client from SFU
    */
-  onTracksPriorityChanged?: (enabledTracks: TrackContext[], disabledTracks: TrackContext[]) => void;
+  onTracksPriorityChanged?: (
+    enabledTracks: TrackContext[],
+    disabledTracks: TrackContext[]
+  ) => void;
 
   /**
    * Called each time track encoding has changed.
@@ -198,7 +200,11 @@ export interface Callbacks {
    * @param {string} trackId - id of track that changed encoding
    * @param {TrackEncoding} encoding - new encoding
    */
-  onTrackEncodingChanged?: (peerId: string, trackId: string, encoding: TrackEncoding) => void;
+  onTrackEncodingChanged?: (
+    peerId: string,
+    trackId: string,
+    encoding: TrackEncoding
+  ) => void;
 
   /**
    * Called every time a local peer is removed by the server.
@@ -209,7 +215,11 @@ export interface Callbacks {
    * Called every time an update about voice activity is received from the server
    * `vad_status` has two possible values: "silence" and "speech"
    */
-  onVadNotification?: (peer_id: string, vad_status: string) => void;
+  onVadNotification?: (
+    peerId: string,
+    trackId: string,
+    vadStatus: "speech" | "silence"
+  ) => void;
 }
 
 /**
@@ -223,7 +233,11 @@ export class MembraneWebRTC {
   private trackIdToTrack: Map<string, TrackContext> = new Map();
   private connection?: RTCPeerConnection;
   private idToPeer: Map<String, Peer> = new Map();
-  private localPeer: Peer = { id: "", metadata: {}, trackIdToMetadata: new Map() };
+  private localPeer: Peer = {
+    id: "",
+    metadata: {},
+    trackIdToMetadata: new Map(),
+  };
   private localTrackIdToTrack: Map<string, TrackContext> = new Map();
   private midToTrackId: Map<string, string> = new Map();
   private disabledTrackEncodings: Map<string, TrackEncoding[]> = new Map();
@@ -301,7 +315,8 @@ export class MembraneWebRTC {
         break;
 
       default:
-        if (this.localPeer.id != null) this.handleMediaEvent(deserializedMediaEvent);
+        if (this.localPeer.id != null)
+          this.handleMediaEvent(deserializedMediaEvent);
     }
   };
 
@@ -323,26 +338,33 @@ export class MembraneWebRTC {
       case "tracksAdded":
         data = deserializedMediaEvent.data;
         if (this.getPeerId() === data.peerId) return;
-        data.trackIdToMetadata = new Map<string, any>(Object.entries(data.trackIdToMetadata));
+        data.trackIdToMetadata = new Map<string, any>(
+          Object.entries(data.trackIdToMetadata)
+        );
         peer = this.idToPeer.get(data.peerId)!;
         const oldTrackIdToMetadata = peer.trackIdToMetadata;
-        peer.trackIdToMetadata = new Map([...peer.trackIdToMetadata, ...data.trackIdToMetadata]);
+        peer.trackIdToMetadata = new Map([
+          ...peer.trackIdToMetadata,
+          ...data.trackIdToMetadata,
+        ]);
         this.idToPeer.set(peer.id, peer);
-        Array.from(peer.trackIdToMetadata.entries()).forEach(([trackId, metadata]) => {
-          if (!oldTrackIdToMetadata.has(trackId)) {
-            const ctx = {
-              stream: null,
-              track: null,
-              trackId,
-              simulcastConfig: { enabled: false, active_encodings: [] },
-              metadata,
-              peer,
-              maxBandwidth: 0,
-            };
-            this.trackIdToTrack.set(trackId, ctx);
-            this.callbacks.onTrackAdded?.(ctx);
+        Array.from(peer.trackIdToMetadata.entries()).forEach(
+          ([trackId, metadata]) => {
+            if (!oldTrackIdToMetadata.has(trackId)) {
+              const ctx = {
+                stream: null,
+                track: null,
+                trackId,
+                simulcastConfig: { enabled: false, active_encodings: [] },
+                metadata,
+                peer,
+                maxBandwidth: 0,
+              };
+              this.trackIdToTrack.set(trackId, ctx);
+              this.callbacks.onTrackAdded?.(ctx);
+            }
           }
-        });
+        );
         break;
       case "tracksRemoved":
         data = deserializedMediaEvent.data;
@@ -357,7 +379,9 @@ export class MembraneWebRTC {
         break;
 
       case "sdpAnswer":
-        this.midToTrackId = new Map(Object.entries(deserializedMediaEvent.data.midToTrackId));
+        this.midToTrackId = new Map(
+          Object.entries(deserializedMediaEvent.data.midToTrackId)
+        );
         this.onAnswer(deserializedMediaEvent.data);
         break;
 
@@ -392,17 +416,20 @@ export class MembraneWebRTC {
 
       case "peerRemoved":
         if (this.getPeerId() !== deserializedMediaEvent.data.peerId) {
-          console.error("Received onRemoved media event, but it does not refer to the local peer");
+          console.error(
+            "Received onRemoved media event, but it does not refer to the local peer"
+          );
           return;
         }
 
         this.callbacks.onRemoved?.(deserializedMediaEvent.data.reason);
         break;
 
-      case "trackUpdated":
+      case "trackUpdated": {
         if (this.getPeerId() === deserializedMediaEvent.data.peerId) return;
         peer = this.idToPeer.get(deserializedMediaEvent.data.peerId)!;
-        if (peer == null) throw `Peer with id: ${deserializedMediaEvent.data.peerId} doesn't exist`;
+        if (peer == null)
+          throw `Peer with id: ${deserializedMediaEvent.data.peerId} doesn't exist`;
         const trackId = deserializedMediaEvent.data.trackId;
         const trackMetadata = deserializedMediaEvent.data.metadata;
         peer.trackIdToMetadata.set(trackId, trackMetadata);
@@ -410,11 +437,12 @@ export class MembraneWebRTC {
         trackContext.metadata = trackMetadata;
         this.callbacks.onTrackUpdated?.(trackContext);
         break;
+      }
 
       case "tracksPriority":
-        const enabledTracks = (deserializedMediaEvent.data.tracks as string[]).map(
-          (trackId) => this.trackIdToTrack.get(trackId)!!
-        );
+        const enabledTracks = (
+          deserializedMediaEvent.data.tracks as string[]
+        ).map((trackId) => this.trackIdToTrack.get(trackId)!!);
         const disabledTracks = Array.from(this.trackIdToTrack.values()).filter(
           (track) => !enabledTracks.includes(track)
         );
@@ -437,15 +465,23 @@ export class MembraneWebRTC {
         this.leave();
         break;
 
-      case "vadNotification":
+      case "vadNotification": {
+        const trackId = deserializedMediaEvent.data.trackId;
+        const peerId = this.trackIdToTrack.get(trackId)!.peer.id;
+
         this.callbacks.onVadNotification?.(
-          deserializedMediaEvent.data.peerId,
+          peerId,
+          trackId,
           deserializedMediaEvent.data.status
         );
         break;
+      }
 
       default:
-        console.warn("Received unknown media event: ", deserializedMediaEvent.type);
+        console.warn(
+          "Received unknown media event: ",
+          deserializedMediaEvent.type
+        );
         break;
     }
   };
@@ -501,7 +537,8 @@ export class MembraneWebRTC {
     simulcastConfig: SimulcastConfig = { enabled: false, active_encodings: [] },
     maxBandwidth: TrackBandwidthLimit = 0 // unlimited bandwidth
   ): string {
-    if (this.getPeerId() === "") throw "Cannot add tracks before being accepted by the server";
+    if (this.getPeerId() === "")
+      throw "Cannot add tracks before being accepted by the server";
     const trackId = this.getTrackId(uuidv4());
     this.localTracksWithStreams.push({ track, stream });
 
@@ -525,7 +562,9 @@ export class MembraneWebRTC {
         .forEach(
           (transceiver) =>
             (transceiver.direction =
-              transceiver.direction === "sendrecv" ? "sendonly" : transceiver.direction)
+              transceiver.direction === "sendrecv"
+                ? "sendonly"
+                : transceiver.direction)
         );
     }
 
@@ -540,7 +579,9 @@ export class MembraneWebRTC {
     this.connection!.addTransceiver(track, transceiverConfig);
   };
 
-  private createTransceiverConfig(trackContext: TrackContext): RTCRtpTransceiverInit {
+  private createTransceiverConfig(
+    trackContext: TrackContext
+  ): RTCRtpTransceiverInit {
     let transceiverConfig: RTCRtpTransceiverInit;
 
     if (trackContext.track!!.kind === "audio") {
@@ -552,11 +593,15 @@ export class MembraneWebRTC {
     return transceiverConfig;
   }
 
-  private createAudioTransceiverConfig(_trackContext: TrackContext): RTCRtpTransceiverInit {
+  private createAudioTransceiverConfig(
+    _trackContext: TrackContext
+  ): RTCRtpTransceiverInit {
     return { direction: "sendonly" };
   }
 
-  private createVideoTransceiverConfig(trackContext: TrackContext): RTCRtpTransceiverInit {
+  private createVideoTransceiverConfig(
+    trackContext: TrackContext
+  ): RTCRtpTransceiverInit {
     let transceiverConfig: RTCRtpTransceiverInit;
     if (trackContext.simulcastConfig.enabled) {
       transceiverConfig = simulcastTransceiverConfig;
@@ -569,7 +614,10 @@ export class MembraneWebRTC {
           disabledTrackEncodings.push(encoding.rid! as TrackEncoding);
         }
       });
-      this.disabledTrackEncodings.set(trackContext.trackId, disabledTrackEncodings);
+      this.disabledTrackEncodings.set(
+        trackContext.trackId,
+        disabledTrackEncodings
+      );
     } else {
       transceiverConfig = {
         direction: "sendonly",
@@ -580,39 +628,53 @@ export class MembraneWebRTC {
         ],
       };
     }
-    
-    if(trackContext.maxBandwidth && transceiverConfig.sendEncodings)
-      this.applyBandwidthLimitation(transceiverConfig.sendEncodings, trackContext.maxBandwidth);
+
+    if (trackContext.maxBandwidth && transceiverConfig.sendEncodings)
+      this.applyBandwidthLimitation(
+        transceiverConfig.sendEncodings,
+        trackContext.maxBandwidth
+      );
 
     return transceiverConfig;
   }
-  
-  private applyBandwidthLimitation(encodings: RTCRtpEncodingParameters[], max_bandwidth: TrackBandwidthLimit) {
-    if(typeof max_bandwidth === "number") {
+
+  private applyBandwidthLimitation(
+    encodings: RTCRtpEncodingParameters[],
+    max_bandwidth: TrackBandwidthLimit
+  ) {
+    if (typeof max_bandwidth === "number") {
       // non-simulcast limitation
-      this.splitBandwidth(encodings, (max_bandwidth as number) * 1024)
+      this.splitBandwidth(encodings, (max_bandwidth as number) * 1024);
     } else {
       // simulcast bandwidth limit
-      encodings.filter(encoding => encoding.rid).forEach(encoding => {
-        const limit = (max_bandwidth as SimulcastBandwidthLimit).get(encoding.rid! as TrackEncoding) || 0
+      encodings
+        .filter((encoding) => encoding.rid)
+        .forEach((encoding) => {
+          const limit =
+            (max_bandwidth as SimulcastBandwidthLimit).get(
+              encoding.rid! as TrackEncoding
+            ) || 0;
 
-        if(limit > 0)
-          encoding.maxBitrate = limit * 1024
-        else
-          delete encoding.maxBitrate
-      })
+          if (limit > 0) encoding.maxBitrate = limit * 1024;
+          else delete encoding.maxBitrate;
+        });
     }
   }
-  
-  private splitBandwidth(encodings: RTCRtpEncodingParameters[], bandwidth: number) {
-    if(bandwidth === 0) {
-      encodings.forEach(encoding => delete encoding.maxBitrate) 
+
+  private splitBandwidth(
+    encodings: RTCRtpEncodingParameters[],
+    bandwidth: number
+  ) {
+    if (bandwidth === 0) {
+      encodings.forEach((encoding) => delete encoding.maxBitrate);
       return;
     }
 
-    if(encodings.length == 0) {
+    if (encodings.length == 0) {
       // This most likely is a race condition. Log an error and prevent catastrophic failure
-      console.error("Attempted to limit bandwidth of the track that doesn't have any encodings")
+      console.error(
+        "Attempted to limit bandwidth of the track that doesn't have any encodings"
+      );
       return;
     }
 
@@ -622,14 +684,16 @@ export class MembraneWebRTC {
     // square is dictated by the fact that k0/kn is a scale factor, but we are interested in the total number of pixels in the image
     const firstScaleDownBy = encodings![0].scaleResolutionDownBy || 1;
     const bitrate_parts = encodings.reduce(
-      (acc, value) => acc + (firstScaleDownBy / (value.scaleResolutionDownBy || 1)) ** 2,
+      (acc, value) =>
+        acc + (firstScaleDownBy / (value.scaleResolutionDownBy || 1)) ** 2,
       0
     );
     const x = bandwidth / bitrate_parts;
 
     encodings.forEach(
       (value) =>
-        (value.maxBitrate = x * (firstScaleDownBy / (value.scaleResolutionDownBy || 1)) ** 2)
+        (value.maxBitrate =
+          x * (firstScaleDownBy / (value.scaleResolutionDownBy || 1)) ** 2)
     );
   }
 
@@ -691,7 +755,8 @@ export class MembraneWebRTC {
       return sender
         .replaceTrack(newTrack)
         .then(() => {
-          const trackMetadata = newTrackMetadata || this.localTrackIdToTrack.get(trackId)!.metadata;
+          const trackMetadata =
+            newTrackMetadata || this.localTrackIdToTrack.get(trackId)!.metadata;
           trackContext.track = newTrack;
           this.updateTrackMetadata(trackId, trackMetadata);
           return true;
@@ -711,11 +776,14 @@ export class MembraneWebRTC {
    * @param {BandwidthLimit} bandwidth in kbps
    * @returns {Promise<boolean>} success
    */
-  public setTrackBandwidth(trackId: string, bandwidth: BandwidthLimit): Promise<boolean> {
+  public setTrackBandwidth(
+    trackId: string,
+    bandwidth: BandwidthLimit
+  ): Promise<boolean> {
     const trackContext = this.localTrackIdToTrack.get(trackId);
-    
-    if(!trackContext) {
-      return Promise.reject(`Track '${trackId}' doesn't exist`)
+
+    if (!trackContext) {
+      return Promise.reject(`Track '${trackId}' doesn't exist`);
     }
 
     const sender = this.findSender(trackContext.track!!.id);
@@ -730,32 +798,38 @@ export class MembraneWebRTC {
     return sender
       .setParameters(parameters)
       .then(() => true)
-      .catch(() => false)
+      .catch(() => false);
   }
-  
+
   /**
    * Updates maximum bandwidth for the given simulcast encoding of the given track.
-   * 
+   *
    * @param {string} trackId - id of the track
    * @param {string} rid - rid of the encoding
    * @param {BandwidthLimit} bandwidth - desired max bandwidth used by the encoding (in kbps)
-   * @returns 
+   * @returns
    */
-  public setEncodingBandwidth(trackId: string, rid: string, bandwidth: BandwidthLimit): Promise<boolean> {
+  public setEncodingBandwidth(
+    trackId: string,
+    rid: string,
+    bandwidth: BandwidthLimit
+  ): Promise<boolean> {
     const trackContext = this.localTrackIdToTrack.get(trackId)!;
 
-    if(!trackContext) {
-      return Promise.reject(`Track '${trackId}' doesn't exist`)
+    if (!trackContext) {
+      return Promise.reject(`Track '${trackId}' doesn't exist`);
     }
 
     const sender = this.findSender(trackContext.track!!.id);
     const parameters = sender.getParameters();
-    const encoding = parameters.encodings.find(encoding => encoding.rid === rid)
+    const encoding = parameters.encodings.find(
+      (encoding) => encoding.rid === rid
+    );
 
-    if(!encoding) {
-      return Promise.reject(`Encoding with rid '${rid}' doesn't exist`)
-    } else if(bandwidth === 0) {
-      delete encoding.maxBitrate
+    if (!encoding) {
+      return Promise.reject(`Encoding with rid '${rid}' doesn't exist`);
+    } else if (bandwidth === 0) {
+      delete encoding.maxBitrate;
     } else {
       encoding.maxBitrate = bandwidth * 1024;
     }
@@ -763,7 +837,7 @@ export class MembraneWebRTC {
     return sender
       .setParameters(parameters)
       .then(() => true)
-      .catch((_error) => false)
+      .catch((_error) => false);
   }
 
   /**
@@ -812,7 +886,10 @@ export class MembraneWebRTC {
    * @param {string} trackId - Id of video track to prioritize.
    */
   public prioritizeTrack(trackId: string) {
-    let mediaEvent = generateCustomEvent({ type: "prioritizeTrack", data: { trackId } });
+    let mediaEvent = generateCustomEvent({
+      type: "prioritizeTrack",
+      data: { trackId },
+    });
     this.sendMediaEvent(mediaEvent);
   }
   /**
@@ -824,7 +901,10 @@ export class MembraneWebRTC {
    * @param {string} trackId - Id of video track to unprioritize.
    */
   public unprioritizeTrack(trackId: string) {
-    let mediaEvent = generateCustomEvent({ type: "unprioritizeTrack", data: { trackId } });
+    let mediaEvent = generateCustomEvent({
+      type: "unprioritizeTrack",
+      data: { trackId },
+    });
     this.sendMediaEvent(mediaEvent);
   }
 
@@ -856,11 +936,11 @@ export class MembraneWebRTC {
 
   /**
    * Sets track encoding that server should send to the client library.
-   * 
+   *
    * The encoding will be sent whenever it is available.
    * If choosen encoding is temporarily unavailable, some other encoding
    * will be sent until choosen encoding becomes active again.
-   * 
+   *
    * @param {string} trackId - id of track
    * @param {TrackEncoding} encoding - encoding to receive
    * @example
@@ -874,7 +954,7 @@ export class MembraneWebRTC {
       data: {
         trackId: trackId,
         variant: encoding,
-      }
+      },
     });
 
     this.sendMediaEvent(mediaEvent);
@@ -898,7 +978,9 @@ export class MembraneWebRTC {
       .get(trackId)
       ?.filter((en) => en !== encoding)!;
     this.disabledTrackEncodings.set(trackId, newDisabledTrackEncodings);
-    let sender = this.connection?.getSenders().filter((sender) => sender.track === track)[0];
+    let sender = this.connection
+      ?.getSenders()
+      .filter((sender) => sender.track === track)[0];
     let params = sender?.getParameters();
     params!.encodings.filter((en) => en.rid == encoding)[0].active = true;
     sender?.setParameters(params!);
@@ -917,7 +999,9 @@ export class MembraneWebRTC {
   public disableTrackEncoding(trackId: string, encoding: TrackEncoding) {
     let track = this.localTrackIdToTrack.get(trackId)?.track;
     this.disabledTrackEncodings.get(trackId)!.push(encoding);
-    let sender = this.connection?.getSenders().filter((sender) => sender.track === track)[0];
+    let sender = this.connection
+      ?.getSenders()
+      .filter((sender) => sender.track === track)[0];
     let params = sender?.getParameters();
     params!.encodings.filter((en) => en.rid == encoding)[0].active = false;
     sender?.setParameters(params!);
@@ -1020,11 +1104,13 @@ export class MembraneWebRTC {
     this.connection!.ontrack = this.onTrack();
     try {
       await this.connection!.setRemoteDescription(answer);
-      this.disabledTrackEncodings.forEach((encodings: TrackEncoding[], trackId: string) => {
-        encodings.forEach((encoding: TrackEncoding) =>
-          this.disableTrackEncoding(trackId, encoding)
-        );
-      });
+      this.disabledTrackEncodings.forEach(
+        (encodings: TrackEncoding[], trackId: string) => {
+          encodings.forEach((encoding: TrackEncoding) =>
+            this.disableTrackEncoding(trackId, encoding)
+          );
+        }
+      );
     } catch (err) {
       console.log(err);
     }
@@ -1050,7 +1136,8 @@ export class MembraneWebRTC {
     toAdd = toAdd.concat(audio);
     toAdd = toAdd.concat(video);
 
-    for (let kind of toAdd) this.connection?.addTransceiver(kind, { direction: "recvonly" });
+    for (let kind of toAdd)
+      this.connection?.addTransceiver(kind, { direction: "recvonly" });
   };
 
   private async createAndSendOffer() {
@@ -1075,14 +1162,18 @@ export class MembraneWebRTC {
 
   private getTrackIdToMetadata = () => {
     const trackIdToMetadata = {} as any;
-    Array.from(this.localPeer.trackIdToMetadata.entries()).forEach(([trackId, metadata]) => {
-      trackIdToMetadata[trackId] = metadata;
-    });
+    Array.from(this.localPeer.trackIdToMetadata.entries()).forEach(
+      ([trackId, metadata]) => {
+        trackIdToMetadata[trackId] = metadata;
+      }
+    );
     return trackIdToMetadata;
   };
 
   private checkIfTrackBelongToPeer = (trackId: string, peer: Peer) =>
-    Array.from(peer.trackIdToMetadata.keys()).some((track) => trackId.startsWith(track));
+    Array.from(peer.trackIdToMetadata.keys()).some((track) =>
+      trackId.startsWith(track)
+    );
 
   private onOfferData = async (offerData: Map<string, number>) => {
     if (!this.connection) {
@@ -1109,7 +1200,9 @@ export class MembraneWebRTC {
     try {
       const iceCandidate = new RTCIceCandidate(candidate);
       if (!this.connection) {
-        throw new Error("Received new remote candidate but RTCConnection is undefined");
+        throw new Error(
+          "Received new remote candidate but RTCConnection is undefined"
+        );
       }
       this.connection.addIceCandidate(iceCandidate);
     } catch (error) {
@@ -1209,7 +1302,9 @@ export class MembraneWebRTC {
   private eraseTrack = (trackId: string, peerId: string) => {
     this.trackIdToTrack.delete(trackId);
     const midToTrackId = Array.from(this.midToTrackId.entries());
-    const [mid, _trackId] = midToTrackId.find(([mid, mapTrackId]) => mapTrackId === trackId)!;
+    const [mid, _trackId] = midToTrackId.find(
+      ([mid, mapTrackId]) => mapTrackId === trackId
+    )!;
     this.midToTrackId.delete(mid);
     this.idToPeer.get(peerId)!.trackIdToMetadata.delete(trackId);
     this.disabledTrackEncodings.delete(trackId);

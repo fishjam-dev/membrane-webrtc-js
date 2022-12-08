@@ -29,6 +29,14 @@ export interface Peer {
 }
 
 /**
+ * Type describing Voice Activity Detection statuses.
+ *
+ * - `speech` - voice activity has been detected
+ * - `silence` - lack of voice activity has been detected
+ */
+export type VadStatus = "speech" | "silence";
+
+/**
  * Type describing maximal bandwidth that can be used, in kbps. 0 is interpreted as unlimited bandwidth.
  */
 export type BandwidthLimit = number;
@@ -215,10 +223,10 @@ export interface Callbacks {
    * Called every time an update about voice activity is received from the server
    * `vad_status` has two possible values: "silence" and "speech"
    */
-  onVadNotification?: (
+  onVoiceActivityChanged?: (
     peerId: string,
     trackId: string,
-    vadStatus: "speech" | "silence"
+    vadStatus: VadStatus
   ) => void;
 }
 
@@ -469,7 +477,7 @@ export class MembraneWebRTC {
         const trackId = deserializedMediaEvent.data.trackId;
         const peerId = this.trackIdToTrack.get(trackId)!.peer.id;
 
-        this.callbacks.onVadNotification?.(
+        this.callbacks.onVoiceActivityChanged?.(
           peerId,
           trackId,
           deserializedMediaEvent.data.status

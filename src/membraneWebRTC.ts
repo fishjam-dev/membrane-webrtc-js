@@ -1,9 +1,8 @@
 import {
-  MediaEvent,
   SerializedMediaEvent,
   deserializeMediaEvent,
   generateMediaEvent,
-  generateCustomEvent,
+  generateCustomMediaEvent,
   serializeMediaEvent,
 } from "./mediaEvent";
 import { v4 as uuidv4 } from "uuid";

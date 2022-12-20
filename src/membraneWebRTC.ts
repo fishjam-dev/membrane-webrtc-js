@@ -145,6 +145,11 @@ export interface Callbacks {
   onJoinError?: (metadata: any) => void;
 
   /**
+   * Called every time a local peer is removed by the server.
+   */
+  onRemoved?: (reason: string) => void;
+
+  /**
    * Called when data in a new track arrives.
    *
    * This callback is always called after {@link onTrackAdded}.
@@ -215,19 +220,21 @@ export interface Callbacks {
   ) => void;
 
   /**
-   * Called every time a local peer is removed by the server.
-   */
-  onRemoved?: (reason: string) => void;
-
-  /**
-   * Called every time an update about voice activity is received from the server
-   * `vad_status` has two possible values: "silence" and "speech"
+   * Called every time an update about voice activity is received from the server.
    */
   onVoiceActivityChanged?: (
     peerId: string,
     trackId: string,
     vadStatus: VadStatus
   ) => void;
+
+  /**
+   * Called every time the server estimates client's bandiwdth.
+   *
+   * @param {bigint} estimation - client's available incoming bitrate estimated
+   * by the server. It's measured in bits per second.
+   */
+  onBandwidthEstimationChanged?: (estimation: bigint) => void;
 }
 
 /**
@@ -482,6 +489,13 @@ export class MembraneWebRTC {
           trackId,
           deserializedMediaEvent.data.status
         );
+        break;
+      }
+
+      case "bandwidthEstimation": {
+        const estimation = deserializedMediaEvent.data.estimation;
+
+        this.callbacks.onBandwidthEstimationChanged?.(estimation as bigint);
         break;
       }
 

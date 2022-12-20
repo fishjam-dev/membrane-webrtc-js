@@ -12,8 +12,8 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           # the same as in our docker_membrane repository
-          node-version: '14.16.1'
-      
+          node-version: "14.16.1"
+
       - name: Install npm Dependencies
         run: npm install
 

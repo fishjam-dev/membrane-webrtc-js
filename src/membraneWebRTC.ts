@@ -30,11 +30,13 @@ export interface Peer {
 
 /**
  * Type describing Voice Activity Detection statuses.
- *
- * - `speech` - voice activity has been detected
- * - `silence` - lack of voice activity has been detected
  */
-export type VadStatus = "speech" | "silence";
+export enum VadStatus {
+  /** Detected voice */
+  Speech,
+  /** Detected silence */
+  Silence,
+}
 
 /**
  * Type describing maximal bandwidth that can be used, in kbps. 0 is interpreted as unlimited bandwidth.
@@ -145,16 +147,20 @@ export interface TrackContext {
 
 /**
  * Type describing possible track encodings.
- * `"h"` - original encoding
- * `"m"` - original encoding scaled down by 2
- * `"l"` - original encoding scaled down by 4
  *
  * Notice that to make all encodings work, the initial
  * resolution has to be at least 1280x720.
  * In other case, browser might not be able to scale
  * some encodings down.
  */
-export type TrackEncoding = "l" | "m" | "h";
+export enum TrackEncoding {
+  /** original encoding */
+  High = "h",
+  /** original encodig scaled down by 2 */
+  Medium = "m",
+  /** original encoding scaled down by 4 */
+  Low = "l",
+}
 
 /**
  * Callbacks that has to be implemented by user.

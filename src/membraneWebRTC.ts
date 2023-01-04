@@ -55,6 +55,25 @@ export type SimulcastBandwidthLimit = Map<TrackEncoding, BandwidthLimit>;
 export type TrackBandwidthLimit = BandwidthLimit | SimulcastBandwidthLimit;
 
 /**
+ * Enum describing possible reasons of currently selected encoding.
+ */
+export enum EncodingReason {
+  /**
+   * The exact reason why some track is received in some quality
+   * couldn't be determined
+   */
+  Other,
+  /**
+   * Previously selected encoding became inactive.
+   */
+  EncodingInactive,
+  /**
+   * There is no longer enough bandwidth to maintain previously selected encoding.
+   */
+  LowBandwidth,
+}
+
+/**
  * Config passed to {@link MembraneWebRTC}.
  */
 export interface MembraneWebRTCConfig {
@@ -110,6 +129,18 @@ export interface TrackContext {
   metadata: any;
 
   maxBandwidth?: TrackBandwidthLimit;
+
+  /**
+   * Encoding that is currently received.
+   * Only present for remote tracks.
+   */
+  encoding?: TrackEncoding;
+
+  /**
+   * The reason of currently selected encoding.
+   * Only present for remote tracks.
+   */
+  encodingReason?: EncodingReason;
 }
 
 /**
@@ -208,16 +239,11 @@ export interface Callbacks {
    * Track encoding can change in the following cases:
    * * when user requested a change
    * * when sender stopped sending some encoding (because of bandwidth change)
+   * * when receiver doesn't have enough bandwidth
    *
-   * @param {string} peerId - id of peer that owns track
-   * @param {string} trackId - id of track that changed encoding
-   * @param {TrackEncoding} encoding - new encoding
+   * Some of those reasons are indicated in `encodingReason` field of {@link TrackContext}.
    */
-  onTrackEncodingChanged?: (
-    peerId: string,
-    trackId: string,
-    encoding: TrackEncoding
-  ) => void;
+  onTrackEncodingChanged?: (ctx: TrackContext) => void;
 
   /**
    * Called every time an update about voice activity is received from the server.
@@ -463,12 +489,13 @@ export class MembraneWebRTC {
         );
 
         this.callbacks.onTracksPriorityChanged?.(enabledTracks, disabledTracks);
+
       case "encodingSwitched":
-        this.callbacks.onTrackEncodingChanged?.(
-          deserializedMediaEvent.data.peerId,
-          deserializedMediaEvent.data.trackId,
-          deserializedMediaEvent.data.encoding
-        );
+        const trackId = deserializedMediaEvent.data.trackId;
+        const trackContext = this.trackIdToTrack.get(trackId)!;
+        trackContext.encoding = deserializedMediaEvent.data.encoding;
+        trackContext.encodingReason = deserializedMediaEvent.data.reason;
+        this.callbacks.onTrackEncodingChanged?.(trackContext);
         break;
 
       case "custom":

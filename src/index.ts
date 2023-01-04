@@ -10,6 +10,7 @@ export {
   TrackContext,
   TrackEncoding,
   VadStatus,
+  EncodingReason,
 } from "./membraneWebRTC";
 
 export { SerializedMediaEvent } from "./mediaEvent";

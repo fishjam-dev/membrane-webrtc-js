@@ -1,6 +1,6 @@
 # membrane-webrtc-js
 
-[![NPM version](https://img.shields.io/npm/v/@membraneframework/membrane-webrtc-js)](https://www.npmjs.com/package/@membraneframework/membrane-webrtc-js)
+[![NPM version](https://img.shields.io/npm/v/@jellyfish-dev/membrane-webrtc-js)](https://www.npmjs.com/package/@jellyfish-dev/membrane-webrtc-js)
 
 Official JS/TS client library for [Membrane RTC Engine](https://github.com/jellyfish-dev/membrane_rtc_engine)
 
@@ -9,19 +9,19 @@ Official JS/TS client library for [Membrane RTC Engine](https://github.com/jelly
 Using **npm**:
 
 ```
-npm install @membraneframework/membrane-webrtc-js
+npm install @jellyfish-dev/membrane-webrtc-js
 ```
 
 or
 
 ```
-yarn add @membraneframework/membrane-webrtc-js
+yarn add @jellyfish-dev/membrane-webrtc-js
 ```
 
 Using **GitHub**:
 
 ```
-npm install membraneframework/membrane-webrtc-js#<branch>
+npm install jellyfish-dev/membrane-webrtc-js#<branch>
 ```
 
 ## Documentation

@@ -2,7 +2,7 @@
 
 [![NPM version](https://img.shields.io/npm/v/@membraneframework/membrane-webrtc-js)](https://www.npmjs.com/package/@membraneframework/membrane-webrtc-js)
 
-Official JS/TS client library for [Membrane RTC Engine](https://github.com/membraneframework/membrane_rtc_engine)
+Official JS/TS client library for [Membrane RTC Engine](https://github.com/jellyfish-dev/membrane_rtc_engine)
 
 ## Installation
 
@@ -26,7 +26,7 @@ npm install membraneframework/membrane-webrtc-js#<branch>
 
 ## Documentation
 
-Docummentation is available [here](https://membraneframework.github.io/membrane-webrtc-js/)
+Docummentation is available [here](https://jellyfish-dev.github.io/membrane-webrtc-js/)
 
 ## Supported Membrane RTC Engine versions
 

@@ -10,16 +10,16 @@
     "dist"
   ],
   "bugs": {
-    "url": "https://github.com/membraneframework/membrane-webrtc-js/issues"
+    "url": "https://github.com/jellyfish-dev/membrane-webrtc-js/issues"
   },
-  "homepage": "https://github.com/membraneframework/membrane-webrtc-js#readme",
+  "homepage": "https://github.com/jellyfish-dev/membrane-webrtc-js#readme",
   "keywords": [
     "webrtc",
     "membrane"
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/membraneframework/membrane-webrtc-js.git"
+    "url": "git://github.com/jellyfish-dev/membrane-webrtc-js.git"
   },
   "scripts": {
     "build": "rimraf dist && tsc",

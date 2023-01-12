@@ -703,7 +703,7 @@ export class MembraneWebRTC {
     let transceiverConfig: RTCRtpTransceiverInit;
     if (trackContext.simulcastConfig!.enabled) {
       transceiverConfig = simulcastTransceiverConfig;
-      let trackActiveEncodings = trackContext.simulcastConfig!.active_encodings;
+      const trackActiveEncodings = trackContext.simulcastConfig!.active_encodings;
       let disabledTrackEncodings: TrackEncoding[] = [];
       transceiverConfig.sendEncodings?.forEach((encoding) => {
         if (trackActiveEncodings.includes(encoding.rid! as TrackEncoding)) {

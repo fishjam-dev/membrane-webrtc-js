@@ -36,6 +36,8 @@ export interface Peer {
  */
 export type VadStatus = "speech" | "silence";
 
+const vadStatuses = ["speech", "silence"] as const;
+
 /**
  * Type describing maximal bandwidth that can be used, in kbps. 0 is interpreted as unlimited bandwidth.
  */
@@ -558,9 +560,11 @@ export class MembraneWebRTC {
         const trackId = deserializedMediaEvent.data.trackId;
         const ctx = this.trackIdToTrack.get(trackId)!;
         const vadStatus = deserializedMediaEvent.data.status;
-        if (vadStatus in ["speech", "silence"]) {
-          ctx.vadStatus = deserializedMediaEvent.data.status;
+        if (vadStatuses.includes(vadStatus)) {
+          ctx.vadStatus = vadStatus;
           ctx.onVoiceActivityChanged?.();
+        } else {
+          console.warn("Received unknown vad status: ", vadStatus);
         }
         break;
       }

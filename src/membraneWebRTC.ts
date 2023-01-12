@@ -261,7 +261,6 @@ export interface Callbacks {
 
   /**
    * @deprecated Use {@link TrackContext.onEncodingChanged} instead.
-   * {@link TrackContext.onEncodingChanged} takes precedense when both callbacks are defined.
    *
    * Called each time track encoding has changed.
    *
@@ -535,15 +534,14 @@ export class MembraneWebRTC {
         trackContext.encoding = deserializedMediaEvent.data.encoding;
         trackContext.encodingReason = deserializedMediaEvent.data.reason;
 
-        if (trackContext.onEncodingChanged) {
-          trackContext.onEncodingChanged?.();
-        } else {
-          this.callbacks.onTrackEncodingChanged?.(
-            trackContext.peer.id,
-            trackId,
-            trackContext.encoding!
-          );
-        }
+        trackContext.onEncodingChanged?.();
+
+        // will be removed in the future
+        this.callbacks.onTrackEncodingChanged?.(
+          trackContext.peer.id,
+          trackId,
+          trackContext.encoding!
+        );
 
         break;
 

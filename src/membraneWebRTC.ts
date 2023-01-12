@@ -125,6 +125,8 @@ export interface TrackContext {
 
   readonly maxBandwidth?: TrackBandwidthLimit;
 
+  readonly vadStatus: VadStatus;
+
   /**
    * Encoding that is currently received.
    * Only present for remote tracks.
@@ -148,6 +150,11 @@ export interface TrackContext {
    * Some of those reasons are indicated in {@link TrackContext.encodingReason}.
    */
   onEncodingChanged?: (this: TrackContext) => void;
+
+  /**
+   * Called every time an update about voice activity is received from the server.
+   */
+  onVoiceActivityChanged?: (this: TrackContext) => void;
 }
 
 class TrackContextImpl implements TrackContext {
@@ -160,7 +167,9 @@ class TrackContextImpl implements TrackContext {
   maxBandwidth: TrackBandwidthLimit = 0;
   encoding?: TrackEncoding;
   encodingReason?: EncodingReason;
+  vadStatus: VadStatus = "silence";
   onEncodingChanged?: (this: TrackContext) => void;
+  onVoiceActivityChanged?: (this: TrackContext) => void;
 
   constructor(peer: Peer, trackId: string, metadata: any) {
     this.peer = peer;
@@ -279,15 +288,6 @@ export interface Callbacks {
     peerId: string,
     trackId: string,
     encoding: TrackEncoding
-  ) => void;
-
-  /**
-   * Called every time an update about voice activity is received from the server.
-   */
-  onVoiceActivityChanged?: (
-    peerId: string,
-    trackId: string,
-    vadStatus: VadStatus
   ) => void;
 
   /**
@@ -556,13 +556,12 @@ export class MembraneWebRTC {
 
       case "vadNotification": {
         const trackId = deserializedMediaEvent.data.trackId;
-        const peerId = this.trackIdToTrack.get(trackId)!.peer.id;
-
-        this.callbacks.onVoiceActivityChanged?.(
-          peerId,
-          trackId,
-          deserializedMediaEvent.data.status
-        );
+        const ctx = this.trackIdToTrack.get(trackId)!;
+        const vadStatus = deserializedMediaEvent.data.status;
+        if (vadStatus in ["speech", "silence"]) {
+          ctx.vadStatus = deserializedMediaEvent.data.status;
+          ctx.onVoiceActivityChanged?.();
+        }
         break;
       }
 
@@ -703,7 +702,8 @@ export class MembraneWebRTC {
     let transceiverConfig: RTCRtpTransceiverInit;
     if (trackContext.simulcastConfig!.enabled) {
       transceiverConfig = simulcastTransceiverConfig;
-      const trackActiveEncodings = trackContext.simulcastConfig!.active_encodings;
+      const trackActiveEncodings =
+        trackContext.simulcastConfig!.active_encodings;
       let disabledTrackEncodings: TrackEncoding[] = [];
       transceiverConfig.sendEncodings?.forEach((encoding) => {
         if (trackActiveEncodings.includes(encoding.rid! as TrackEncoding)) {

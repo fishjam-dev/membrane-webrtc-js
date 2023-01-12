@@ -147,7 +147,7 @@ export interface TrackContext {
    *
    * Some of those reasons are indicated in {@link TrackContext.encodingReason}.
    */
-  onEncodingChanged?: () => void;
+  onEncodingChanged?: (this: TrackContext) => void;
 }
 
 class TrackContextImpl implements TrackContext {
@@ -160,7 +160,7 @@ class TrackContextImpl implements TrackContext {
   maxBandwidth: TrackBandwidthLimit = 0;
   encoding?: TrackEncoding;
   encodingReason?: EncodingReason;
-  onEncodingChanged?: () => void;
+  onEncodingChanged?: (this: TrackContext) => void;
 
   constructor(peer: Peer, trackId: string, metadata: any) {
     this.peer = peer;

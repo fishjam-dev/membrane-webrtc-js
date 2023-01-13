@@ -1,13 +1,12 @@
 import {
-  MediaEvent,
-  SerializedMediaEvent,
+  buildMediaEvent,
+  stringToBinary,
   deserializeMediaEvent,
-  generateMediaEvent,
-  generateCustomEvent,
-  serializeMediaEvent,
+  MediaEvent,
 } from "./mediaEvent";
 import { v4 as uuidv4 } from "uuid";
 import { simulcastTransceiverConfig } from "./const";
+import { Payload_Track } from "./proto/proto/webrtc_signalling_pb";
 
 /**
  * Interface describing Peer.
@@ -189,7 +188,7 @@ export interface Callbacks {
   /**
    * Called each time MembraneWebRTC need to send some data to the server.
    */
-  onSendMediaEvent: (mediaEvent: SerializedMediaEvent) => void;
+  onSendMediaEvent: (mediaEvent: Uint8Array) => void;
 
   /**
    * Called when peer was accepted. Triggered by {@link MembraneWebRTC.join}
@@ -346,9 +345,10 @@ export class MembraneWebRTC {
   public join = (peerMetadata: any): void => {
     try {
       this.localPeer.metadata = peerMetadata;
-      let mediaEvent = generateMediaEvent("join", {
-        metadata: peerMetadata,
-      });
+      let mediaEvent = buildMediaEvent(
+        "join",
+        stringToBinary(JSON.stringify(peerMetadata))
+      );
       this.sendMediaEvent(mediaEvent);
     } catch (e: any) {
       this.callbacks.onConnectionError?.(e);
@@ -371,7 +371,7 @@ export class MembraneWebRTC {
    * webrtcChannel.on("mediaEvent", (event) => webrtc.receiveMediaEvent(event.data));
    * ```
    */
-  public receiveMediaEvent = (mediaEvent: SerializedMediaEvent) => {
+  public receiveMediaEvent = (mediaEvent: string) => {
     const deserializedMediaEvent = deserializeMediaEvent(mediaEvent);
     switch (deserializedMediaEvent.type) {
       case "peerAccepted":
@@ -546,7 +546,7 @@ export class MembraneWebRTC {
         break;
 
       case "custom":
-        this.handleMediaEvent(deserializedMediaEvent.data as MediaEvent);
+        this.handleMediaEvent(deserializedMediaEvent.data);
         break;
 
       case "error":
@@ -666,7 +666,7 @@ export class MembraneWebRTC {
         );
     }
 
-    let mediaEvent = generateCustomEvent({ type: "renegotiateTracks" });
+    let mediaEvent = buildMediaEvent("renegotiateTracks", {});
     this.sendMediaEvent(mediaEvent);
     return trackId;
   }
@@ -703,7 +703,8 @@ export class MembraneWebRTC {
     let transceiverConfig: RTCRtpTransceiverInit;
     if (trackContext.simulcastConfig!.enabled) {
       transceiverConfig = simulcastTransceiverConfig;
-      const trackActiveEncodings = trackContext.simulcastConfig!.active_encodings;
+      const trackActiveEncodings =
+        trackContext.simulcastConfig!.active_encodings;
       let disabledTrackEncodings: TrackEncoding[] = [];
       transceiverConfig.sendEncodings?.forEach((encoding) => {
         if (trackActiveEncodings.includes(encoding.rid! as TrackEncoding)) {
@@ -969,7 +970,7 @@ export class MembraneWebRTC {
     const trackContext = this.localTrackIdToTrack.get(trackId)!;
     const sender = this.findSender(trackContext.track!!.id);
     this.connection!.removeTrack(sender);
-    let mediaEvent = generateCustomEvent({ type: "renegotiateTracks" });
+    let mediaEvent = buildMediaEvent("renegotiateTracks", {});
     this.sendMediaEvent(mediaEvent);
     this.localTrackIdToTrack.delete(trackId);
     this.localPeer.trackIdToMetadata.delete(trackId);
@@ -984,10 +985,7 @@ export class MembraneWebRTC {
    * @param {string} trackId - Id of video track to prioritize.
    */
   public prioritizeTrack(trackId: string) {
-    let mediaEvent = generateCustomEvent({
-      type: "prioritizeTrack",
-      data: { trackId },
-    });
+    let mediaEvent = buildMediaEvent("prioritizeTrack", trackId);
     this.sendMediaEvent(mediaEvent);
   }
   /**
@@ -999,10 +997,7 @@ export class MembraneWebRTC {
    * @param {string} trackId - Id of video track to unprioritize.
    */
   public unprioritizeTrack(trackId: string) {
-    let mediaEvent = generateCustomEvent({
-      type: "unprioritizeTrack",
-      data: { trackId },
-    });
+    let mediaEvent = buildMediaEvent("unprioritizeTrack", trackId);
     this.sendMediaEvent(mediaEvent);
   }
 
@@ -1025,11 +1020,7 @@ export class MembraneWebRTC {
     mediumScreens: number = 0,
     allSameSize: boolean = false
   ) {
-    let mediaEvent = generateCustomEvent({
-      type: "preferedVideoSizes",
-      data: { bigScreens, mediumScreens, smallScreens, allSameSize },
-    });
-    this.sendMediaEvent(mediaEvent);
+    throw "This feature is not supported";
   }
 
   /**
@@ -1047,12 +1038,9 @@ export class MembraneWebRTC {
    * ```
    */
   public setTargetTrackEncoding(trackId: string, encoding: TrackEncoding) {
-    let mediaEvent = generateCustomEvent({
-      type: "setTargetTrackVariant",
-      data: {
-        trackId: trackId,
-        variant: encoding,
-      },
+    let mediaEvent = buildMediaEvent("setTargetTrackVariant", {
+      trackId: trackId,
+      variant: encoding,
     });
 
     this.sendMediaEvent(mediaEvent);
@@ -1119,9 +1107,7 @@ export class MembraneWebRTC {
    * callback `onPeerUpdated` will be triggered for other peers in the room.
    */
   public updatePeerMetadata = (peerMetadata: any): void => {
-    let mediaEvent = generateMediaEvent("updatePeerMetadata", {
-      metadata: peerMetadata,
-    });
+    let mediaEvent = buildMediaEvent("updatePeerMetadata", peerMetadata);
     this.sendMediaEvent(mediaEvent);
   };
 
@@ -1139,10 +1125,10 @@ export class MembraneWebRTC {
     this.localTrackIdToTrack.set(trackId, trackContext);
 
     this.localPeer.trackIdToMetadata.set(trackId, trackMetadata);
-    let mediaEvent = generateMediaEvent("updateTrackMetadata", {
-      trackId,
-      trackMetadata,
-    });
+    let mediaEvent = buildMediaEvent(
+      "updateTrackMetadata",
+      stringToBinary(trackMetadata)
+    );
     this.sendMediaEvent(mediaEvent);
   };
 
@@ -1171,7 +1157,7 @@ export class MembraneWebRTC {
    * that peer left in {@link Callbacks.onPeerLeft},
    */
   public leave = () => {
-    let mediaEvent = generateMediaEvent("leave");
+    let mediaEvent = buildMediaEvent("leave", {});
     this.sendMediaEvent(mediaEvent);
     this.cleanUp();
   };
@@ -1194,8 +1180,8 @@ export class MembraneWebRTC {
     return `${this.getPeerId()}:${uuid}`;
   }
 
-  private sendMediaEvent = (mediaEvent: MediaEvent) => {
-    this.callbacks.onSendMediaEvent(serializeMediaEvent(mediaEvent));
+  private sendMediaEvent = (mediaEvent: Uint8Array) => {
+    this.callbacks.onSendMediaEvent(mediaEvent);
   };
 
   private onAnswer = async (answer: RTCSessionDescriptionInit) => {
@@ -1244,14 +1230,32 @@ export class MembraneWebRTC {
       const offer = await this.connection.createOffer();
       await this.connection.setLocalDescription(offer);
 
-      let mediaEvent = generateCustomEvent({
-        type: "sdpOffer",
-        data: {
-          sdpOffer: offer,
-          trackIdToTrackMetadata: this.getTrackIdToMetadata(),
-          midToTrackId: this.getMidToTrackId(),
-        },
+      const trackIdToMid = {} as any;
+
+      if (!this.connection) return null;
+      this.connection.getTransceivers().forEach((transceiver) => {
+        const localTrackId = transceiver.sender.track?.id;
+        const mid = transceiver.mid;
+        if (localTrackId && mid) {
+          const trackContext = Array.from(
+            this.localTrackIdToTrack.values()
+          ).find((trackContext) => trackContext!.track!!.id === localTrackId)!;
+          trackIdToMid[trackContext.trackId] = mid;
+        }
       });
+
+      let tracks = Array.from(this.localTrackIdToTrack.values()).map(
+        (track: TrackContextImpl) =>
+          <Payload_Track>{
+            trackId: track.trackId,
+            metadata: stringToBinary(JSON.stringify(track.metadata)),
+            mid: trackIdToMid[track.trackId]!,
+          }
+      );
+
+      console.log(tracks);
+
+      let mediaEvent = buildMediaEvent("sdpOffer", { sdp: offer.sdp, tracks });
       this.sendMediaEvent(mediaEvent);
     } catch (error) {
       console.error(error);
@@ -1311,12 +1315,9 @@ export class MembraneWebRTC {
   private onLocalCandidate = () => {
     return (event: RTCPeerConnectionIceEvent) => {
       if (event.candidate) {
-        let mediaEvent = generateCustomEvent({
-          type: "candidate",
-          data: {
-            candidate: event.candidate.candidate,
-            sdpMLineIndex: event.candidate.sdpMLineIndex,
-          },
+        let mediaEvent = buildMediaEvent("candidate", {
+          candidate: event.candidate.candidate,
+          mLineIndex: event.candidate.sdpMLineIndex,
         });
         this.sendMediaEvent(mediaEvent);
       }

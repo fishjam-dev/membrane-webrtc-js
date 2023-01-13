@@ -12,5 +12,3 @@ export {
   VadStatus,
   EncodingReason,
 } from "./membraneWebRTC";
-
-export { SerializedMediaEvent } from "./mediaEvent";

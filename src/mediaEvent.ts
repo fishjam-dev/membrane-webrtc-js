@@ -1,31 +1,30 @@
-export type SerializedMediaEvent = string;
+import {
+  ClientSignallingMsg,
+  ServerSignallingMsg,
+} from "./proto/proto/webrtc_signalling_pb";
+
+export function buildMediaEvent(type: string, payload: any) {
+  return new ClientSignallingMsg({
+    content: {
+      // cast to any to avoid a type error
+      // FIXME: correct the spec
+      case: type as any,
+      value: payload,
+    },
+  }).toBinary();
+}
+
+export function stringToBinary(text: string) {
+  return new TextEncoder().encode(text);
+}
 
 export interface MediaEvent {
   type: string;
-  key?: string;
-  data?: any;
-}
-
-export function serializeMediaEvent(
-  mediaEvent: MediaEvent
-): SerializedMediaEvent {
-  return JSON.stringify(mediaEvent);
+  data: any;
 }
 
 export function deserializeMediaEvent(
-  serializedMediaEvent: SerializedMediaEvent
+  serializedMediaEvent: string
 ): MediaEvent {
   return JSON.parse(serializedMediaEvent) as MediaEvent;
-}
-
-export function generateMediaEvent(type: string, data?: any): MediaEvent {
-  var event: MediaEvent = { type };
-  if (data) {
-    event = { ...event, data };
-  }
-  return event;
-}
-
-export function generateCustomEvent(data?: any): MediaEvent {
-  return generateMediaEvent("custom", data);
 }

@@ -636,6 +636,8 @@ export class MembraneWebRTC {
     simulcastConfig: SimulcastConfig = { enabled: false, active_encodings: [] },
     maxBandwidth: TrackBandwidthLimit = 0 // unlimited bandwidth
   ): string {
+    if (!simulcastConfig.enabled && !(typeof maxBandwidth === "number"))
+      throw "Invalid type of `maxBandwidth` argument for a non-simulcast track, expected: number";
     if (this.getPeerId() === "")
       throw "Cannot add tracks before being accepted by the server";
     const trackId = this.getTrackId(uuidv4());
@@ -882,6 +884,7 @@ export class MembraneWebRTC {
     trackId: string,
     bandwidth: BandwidthLimit
   ): Promise<boolean> {
+    // FIXME: maxBandwidth in TrackContext is not updated
     const trackContext = this.localTrackIdToTrack.get(trackId);
 
     if (!trackContext) {

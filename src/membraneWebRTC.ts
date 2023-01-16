@@ -1153,23 +1153,6 @@ export class MembraneWebRTC {
     this.sendMediaEvent(mediaEvent);
   };
 
-  private getMidToTrackId = () => {
-    const localTrackMidToTrackId = {} as any;
-
-    if (!this.connection) return null;
-    this.connection.getTransceivers().forEach((transceiver) => {
-      const localTrackId = transceiver.sender.track?.id;
-      const mid = transceiver.mid;
-      if (localTrackId && mid) {
-        const trackContext = Array.from(this.localTrackIdToTrack.values()).find(
-          (trackContext) => trackContext!.track!!.id === localTrackId
-        )!;
-        localTrackMidToTrackId[mid] = trackContext.trackId;
-      }
-    });
-    return localTrackMidToTrackId;
-  };
-
   /**
    * Leaves the room. This function should be called when user leaves the room
    * in a clean way e.g. by clicking a dedicated, custom button `disconnect`.
@@ -1255,8 +1238,7 @@ export class MembraneWebRTC {
         type: "sdpOffer",
         data: {
           sdpOffer: offer,
-          trackIdToTrackMetadata: this.getTrackIdToMetadata(),
-          midToTrackId: this.getMidToTrackId(),
+          trackIdToTrackInfo: this.getTrackIdToTrackInfo(),
         },
       });
       this.sendMediaEvent(mediaEvent);
@@ -1265,14 +1247,42 @@ export class MembraneWebRTC {
     }
   }
 
-  private getTrackIdToMetadata = () => {
-    const trackIdToMetadata = {} as any;
+  private getTrackIdToTrackInfo = () => {
+    const trackIdToMid = this.getTrackIdToMid();
+
+    const tracksInfo = {} as any;
     Array.from(this.localPeer.trackIdToMetadata.entries()).forEach(
       ([trackId, metadata]) => {
-        trackIdToMetadata[trackId] = metadata;
+        const maxBandwidth =
+          this.localTrackIdToTrack.get(trackId)!.maxBandwidth;
+        tracksInfo[trackId] = {
+          trackMetadata: metadata,
+          maxBandwidth:
+            maxBandwidth instanceof Map
+              ? Object.fromEntries(maxBandwidth)
+              : maxBandwidth,
+          mid: trackIdToMid ? trackIdToMid.get(trackId!) : null,
+        };
       }
     );
-    return trackIdToMetadata;
+    return tracksInfo;
+  };
+
+  private getTrackIdToMid = () => {
+    const localTrackMidToTrackId = new Map<string, string>();
+
+    if (!this.connection) return null;
+    this.connection.getTransceivers().forEach((transceiver) => {
+      const localTrackId = transceiver.sender.track?.id;
+      const mid = transceiver.mid;
+      if (localTrackId && mid) {
+        const trackContext = Array.from(this.localTrackIdToTrack.values()).find(
+          (trackContext) => trackContext!.track!!.id === localTrackId
+        )!;
+        localTrackMidToTrackId.set(trackContext.trackId, mid);
+      }
+    });
+    return localTrackMidToTrackId;
   };
 
   private checkIfTrackBelongToPeer = (trackId: string, peer: Peer) =>

@@ -9,7 +9,8 @@
     "moduleResolution": "node",
     "outDir": "dist/",
     "strict": true,
-    "target": "es2018"
+    "target": "es2018",
+    "lib": ["dom", "es6", "es2019"]
   },
   "include": ["src/**/*"]
 }

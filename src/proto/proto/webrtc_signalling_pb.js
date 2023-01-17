@@ -30,12 +30,18 @@ export const ServerSignallingMsg = proto3.makeMessageType(
   () => [
     { no: 1, name: "peerAccepted", kind: "scalar", T: 9 /* ScalarType.STRING */, oneof: "content" },
     { no: 2, name: "peerJoined", kind: "message", T: Payload_Peer, oneof: "content" },
-    { no: 3, name: "peerLeft", kind: "scalar", T: 9 /* ScalarType.STRING */, oneof: "content" },
-    { no: 4, name: "trackAdded", kind: "message", T: Payload_Track, oneof: "content" },
-    { no: 5, name: "trackRemoved", kind: "scalar", T: 9 /* ScalarType.STRING */, oneof: "content" },
-    { no: 6, name: "variantSwitched", kind: "message", T: Payload_TrackVariant, oneof: "content" },
-    { no: 7, name: "sdpAnswer", kind: "message", T: Payload_SdpAnswer, oneof: "content" },
-    { no: 8, name: "offerData", kind: "message", T: Payload_OfferData, oneof: "content" },
+    { no: 3, name: "peerUpdated", kind: "message", T: Payload_Peer, oneof: "content" },
+    { no: 4, name: "peerLeft", kind: "scalar", T: 9 /* ScalarType.STRING */, oneof: "content" },
+    { no: 5, name: "trackAdded", kind: "message", T: Payload_Track, oneof: "content" },
+    { no: 6, name: "trackUpdated", kind: "message", T: Payload_TrackWithMetadata, oneof: "content" },
+    { no: 7, name: "trackRemoved", kind: "scalar", T: 9 /* ScalarType.STRING */, oneof: "content" },
+    { no: 8, name: "variantSwitched", kind: "message", T: Payload_TrackVariantSwitched, oneof: "content" },
+    { no: 9, name: "sdpAnswer", kind: "message", T: Payload_SdpAnswer, oneof: "content" },
+    { no: 10, name: "offerData", kind: "message", T: Payload_OfferData, oneof: "content" },
+    { no: 11, name: "candidate", kind: "message", T: Payload_ICECandidate, oneof: "content" },
+    { no: 12, name: "sdpOffer", kind: "message", T: Payload_SdpOffer, oneof: "content" },
+    { no: 13, name: "vadNotification", kind: "message", T: Payload_VoiceActivity, oneof: "content" },
+    { no: 14, name: "bandwidthEstimation", kind: "scalar", T: 4 /* ScalarType.UINT64 */, oneof: "content" },
   ],
 );
 
@@ -89,7 +95,7 @@ export const Payload_ICECandidate = proto3.makeMessageType(
   "Payload.ICECandidate",
   () => [
     { no: 1, name: "candidate", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "mLineIndex", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+    { no: 2, name: "sdpMLineIndex", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
   ],
   {localName: "Payload_ICECandidate"},
 );
@@ -180,5 +186,17 @@ export const Payload_Peer = proto3.makeMessageType(
     { no: 2, name: "metadata", kind: "scalar", T: 12 /* ScalarType.BYTES */ },
   ],
   {localName: "Payload_Peer"},
+);
+
+/**
+ * @generated from message Payload.VoiceActivity
+ */
+export const Payload_VoiceActivity = proto3.makeMessageType(
+  "Payload.VoiceActivity",
+  () => [
+    { no: 1, name: "trackId", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "vad", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ],
+  {localName: "Payload_VoiceActivity"},
 );
 

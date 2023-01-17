@@ -3,14 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import type {
-  BinaryReadOptions,
-  FieldList,
-  JsonReadOptions,
-  JsonValue,
-  PartialMessage,
-  PlainMessage,
-} from "@bufbuild/protobuf";
+import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
 import { Message, proto3 } from "@bufbuild/protobuf";
 
 /**
@@ -20,64 +13,55 @@ export declare class ClientSignallingMsg extends Message<ClientSignallingMsg> {
   /**
    * @generated from oneof ClientSignallingMsg.content
    */
-  content:
-    | {
-        /**
-         * @generated from field: bytes join = 1;
-         */
-        value: Uint8Array;
-        case: "join";
-      }
-    | {
-        /**
-         * @generated from field: Payload.Empty leave = 2;
-         */
-        value: Payload_Empty;
-        case: "leave";
-      }
-    | {
-        /**
-         * @generated from field: bytes updatePeerMetadata = 3;
-         */
-        value: Uint8Array;
-        case: "updatePeerMetadata";
-      }
-    | {
-        /**
-         * @generated from field: Payload.TrackWithMetadata updateTrackMetadata = 4;
-         */
-        value: Payload_TrackWithMetadata;
-        case: "updateTrackMetadata";
-      }
-    | {
-        /**
-         * @generated from field: Payload.Empty renegotiateTracks = 5;
-         */
-        value: Payload_Empty;
-        case: "renegotiateTracks";
-      }
-    | {
-        /**
-         * @generated from field: Payload.ICECandidate candidate = 9;
-         */
-        value: Payload_ICECandidate;
-        case: "candidate";
-      }
-    | {
-        /**
-         * @generated from field: Payload.SdpOffer sdpOffer = 10;
-         */
-        value: Payload_SdpOffer;
-        case: "sdpOffer";
-      }
-    | {
-        /**
-         * @generated from field: Payload.TrackVariant setTargetVariant = 11;
-         */
-        value: Payload_TrackVariant;
-        case: "setTargetVariant";
-      }
-    | { case: undefined; value?: undefined };
+  content: {
+    /**
+     * @generated from field: bytes join = 1;
+     */
+    value: Uint8Array;
+    case: "join";
+  } | {
+    /**
+     * @generated from field: Payload.Empty leave = 2;
+     */
+    value: Payload_Empty;
+    case: "leave";
+  } | {
+    /**
+     * @generated from field: bytes updatePeerMetadata = 3;
+     */
+    value: Uint8Array;
+    case: "updatePeerMetadata";
+  } | {
+    /**
+     * @generated from field: Payload.TrackWithMetadata updateTrackMetadata = 4;
+     */
+    value: Payload_TrackWithMetadata;
+    case: "updateTrackMetadata";
+  } | {
+    /**
+     * @generated from field: Payload.Empty renegotiateTracks = 5;
+     */
+    value: Payload_Empty;
+    case: "renegotiateTracks";
+  } | {
+    /**
+     * @generated from field: Payload.ICECandidate candidate = 9;
+     */
+    value: Payload_ICECandidate;
+    case: "candidate";
+  } | {
+    /**
+     * @generated from field: Payload.SdpOffer sdpOffer = 10;
+     */
+    value: Payload_SdpOffer;
+    case: "sdpOffer";
+  } | {
+    /**
+     * @generated from field: Payload.TrackVariant setTargetVariant = 11;
+     */
+    value: Payload_TrackVariant;
+    case: "setTargetVariant";
+  } | { case: undefined; value?: undefined };
 
   constructor(data?: PartialMessage<ClientSignallingMsg>);
 
@@ -85,25 +69,13 @@ export declare class ClientSignallingMsg extends Message<ClientSignallingMsg> {
   static readonly typeName = "ClientSignallingMsg";
   static readonly fields: FieldList;
 
-  static fromBinary(
-    bytes: Uint8Array,
-    options?: Partial<BinaryReadOptions>
-  ): ClientSignallingMsg;
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ClientSignallingMsg;
 
-  static fromJson(
-    jsonValue: JsonValue,
-    options?: Partial<JsonReadOptions>
-  ): ClientSignallingMsg;
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ClientSignallingMsg;
 
-  static fromJsonString(
-    jsonString: string,
-    options?: Partial<JsonReadOptions>
-  ): ClientSignallingMsg;
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ClientSignallingMsg;
 
-  static equals(
-    a: ClientSignallingMsg | PlainMessage<ClientSignallingMsg> | undefined,
-    b: ClientSignallingMsg | PlainMessage<ClientSignallingMsg> | undefined
-  ): boolean;
+  static equals(a: ClientSignallingMsg | PlainMessage<ClientSignallingMsg> | undefined, b: ClientSignallingMsg | PlainMessage<ClientSignallingMsg> | undefined): boolean;
 }
 
 /**
@@ -113,70 +85,97 @@ export declare class ServerSignallingMsg extends Message<ServerSignallingMsg> {
   /**
    * @generated from oneof ServerSignallingMsg.content
    */
-  content:
-    | {
-        /**
-         * Contains peer_id
-         *
-         * @generated from field: string peerAccepted = 1;
-         */
-        value: string;
-        case: "peerAccepted";
-      }
-    | {
-        /**
-         * @generated from field: Payload.Peer peerJoined = 2;
-         */
-        value: Payload_Peer;
-        case: "peerJoined";
-      }
-    | {
-        /**
-         * Contains id of leaving peer
-         *
-         * @generated from field: string peerLeft = 3;
-         */
-        value: string;
-        case: "peerLeft";
-      }
-    | {
-        /**
-         * @generated from field: Payload.Track trackAdded = 4;
-         */
-        value: Payload_Track;
-        case: "trackAdded";
-      }
-    | {
-        /**
-         * Id of removed track
-         *
-         * @generated from field: string trackRemoved = 5;
-         */
-        value: string;
-        case: "trackRemoved";
-      }
-    | {
-        /**
-         * @generated from field: Payload.TrackVariant variantSwitched = 6;
-         */
-        value: Payload_TrackVariant;
-        case: "variantSwitched";
-      }
-    | {
-        /**
-         * @generated from field: Payload.SdpAnswer sdpAnswer = 7;
-         */
-        value: Payload_SdpAnswer;
-        case: "sdpAnswer";
-      }
-    | {
-        /**
-         * @generated from field: Payload.OfferData offerData = 8;
-         */
-        value: Payload_OfferData;
-        case: "offerData";
-      }
-    | { case: undefined; value?: undefined };
+  content: {
+    /**
+     * Contains peer_id
+     *
+     * @generated from field: string peerAccepted = 1;
+     */
+    value: string;
+    case: "peerAccepted";
+  } | {
+    /**
+     * @generated from field: Payload.Peer peerJoined = 2;
+     */
+    value: Payload_Peer;
+    case: "peerJoined";
+  } | {
+    /**
+     * @generated from field: Payload.Peer peerUpdated = 3;
+     */
+    value: Payload_Peer;
+    case: "peerUpdated";
+  } | {
+    /**
+     * Contains id of leaving peer
+     *
+     * @generated from field: string peerLeft = 4;
+     */
+    value: string;
+    case: "peerLeft";
+  } | {
+    /**
+     * @generated from field: Payload.Track trackAdded = 5;
+     */
+    value: Payload_Track;
+    case: "trackAdded";
+  } | {
+    /**
+     * @generated from field: Payload.TrackWithMetadata trackUpdated = 6;
+     */
+    value: Payload_TrackWithMetadata;
+    case: "trackUpdated";
+  } | {
+    /**
+     * Id of removed track
+     *
+     * @generated from field: string trackRemoved = 7;
+     */
+    value: string;
+    case: "trackRemoved";
+  } | {
+    /**
+     * @generated from field: Payload.TrackVariantSwitched variantSwitched = 8;
+     */
+    value: Payload_TrackVariantSwitched;
+    case: "variantSwitched";
+  } | {
+    /**
+     * @generated from field: Payload.SdpAnswer sdpAnswer = 9;
+     */
+    value: Payload_SdpAnswer;
+    case: "sdpAnswer";
+  } | {
+    /**
+     * @generated from field: Payload.OfferData offerData = 10;
+     */
+    value: Payload_OfferData;
+    case: "offerData";
+  } | {
+    /**
+     * @generated from field: Payload.ICECandidate candidate = 11;
+     */
+    value: Payload_ICECandidate;
+    case: "candidate";
+  } | {
+    /**
+     * @generated from field: Payload.SdpOffer sdpOffer = 12;
+     */
+    value: Payload_SdpOffer;
+    case: "sdpOffer";
+  } | {
+    /**
+     * @generated from field: Payload.VoiceActivity vadNotification = 13;
+     */
+    value: Payload_VoiceActivity;
+    case: "vadNotification";
+  } | {
+    /**
+     * @generated from field: uint64 bandwidthEstimation = 14;
+     */
+    value: bigint;
+    case: "bandwidthEstimation";
+  } | { case: undefined; value?: undefined };
 
   constructor(data?: PartialMessage<ServerSignallingMsg>);
 
@@ -184,25 +183,13 @@ export declare class ServerSignallingMsg extends Message<ServerSignallingMsg> {
   static readonly typeName = "ServerSignallingMsg";
   static readonly fields: FieldList;
 
-  static fromBinary(
-    bytes: Uint8Array,
-    options?: Partial<BinaryReadOptions>
-  ): ServerSignallingMsg;
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ServerSignallingMsg;
 
-  static fromJson(
-    jsonValue: JsonValue,
-    options?: Partial<JsonReadOptions>
-  ): ServerSignallingMsg;
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ServerSignallingMsg;
 
-  static fromJsonString(
-    jsonString: string,
-    options?: Partial<JsonReadOptions>
-  ): ServerSignallingMsg;
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ServerSignallingMsg;
 
-  static equals(
-    a: ServerSignallingMsg | PlainMessage<ServerSignallingMsg> | undefined,
-    b: ServerSignallingMsg | PlainMessage<ServerSignallingMsg> | undefined
-  ): boolean;
+  static equals(a: ServerSignallingMsg | PlainMessage<ServerSignallingMsg> | undefined, b: ServerSignallingMsg | PlainMessage<ServerSignallingMsg> | undefined): boolean;
 }
 
 /**
@@ -215,25 +202,13 @@ export declare class Payload extends Message<Payload> {
   static readonly typeName = "Payload";
   static readonly fields: FieldList;
 
-  static fromBinary(
-    bytes: Uint8Array,
-    options?: Partial<BinaryReadOptions>
-  ): Payload;
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Payload;
 
-  static fromJson(
-    jsonValue: JsonValue,
-    options?: Partial<JsonReadOptions>
-  ): Payload;
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Payload;
 
-  static fromJsonString(
-    jsonString: string,
-    options?: Partial<JsonReadOptions>
-  ): Payload;
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Payload;
 
-  static equals(
-    a: Payload | PlainMessage<Payload> | undefined,
-    b: Payload | PlainMessage<Payload> | undefined
-  ): boolean;
+  static equals(a: Payload | PlainMessage<Payload> | undefined, b: Payload | PlainMessage<Payload> | undefined): boolean;
 }
 
 /**
@@ -246,25 +221,13 @@ export declare class Payload_Empty extends Message<Payload_Empty> {
   static readonly typeName = "Payload.Empty";
   static readonly fields: FieldList;
 
-  static fromBinary(
-    bytes: Uint8Array,
-    options?: Partial<BinaryReadOptions>
-  ): Payload_Empty;
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Payload_Empty;
 
-  static fromJson(
-    jsonValue: JsonValue,
-    options?: Partial<JsonReadOptions>
-  ): Payload_Empty;
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Payload_Empty;
 
-  static fromJsonString(
-    jsonString: string,
-    options?: Partial<JsonReadOptions>
-  ): Payload_Empty;
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Payload_Empty;
 
-  static equals(
-    a: Payload_Empty | PlainMessage<Payload_Empty> | undefined,
-    b: Payload_Empty | PlainMessage<Payload_Empty> | undefined
-  ): boolean;
+  static equals(a: Payload_Empty | PlainMessage<Payload_Empty> | undefined, b: Payload_Empty | PlainMessage<Payload_Empty> | undefined): boolean;
 }
 
 /**
@@ -287,31 +250,13 @@ export declare class Payload_TrackWithMetadata extends Message<Payload_TrackWith
   static readonly typeName = "Payload.TrackWithMetadata";
   static readonly fields: FieldList;
 
-  static fromBinary(
-    bytes: Uint8Array,
-    options?: Partial<BinaryReadOptions>
-  ): Payload_TrackWithMetadata;
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Payload_TrackWithMetadata;
 
-  static fromJson(
-    jsonValue: JsonValue,
-    options?: Partial<JsonReadOptions>
-  ): Payload_TrackWithMetadata;
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Payload_TrackWithMetadata;
 
-  static fromJsonString(
-    jsonString: string,
-    options?: Partial<JsonReadOptions>
-  ): Payload_TrackWithMetadata;
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Payload_TrackWithMetadata;
 
-  static equals(
-    a:
-      | Payload_TrackWithMetadata
-      | PlainMessage<Payload_TrackWithMetadata>
-      | undefined,
-    b:
-      | Payload_TrackWithMetadata
-      | PlainMessage<Payload_TrackWithMetadata>
-      | undefined
-  ): boolean;
+  static equals(a: Payload_TrackWithMetadata | PlainMessage<Payload_TrackWithMetadata> | undefined, b: Payload_TrackWithMetadata | PlainMessage<Payload_TrackWithMetadata> | undefined): boolean;
 }
 
 /**
@@ -344,25 +289,13 @@ export declare class Payload_Track extends Message<Payload_Track> {
   static readonly typeName = "Payload.Track";
   static readonly fields: FieldList;
 
-  static fromBinary(
-    bytes: Uint8Array,
-    options?: Partial<BinaryReadOptions>
-  ): Payload_Track;
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Payload_Track;
 
-  static fromJson(
-    jsonValue: JsonValue,
-    options?: Partial<JsonReadOptions>
-  ): Payload_Track;
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Payload_Track;
 
-  static fromJsonString(
-    jsonString: string,
-    options?: Partial<JsonReadOptions>
-  ): Payload_Track;
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Payload_Track;
 
-  static equals(
-    a: Payload_Track | PlainMessage<Payload_Track> | undefined,
-    b: Payload_Track | PlainMessage<Payload_Track> | undefined
-  ): boolean;
+  static equals(a: Payload_Track | PlainMessage<Payload_Track> | undefined, b: Payload_Track | PlainMessage<Payload_Track> | undefined): boolean;
 }
 
 /**
@@ -375,9 +308,9 @@ export declare class Payload_ICECandidate extends Message<Payload_ICECandidate> 
   candidate: string;
 
   /**
-   * @generated from field: uint64 mLineIndex = 2;
+   * @generated from field: uint64 sdpMLineIndex = 2;
    */
-  mLineIndex: bigint;
+  sdpMLineIndex: bigint;
 
   constructor(data?: PartialMessage<Payload_ICECandidate>);
 
@@ -385,25 +318,13 @@ export declare class Payload_ICECandidate extends Message<Payload_ICECandidate> 
   static readonly typeName = "Payload.ICECandidate";
   static readonly fields: FieldList;
 
-  static fromBinary(
-    bytes: Uint8Array,
-    options?: Partial<BinaryReadOptions>
-  ): Payload_ICECandidate;
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Payload_ICECandidate;
 
-  static fromJson(
-    jsonValue: JsonValue,
-    options?: Partial<JsonReadOptions>
-  ): Payload_ICECandidate;
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Payload_ICECandidate;
 
-  static fromJsonString(
-    jsonString: string,
-    options?: Partial<JsonReadOptions>
-  ): Payload_ICECandidate;
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Payload_ICECandidate;
 
-  static equals(
-    a: Payload_ICECandidate | PlainMessage<Payload_ICECandidate> | undefined,
-    b: Payload_ICECandidate | PlainMessage<Payload_ICECandidate> | undefined
-  ): boolean;
+  static equals(a: Payload_ICECandidate | PlainMessage<Payload_ICECandidate> | undefined, b: Payload_ICECandidate | PlainMessage<Payload_ICECandidate> | undefined): boolean;
 }
 
 /**
@@ -426,25 +347,13 @@ export declare class Payload_SdpOffer extends Message<Payload_SdpOffer> {
   static readonly typeName = "Payload.SdpOffer";
   static readonly fields: FieldList;
 
-  static fromBinary(
-    bytes: Uint8Array,
-    options?: Partial<BinaryReadOptions>
-  ): Payload_SdpOffer;
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Payload_SdpOffer;
 
-  static fromJson(
-    jsonValue: JsonValue,
-    options?: Partial<JsonReadOptions>
-  ): Payload_SdpOffer;
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Payload_SdpOffer;
 
-  static fromJsonString(
-    jsonString: string,
-    options?: Partial<JsonReadOptions>
-  ): Payload_SdpOffer;
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Payload_SdpOffer;
 
-  static equals(
-    a: Payload_SdpOffer | PlainMessage<Payload_SdpOffer> | undefined,
-    b: Payload_SdpOffer | PlainMessage<Payload_SdpOffer> | undefined
-  ): boolean;
+  static equals(a: Payload_SdpOffer | PlainMessage<Payload_SdpOffer> | undefined, b: Payload_SdpOffer | PlainMessage<Payload_SdpOffer> | undefined): boolean;
 }
 
 /**
@@ -467,25 +376,13 @@ export declare class Payload_SdpAnswer extends Message<Payload_SdpAnswer> {
   static readonly typeName = "Payload.SdpAnswer";
   static readonly fields: FieldList;
 
-  static fromBinary(
-    bytes: Uint8Array,
-    options?: Partial<BinaryReadOptions>
-  ): Payload_SdpAnswer;
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Payload_SdpAnswer;
 
-  static fromJson(
-    jsonValue: JsonValue,
-    options?: Partial<JsonReadOptions>
-  ): Payload_SdpAnswer;
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Payload_SdpAnswer;
 
-  static fromJsonString(
-    jsonString: string,
-    options?: Partial<JsonReadOptions>
-  ): Payload_SdpAnswer;
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Payload_SdpAnswer;
 
-  static equals(
-    a: Payload_SdpAnswer | PlainMessage<Payload_SdpAnswer> | undefined,
-    b: Payload_SdpAnswer | PlainMessage<Payload_SdpAnswer> | undefined
-  ): boolean;
+  static equals(a: Payload_SdpAnswer | PlainMessage<Payload_SdpAnswer> | undefined, b: Payload_SdpAnswer | PlainMessage<Payload_SdpAnswer> | undefined): boolean;
 }
 
 /**
@@ -508,25 +405,13 @@ export declare class Payload_TrackVariant extends Message<Payload_TrackVariant> 
   static readonly typeName = "Payload.TrackVariant";
   static readonly fields: FieldList;
 
-  static fromBinary(
-    bytes: Uint8Array,
-    options?: Partial<BinaryReadOptions>
-  ): Payload_TrackVariant;
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Payload_TrackVariant;
 
-  static fromJson(
-    jsonValue: JsonValue,
-    options?: Partial<JsonReadOptions>
-  ): Payload_TrackVariant;
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Payload_TrackVariant;
 
-  static fromJsonString(
-    jsonString: string,
-    options?: Partial<JsonReadOptions>
-  ): Payload_TrackVariant;
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Payload_TrackVariant;
 
-  static equals(
-    a: Payload_TrackVariant | PlainMessage<Payload_TrackVariant> | undefined,
-    b: Payload_TrackVariant | PlainMessage<Payload_TrackVariant> | undefined
-  ): boolean;
+  static equals(a: Payload_TrackVariant | PlainMessage<Payload_TrackVariant> | undefined, b: Payload_TrackVariant | PlainMessage<Payload_TrackVariant> | undefined): boolean;
 }
 
 /**
@@ -549,31 +434,13 @@ export declare class Payload_TrackVariantSwitched extends Message<Payload_TrackV
   static readonly typeName = "Payload.TrackVariantSwitched";
   static readonly fields: FieldList;
 
-  static fromBinary(
-    bytes: Uint8Array,
-    options?: Partial<BinaryReadOptions>
-  ): Payload_TrackVariantSwitched;
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Payload_TrackVariantSwitched;
 
-  static fromJson(
-    jsonValue: JsonValue,
-    options?: Partial<JsonReadOptions>
-  ): Payload_TrackVariantSwitched;
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Payload_TrackVariantSwitched;
 
-  static fromJsonString(
-    jsonString: string,
-    options?: Partial<JsonReadOptions>
-  ): Payload_TrackVariantSwitched;
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Payload_TrackVariantSwitched;
 
-  static equals(
-    a:
-      | Payload_TrackVariantSwitched
-      | PlainMessage<Payload_TrackVariantSwitched>
-      | undefined,
-    b:
-      | Payload_TrackVariantSwitched
-      | PlainMessage<Payload_TrackVariantSwitched>
-      | undefined
-  ): boolean;
+  static equals(a: Payload_TrackVariantSwitched | PlainMessage<Payload_TrackVariantSwitched> | undefined, b: Payload_TrackVariantSwitched | PlainMessage<Payload_TrackVariantSwitched> | undefined): boolean;
 }
 
 /**
@@ -601,25 +468,13 @@ export declare class Payload_OfferData extends Message<Payload_OfferData> {
   static readonly typeName = "Payload.OfferData";
   static readonly fields: FieldList;
 
-  static fromBinary(
-    bytes: Uint8Array,
-    options?: Partial<BinaryReadOptions>
-  ): Payload_OfferData;
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Payload_OfferData;
 
-  static fromJson(
-    jsonValue: JsonValue,
-    options?: Partial<JsonReadOptions>
-  ): Payload_OfferData;
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Payload_OfferData;
 
-  static fromJsonString(
-    jsonString: string,
-    options?: Partial<JsonReadOptions>
-  ): Payload_OfferData;
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Payload_OfferData;
 
-  static equals(
-    a: Payload_OfferData | PlainMessage<Payload_OfferData> | undefined,
-    b: Payload_OfferData | PlainMessage<Payload_OfferData> | undefined
-  ): boolean;
+  static equals(a: Payload_OfferData | PlainMessage<Payload_OfferData> | undefined, b: Payload_OfferData | PlainMessage<Payload_OfferData> | undefined): boolean;
 }
 
 /**
@@ -657,31 +512,13 @@ export declare class Payload_OfferData_TurnServer extends Message<Payload_OfferD
   static readonly typeName = "Payload.OfferData.TurnServer";
   static readonly fields: FieldList;
 
-  static fromBinary(
-    bytes: Uint8Array,
-    options?: Partial<BinaryReadOptions>
-  ): Payload_OfferData_TurnServer;
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Payload_OfferData_TurnServer;
 
-  static fromJson(
-    jsonValue: JsonValue,
-    options?: Partial<JsonReadOptions>
-  ): Payload_OfferData_TurnServer;
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Payload_OfferData_TurnServer;
 
-  static fromJsonString(
-    jsonString: string,
-    options?: Partial<JsonReadOptions>
-  ): Payload_OfferData_TurnServer;
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Payload_OfferData_TurnServer;
 
-  static equals(
-    a:
-      | Payload_OfferData_TurnServer
-      | PlainMessage<Payload_OfferData_TurnServer>
-      | undefined,
-    b:
-      | Payload_OfferData_TurnServer
-      | PlainMessage<Payload_OfferData_TurnServer>
-      | undefined
-  ): boolean;
+  static equals(a: Payload_OfferData_TurnServer | PlainMessage<Payload_OfferData_TurnServer> | undefined, b: Payload_OfferData_TurnServer | PlainMessage<Payload_OfferData_TurnServer> | undefined): boolean;
 }
 
 /**
@@ -704,23 +541,41 @@ export declare class Payload_Peer extends Message<Payload_Peer> {
   static readonly typeName = "Payload.Peer";
   static readonly fields: FieldList;
 
-  static fromBinary(
-    bytes: Uint8Array,
-    options?: Partial<BinaryReadOptions>
-  ): Payload_Peer;
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Payload_Peer;
 
-  static fromJson(
-    jsonValue: JsonValue,
-    options?: Partial<JsonReadOptions>
-  ): Payload_Peer;
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Payload_Peer;
 
-  static fromJsonString(
-    jsonString: string,
-    options?: Partial<JsonReadOptions>
-  ): Payload_Peer;
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Payload_Peer;
 
-  static equals(
-    a: Payload_Peer | PlainMessage<Payload_Peer> | undefined,
-    b: Payload_Peer | PlainMessage<Payload_Peer> | undefined
-  ): boolean;
+  static equals(a: Payload_Peer | PlainMessage<Payload_Peer> | undefined, b: Payload_Peer | PlainMessage<Payload_Peer> | undefined): boolean;
 }
+
+/**
+ * @generated from message Payload.VoiceActivity
+ */
+export declare class Payload_VoiceActivity extends Message<Payload_VoiceActivity> {
+  /**
+   * @generated from field: string trackId = 1;
+   */
+  trackId: string;
+
+  /**
+   * @generated from field: string vad = 2;
+   */
+  vad: string;
+
+  constructor(data?: PartialMessage<Payload_VoiceActivity>);
+
+  static readonly runtime: typeof proto3;
+  static readonly typeName = "Payload.VoiceActivity";
+  static readonly fields: FieldList;
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Payload_VoiceActivity;
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Payload_VoiceActivity;
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Payload_VoiceActivity;
+
+  static equals(a: Payload_VoiceActivity | PlainMessage<Payload_VoiceActivity> | undefined, b: Payload_VoiceActivity | PlainMessage<Payload_VoiceActivity> | undefined): boolean;
+}
+

@@ -7,7 +7,7 @@ import {
 } from "./mediaEvent";
 import { v4 as uuidv4 } from "uuid";
 import { simulcastTransceiverConfig } from "./const";
-import { Payload, Payload_ICECandidate, Payload_OfferData, Payload_OfferData_TurnServer, Payload_Peer, Payload_SdpAnswer, Payload_SdpOffer, Payload_Track, Payload_TrackVariantSwitched, Payload_VoiceActivity, ServerSignallingMsg } from "./proto/proto/webrtc_signalling_pb";
+import { Payload, Payload_ICECandidate, Payload_OfferData, Payload_OfferData_TurnServer, Payload_Peer, Payload_SdpAnswer, Payload_SdpOffer, Payload_Track, Payload_TrackVariantSwitched, Payload_VoiceActivity, ServerSignallingMsg } from "./protos/membrane_rtc_engine/webrtc/signalling_pb";
 
 /**
  * Interface describing Peer.

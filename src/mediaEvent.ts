@@ -1,7 +1,7 @@
 import {
   ClientSignallingMsg,
   ServerSignallingMsg,
-} from "./proto/proto/webrtc_signalling_pb";
+} from "./protos/membrane_rtc_engine/webrtc/signalling_pb";
 
 export function buildMediaEvent(type: string, payload: any) {
   const event = new ClientSignallingMsg({

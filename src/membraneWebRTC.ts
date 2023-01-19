@@ -7,7 +7,19 @@ import {
 } from "./mediaEvent";
 import { v4 as uuidv4 } from "uuid";
 import { simulcastTransceiverConfig } from "./const";
-import { Payload, Payload_ICECandidate, Payload_OfferData, Payload_OfferData_TurnServer, Payload_Peer, Payload_SdpAnswer, Payload_SdpOffer, Payload_Track, Payload_TrackVariantSwitched, Payload_VoiceActivity, ServerSignallingMsg } from "./protos/membrane_rtc_engine/webrtc/signalling_pb";
+import {
+  Payload,
+  Payload_ICECandidate,
+  Payload_OfferData,
+  Payload_OfferData_TurnServer,
+  Payload_Peer,
+  Payload_SdpAnswer,
+  Payload_SdpOffer,
+  Payload_Track,
+  Payload_TrackVariantSwitched,
+  Payload_VoiceActivity,
+  ServerSignallingMsg,
+} from "./protos/membrane_rtc_engine/webrtc/signalling_pb";
 
 /**
  * Interface describing Peer.
@@ -378,10 +390,7 @@ export class MembraneWebRTC {
     switch (deserializedMediaEvent.content.case) {
       case "peerAccepted":
         this.localPeer.id = deserializedMediaEvent.content.value as string;
-        this.callbacks.onJoinSuccess?.(
-          this.localPeer.id,
-          []
-        );
+        this.callbacks.onJoinSuccess?.(this.localPeer.id, []);
         break;
 
       default:
@@ -398,12 +407,12 @@ export class MembraneWebRTC {
         const turnServers = data.integratedTurnServers;
         this.setTurns(turnServers);
 
-        this.onOfferData(new Map(
-          [
-            [ "audio", data.audioTracks ],
-            [ "video", data.videoTracks ]
-          ]
-        ));
+        this.onOfferData(
+          new Map([
+            ["audio", data.audioTracks],
+            ["video", data.videoTracks],
+          ])
+        );
 
         break;
       }
@@ -442,9 +451,9 @@ export class MembraneWebRTC {
         const data = payload as Payload_ICECandidate;
         const candidateConfig: RTCIceCandidateInit = {
           ...data,
-          sdpMLineIndex: Number(data.sdpMLineIndex)
-        }
-        const candidate = new RTCIceCandidate(candidateConfig)
+          sdpMLineIndex: Number(data.sdpMLineIndex),
+        };
+        const candidate = new RTCIceCandidate(candidateConfig);
         this.onRemoteCandidate(candidate);
         break;
       }
@@ -454,7 +463,7 @@ export class MembraneWebRTC {
         const peer = <Peer>{
           id: peerData.id,
           metadata: JSON.parse(binaryToString(peerData.metadata)),
-          trackIdToMetadata: new Map()
+          trackIdToMetadata: new Map(),
         };
 
         if (peer.id === this.getPeerId()) return;
@@ -491,7 +500,7 @@ export class MembraneWebRTC {
         if (this.getPeerId() === peer.id) return;
 
         const trackId = track.trackId;
-        const trackMetadata = JSON.parse(binaryToString(track.metadata))
+        const trackMetadata = JSON.parse(binaryToString(track.metadata));
         peer.trackIdToMetadata.set(trackId, trackMetadata);
         const trackContext = this.trackIdToTrack.get(trackId)!;
         trackContext.metadata = trackMetadata;
@@ -1074,7 +1083,7 @@ export class MembraneWebRTC {
    * callback `onPeerUpdated` will be triggered for other peers in the room.
    */
   public updatePeerMetadata = (peerMetadata: any): void => {
-    const bytes = stringToBinary(JSON.stringify(peerMetadata))
+    const bytes = stringToBinary(JSON.stringify(peerMetadata));
     let mediaEvent = buildMediaEvent("updatePeerMetadata", bytes);
     this.sendMediaEvent(mediaEvent);
   };
@@ -1093,10 +1102,10 @@ export class MembraneWebRTC {
     this.localTrackIdToTrack.set(trackId, trackContext);
 
     this.localPeer.trackIdToMetadata.set(trackId, trackMetadata);
-    let mediaEvent = buildMediaEvent(
-      "updateTrackMetadata",
-      {trackId, metadata: stringToBinary(JSON.stringify(trackMetadata))}
-    );
+    let mediaEvent = buildMediaEvent("updateTrackMetadata", {
+      trackId,
+      metadata: stringToBinary(JSON.stringify(trackMetadata)),
+    });
     this.sendMediaEvent(mediaEvent);
   };
 
@@ -1155,8 +1164,8 @@ export class MembraneWebRTC {
   private onAnswer = async (sdp: string) => {
     const answer: RTCSessionDescriptionInit = {
       type: "answer",
-      sdp
-    }
+      sdp,
+    };
     this.connection!.ontrack = this.onTrack();
     try {
       await this.connection!.setRemoteDescription(answer);

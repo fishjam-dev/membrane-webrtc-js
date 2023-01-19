@@ -32,5 +32,5 @@ export interface MediaEvent {
 export function deserializeMediaEvent(
   serializedMediaEvent: Uint8Array
 ): ServerSignallingMsg {
-  return ServerSignallingMsg.fromBinary(serializedMediaEvent)
+  return ServerSignallingMsg.fromBinary(serializedMediaEvent);
 }

@@ -3,7 +3,14 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
+import type {
+  BinaryReadOptions,
+  FieldList,
+  JsonReadOptions,
+  JsonValue,
+  PartialMessage,
+  PlainMessage,
+} from "@bufbuild/protobuf";
 import { Message, proto3 } from "@bufbuild/protobuf";
 
 /**
@@ -13,69 +20,91 @@ export declare class ClientSignallingMsg extends Message<ClientSignallingMsg> {
   /**
    * @generated from oneof Membrane.RTC.Engine.Signalling.WebRTC.ClientSignallingMsg.content
    */
-  content: {
-    /**
-     * @generated from field: bytes join = 1;
-     */
-    value: Uint8Array;
-    case: "join";
-  } | {
-    /**
-     * @generated from field: Membrane.RTC.Engine.Signalling.WebRTC.Payload.Empty leave = 2;
-     */
-    value: Payload_Empty;
-    case: "leave";
-  } | {
-    /**
-     * @generated from field: bytes updatePeerMetadata = 3;
-     */
-    value: Uint8Array;
-    case: "updatePeerMetadata";
-  } | {
-    /**
-     * @generated from field: Membrane.RTC.Engine.Signalling.WebRTC.Payload.TrackWithMetadata updateTrackMetadata = 4;
-     */
-    value: Payload_TrackWithMetadata;
-    case: "updateTrackMetadata";
-  } | {
-    /**
-     * @generated from field: Membrane.RTC.Engine.Signalling.WebRTC.Payload.Empty renegotiateTracks = 5;
-     */
-    value: Payload_Empty;
-    case: "renegotiateTracks";
-  } | {
-    /**
-     * @generated from field: Membrane.RTC.Engine.Signalling.WebRTC.Payload.ICECandidate candidate = 9;
-     */
-    value: Payload_ICECandidate;
-    case: "candidate";
-  } | {
-    /**
-     * @generated from field: Membrane.RTC.Engine.Signalling.WebRTC.Payload.SdpOffer sdpOffer = 10;
-     */
-    value: Payload_SdpOffer;
-    case: "sdpOffer";
-  } | {
-    /**
-     * @generated from field: Membrane.RTC.Engine.Signalling.WebRTC.Payload.TrackVariant setTargetVariant = 11;
-     */
-    value: Payload_TrackVariant;
-    case: "setTargetVariant";
-  } | { case: undefined; value?: undefined };
+  content:
+    | {
+        /**
+         * @generated from field: bytes join = 1;
+         */
+        value: Uint8Array;
+        case: "join";
+      }
+    | {
+        /**
+         * @generated from field: Membrane.RTC.Engine.Signalling.WebRTC.Payload.Empty leave = 2;
+         */
+        value: Payload_Empty;
+        case: "leave";
+      }
+    | {
+        /**
+         * @generated from field: bytes updatePeerMetadata = 3;
+         */
+        value: Uint8Array;
+        case: "updatePeerMetadata";
+      }
+    | {
+        /**
+         * @generated from field: Membrane.RTC.Engine.Signalling.WebRTC.Payload.TrackWithMetadata updateTrackMetadata = 4;
+         */
+        value: Payload_TrackWithMetadata;
+        case: "updateTrackMetadata";
+      }
+    | {
+        /**
+         * @generated from field: Membrane.RTC.Engine.Signalling.WebRTC.Payload.Empty renegotiateTracks = 5;
+         */
+        value: Payload_Empty;
+        case: "renegotiateTracks";
+      }
+    | {
+        /**
+         * @generated from field: Membrane.RTC.Engine.Signalling.WebRTC.Payload.ICECandidate candidate = 9;
+         */
+        value: Payload_ICECandidate;
+        case: "candidate";
+      }
+    | {
+        /**
+         * @generated from field: Membrane.RTC.Engine.Signalling.WebRTC.Payload.SdpOffer sdpOffer = 10;
+         */
+        value: Payload_SdpOffer;
+        case: "sdpOffer";
+      }
+    | {
+        /**
+         * @generated from field: Membrane.RTC.Engine.Signalling.WebRTC.Payload.TrackVariant setTargetVariant = 11;
+         */
+        value: Payload_TrackVariant;
+        case: "setTargetVariant";
+      }
+    | { case: undefined; value?: undefined };
 
   constructor(data?: PartialMessage<ClientSignallingMsg>);
 
   static readonly runtime: typeof proto3;
-  static readonly typeName = "Membrane.RTC.Engine.Signalling.WebRTC.ClientSignallingMsg";
+  static readonly typeName =
+    "Membrane.RTC.Engine.Signalling.WebRTC.ClientSignallingMsg";
   static readonly fields: FieldList;
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ClientSignallingMsg;
+  static fromBinary(
+    bytes: Uint8Array,
+    options?: Partial<BinaryReadOptions>
+  ): ClientSignallingMsg;
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ClientSignallingMsg;
+  static fromJson(
+    jsonValue: JsonValue,
+    options?: Partial<JsonReadOptions>
+  ): ClientSignallingMsg;
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ClientSignallingMsg;
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): ClientSignallingMsg;
 
-  static equals(a: ClientSignallingMsg | PlainMessage<ClientSignallingMsg> | undefined, b: ClientSignallingMsg | PlainMessage<ClientSignallingMsg> | undefined): boolean;
+  static equals(
+    a: ClientSignallingMsg | PlainMessage<ClientSignallingMsg> | undefined,
+    b: ClientSignallingMsg | PlainMessage<ClientSignallingMsg> | undefined
+  ): boolean;
 }
 
 /**
@@ -85,111 +114,139 @@ export declare class ServerSignallingMsg extends Message<ServerSignallingMsg> {
   /**
    * @generated from oneof Membrane.RTC.Engine.Signalling.WebRTC.ServerSignallingMsg.content
    */
-  content: {
-    /**
-     * Contains peer_id
-     *
-     * @generated from field: string peerAccepted = 1;
-     */
-    value: string;
-    case: "peerAccepted";
-  } | {
-    /**
-     * @generated from field: Membrane.RTC.Engine.Signalling.WebRTC.Payload.Peer peerJoined = 2;
-     */
-    value: Payload_Peer;
-    case: "peerJoined";
-  } | {
-    /**
-     * @generated from field: Membrane.RTC.Engine.Signalling.WebRTC.Payload.Peer peerUpdated = 3;
-     */
-    value: Payload_Peer;
-    case: "peerUpdated";
-  } | {
-    /**
-     * Contains id of leaving peer
-     *
-     * @generated from field: string peerLeft = 4;
-     */
-    value: string;
-    case: "peerLeft";
-  } | {
-    /**
-     * @generated from field: Membrane.RTC.Engine.Signalling.WebRTC.Payload.Track trackAdded = 5;
-     */
-    value: Payload_Track;
-    case: "trackAdded";
-  } | {
-    /**
-     * @generated from field: Membrane.RTC.Engine.Signalling.WebRTC.Payload.TrackWithMetadata trackUpdated = 6;
-     */
-    value: Payload_TrackWithMetadata;
-    case: "trackUpdated";
-  } | {
-    /**
-     * Id of removed track
-     *
-     * @generated from field: string trackRemoved = 7;
-     */
-    value: string;
-    case: "trackRemoved";
-  } | {
-    /**
-     * @generated from field: Membrane.RTC.Engine.Signalling.WebRTC.Payload.TrackVariantSwitched variantSwitched = 8;
-     */
-    value: Payload_TrackVariantSwitched;
-    case: "variantSwitched";
-  } | {
-    /**
-     * @generated from field: Membrane.RTC.Engine.Signalling.WebRTC.Payload.SdpAnswer sdpAnswer = 9;
-     */
-    value: Payload_SdpAnswer;
-    case: "sdpAnswer";
-  } | {
-    /**
-     * @generated from field: Membrane.RTC.Engine.Signalling.WebRTC.Payload.OfferData offerData = 10;
-     */
-    value: Payload_OfferData;
-    case: "offerData";
-  } | {
-    /**
-     * @generated from field: Membrane.RTC.Engine.Signalling.WebRTC.Payload.ICECandidate candidate = 11;
-     */
-    value: Payload_ICECandidate;
-    case: "candidate";
-  } | {
-    /**
-     * @generated from field: Membrane.RTC.Engine.Signalling.WebRTC.Payload.SdpOffer sdpOffer = 12;
-     */
-    value: Payload_SdpOffer;
-    case: "sdpOffer";
-  } | {
-    /**
-     * @generated from field: Membrane.RTC.Engine.Signalling.WebRTC.Payload.VoiceActivity vadNotification = 13;
-     */
-    value: Payload_VoiceActivity;
-    case: "vadNotification";
-  } | {
-    /**
-     * @generated from field: uint64 bandwidthEstimation = 14;
-     */
-    value: bigint;
-    case: "bandwidthEstimation";
-  } | { case: undefined; value?: undefined };
+  content:
+    | {
+        /**
+         * Contains peer_id
+         *
+         * @generated from field: string peerAccepted = 1;
+         */
+        value: string;
+        case: "peerAccepted";
+      }
+    | {
+        /**
+         * @generated from field: Membrane.RTC.Engine.Signalling.WebRTC.Payload.Peer peerJoined = 2;
+         */
+        value: Payload_Peer;
+        case: "peerJoined";
+      }
+    | {
+        /**
+         * @generated from field: Membrane.RTC.Engine.Signalling.WebRTC.Payload.Peer peerUpdated = 3;
+         */
+        value: Payload_Peer;
+        case: "peerUpdated";
+      }
+    | {
+        /**
+         * Contains id of leaving peer
+         *
+         * @generated from field: string peerLeft = 4;
+         */
+        value: string;
+        case: "peerLeft";
+      }
+    | {
+        /**
+         * @generated from field: Membrane.RTC.Engine.Signalling.WebRTC.Payload.Track trackAdded = 5;
+         */
+        value: Payload_Track;
+        case: "trackAdded";
+      }
+    | {
+        /**
+         * @generated from field: Membrane.RTC.Engine.Signalling.WebRTC.Payload.TrackWithMetadata trackUpdated = 6;
+         */
+        value: Payload_TrackWithMetadata;
+        case: "trackUpdated";
+      }
+    | {
+        /**
+         * Id of removed track
+         *
+         * @generated from field: string trackRemoved = 7;
+         */
+        value: string;
+        case: "trackRemoved";
+      }
+    | {
+        /**
+         * @generated from field: Membrane.RTC.Engine.Signalling.WebRTC.Payload.TrackVariantSwitched variantSwitched = 8;
+         */
+        value: Payload_TrackVariantSwitched;
+        case: "variantSwitched";
+      }
+    | {
+        /**
+         * @generated from field: Membrane.RTC.Engine.Signalling.WebRTC.Payload.SdpAnswer sdpAnswer = 9;
+         */
+        value: Payload_SdpAnswer;
+        case: "sdpAnswer";
+      }
+    | {
+        /**
+         * @generated from field: Membrane.RTC.Engine.Signalling.WebRTC.Payload.OfferData offerData = 10;
+         */
+        value: Payload_OfferData;
+        case: "offerData";
+      }
+    | {
+        /**
+         * @generated from field: Membrane.RTC.Engine.Signalling.WebRTC.Payload.ICECandidate candidate = 11;
+         */
+        value: Payload_ICECandidate;
+        case: "candidate";
+      }
+    | {
+        /**
+         * @generated from field: Membrane.RTC.Engine.Signalling.WebRTC.Payload.SdpOffer sdpOffer = 12;
+         */
+        value: Payload_SdpOffer;
+        case: "sdpOffer";
+      }
+    | {
+        /**
+         * @generated from field: Membrane.RTC.Engine.Signalling.WebRTC.Payload.VoiceActivity vadNotification = 13;
+         */
+        value: Payload_VoiceActivity;
+        case: "vadNotification";
+      }
+    | {
+        /**
+         * @generated from field: uint64 bandwidthEstimation = 14;
+         */
+        value: bigint;
+        case: "bandwidthEstimation";
+      }
+    | { case: undefined; value?: undefined };
 
   constructor(data?: PartialMessage<ServerSignallingMsg>);
 
   static readonly runtime: typeof proto3;
-  static readonly typeName = "Membrane.RTC.Engine.Signalling.WebRTC.ServerSignallingMsg";
+  static readonly typeName =
+    "Membrane.RTC.Engine.Signalling.WebRTC.ServerSignallingMsg";
   static readonly fields: FieldList;
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ServerSignallingMsg;
+  static fromBinary(
+    bytes: Uint8Array,
+    options?: Partial<BinaryReadOptions>
+  ): ServerSignallingMsg;
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ServerSignallingMsg;
+  static fromJson(
+    jsonValue: JsonValue,
+    options?: Partial<JsonReadOptions>
+  ): ServerSignallingMsg;
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ServerSignallingMsg;
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): ServerSignallingMsg;
 
-  static equals(a: ServerSignallingMsg | PlainMessage<ServerSignallingMsg> | undefined, b: ServerSignallingMsg | PlainMessage<ServerSignallingMsg> | undefined): boolean;
+  static equals(
+    a: ServerSignallingMsg | PlainMessage<ServerSignallingMsg> | undefined,
+    b: ServerSignallingMsg | PlainMessage<ServerSignallingMsg> | undefined
+  ): boolean;
 }
 
 /**
@@ -202,13 +259,25 @@ export declare class Payload extends Message<Payload> {
   static readonly typeName = "Membrane.RTC.Engine.Signalling.WebRTC.Payload";
   static readonly fields: FieldList;
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Payload;
+  static fromBinary(
+    bytes: Uint8Array,
+    options?: Partial<BinaryReadOptions>
+  ): Payload;
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Payload;
+  static fromJson(
+    jsonValue: JsonValue,
+    options?: Partial<JsonReadOptions>
+  ): Payload;
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Payload;
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): Payload;
 
-  static equals(a: Payload | PlainMessage<Payload> | undefined, b: Payload | PlainMessage<Payload> | undefined): boolean;
+  static equals(
+    a: Payload | PlainMessage<Payload> | undefined,
+    b: Payload | PlainMessage<Payload> | undefined
+  ): boolean;
 }
 
 /**
@@ -218,16 +287,29 @@ export declare class Payload_Empty extends Message<Payload_Empty> {
   constructor(data?: PartialMessage<Payload_Empty>);
 
   static readonly runtime: typeof proto3;
-  static readonly typeName = "Membrane.RTC.Engine.Signalling.WebRTC.Payload.Empty";
+  static readonly typeName =
+    "Membrane.RTC.Engine.Signalling.WebRTC.Payload.Empty";
   static readonly fields: FieldList;
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Payload_Empty;
+  static fromBinary(
+    bytes: Uint8Array,
+    options?: Partial<BinaryReadOptions>
+  ): Payload_Empty;
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Payload_Empty;
+  static fromJson(
+    jsonValue: JsonValue,
+    options?: Partial<JsonReadOptions>
+  ): Payload_Empty;
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Payload_Empty;
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): Payload_Empty;
 
-  static equals(a: Payload_Empty | PlainMessage<Payload_Empty> | undefined, b: Payload_Empty | PlainMessage<Payload_Empty> | undefined): boolean;
+  static equals(
+    a: Payload_Empty | PlainMessage<Payload_Empty> | undefined,
+    b: Payload_Empty | PlainMessage<Payload_Empty> | undefined
+  ): boolean;
 }
 
 /**
@@ -247,16 +329,35 @@ export declare class Payload_TrackWithMetadata extends Message<Payload_TrackWith
   constructor(data?: PartialMessage<Payload_TrackWithMetadata>);
 
   static readonly runtime: typeof proto3;
-  static readonly typeName = "Membrane.RTC.Engine.Signalling.WebRTC.Payload.TrackWithMetadata";
+  static readonly typeName =
+    "Membrane.RTC.Engine.Signalling.WebRTC.Payload.TrackWithMetadata";
   static readonly fields: FieldList;
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Payload_TrackWithMetadata;
+  static fromBinary(
+    bytes: Uint8Array,
+    options?: Partial<BinaryReadOptions>
+  ): Payload_TrackWithMetadata;
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Payload_TrackWithMetadata;
+  static fromJson(
+    jsonValue: JsonValue,
+    options?: Partial<JsonReadOptions>
+  ): Payload_TrackWithMetadata;
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Payload_TrackWithMetadata;
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): Payload_TrackWithMetadata;
 
-  static equals(a: Payload_TrackWithMetadata | PlainMessage<Payload_TrackWithMetadata> | undefined, b: Payload_TrackWithMetadata | PlainMessage<Payload_TrackWithMetadata> | undefined): boolean;
+  static equals(
+    a:
+      | Payload_TrackWithMetadata
+      | PlainMessage<Payload_TrackWithMetadata>
+      | undefined,
+    b:
+      | Payload_TrackWithMetadata
+      | PlainMessage<Payload_TrackWithMetadata>
+      | undefined
+  ): boolean;
 }
 
 /**
@@ -286,16 +387,29 @@ export declare class Payload_Track extends Message<Payload_Track> {
   constructor(data?: PartialMessage<Payload_Track>);
 
   static readonly runtime: typeof proto3;
-  static readonly typeName = "Membrane.RTC.Engine.Signalling.WebRTC.Payload.Track";
+  static readonly typeName =
+    "Membrane.RTC.Engine.Signalling.WebRTC.Payload.Track";
   static readonly fields: FieldList;
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Payload_Track;
+  static fromBinary(
+    bytes: Uint8Array,
+    options?: Partial<BinaryReadOptions>
+  ): Payload_Track;
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Payload_Track;
+  static fromJson(
+    jsonValue: JsonValue,
+    options?: Partial<JsonReadOptions>
+  ): Payload_Track;
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Payload_Track;
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): Payload_Track;
 
-  static equals(a: Payload_Track | PlainMessage<Payload_Track> | undefined, b: Payload_Track | PlainMessage<Payload_Track> | undefined): boolean;
+  static equals(
+    a: Payload_Track | PlainMessage<Payload_Track> | undefined,
+    b: Payload_Track | PlainMessage<Payload_Track> | undefined
+  ): boolean;
 }
 
 /**
@@ -315,16 +429,29 @@ export declare class Payload_ICECandidate extends Message<Payload_ICECandidate> 
   constructor(data?: PartialMessage<Payload_ICECandidate>);
 
   static readonly runtime: typeof proto3;
-  static readonly typeName = "Membrane.RTC.Engine.Signalling.WebRTC.Payload.ICECandidate";
+  static readonly typeName =
+    "Membrane.RTC.Engine.Signalling.WebRTC.Payload.ICECandidate";
   static readonly fields: FieldList;
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Payload_ICECandidate;
+  static fromBinary(
+    bytes: Uint8Array,
+    options?: Partial<BinaryReadOptions>
+  ): Payload_ICECandidate;
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Payload_ICECandidate;
+  static fromJson(
+    jsonValue: JsonValue,
+    options?: Partial<JsonReadOptions>
+  ): Payload_ICECandidate;
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Payload_ICECandidate;
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): Payload_ICECandidate;
 
-  static equals(a: Payload_ICECandidate | PlainMessage<Payload_ICECandidate> | undefined, b: Payload_ICECandidate | PlainMessage<Payload_ICECandidate> | undefined): boolean;
+  static equals(
+    a: Payload_ICECandidate | PlainMessage<Payload_ICECandidate> | undefined,
+    b: Payload_ICECandidate | PlainMessage<Payload_ICECandidate> | undefined
+  ): boolean;
 }
 
 /**
@@ -344,16 +471,29 @@ export declare class Payload_SdpOffer extends Message<Payload_SdpOffer> {
   constructor(data?: PartialMessage<Payload_SdpOffer>);
 
   static readonly runtime: typeof proto3;
-  static readonly typeName = "Membrane.RTC.Engine.Signalling.WebRTC.Payload.SdpOffer";
+  static readonly typeName =
+    "Membrane.RTC.Engine.Signalling.WebRTC.Payload.SdpOffer";
   static readonly fields: FieldList;
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Payload_SdpOffer;
+  static fromBinary(
+    bytes: Uint8Array,
+    options?: Partial<BinaryReadOptions>
+  ): Payload_SdpOffer;
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Payload_SdpOffer;
+  static fromJson(
+    jsonValue: JsonValue,
+    options?: Partial<JsonReadOptions>
+  ): Payload_SdpOffer;
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Payload_SdpOffer;
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): Payload_SdpOffer;
 
-  static equals(a: Payload_SdpOffer | PlainMessage<Payload_SdpOffer> | undefined, b: Payload_SdpOffer | PlainMessage<Payload_SdpOffer> | undefined): boolean;
+  static equals(
+    a: Payload_SdpOffer | PlainMessage<Payload_SdpOffer> | undefined,
+    b: Payload_SdpOffer | PlainMessage<Payload_SdpOffer> | undefined
+  ): boolean;
 }
 
 /**
@@ -373,16 +513,29 @@ export declare class Payload_SdpAnswer extends Message<Payload_SdpAnswer> {
   constructor(data?: PartialMessage<Payload_SdpAnswer>);
 
   static readonly runtime: typeof proto3;
-  static readonly typeName = "Membrane.RTC.Engine.Signalling.WebRTC.Payload.SdpAnswer";
+  static readonly typeName =
+    "Membrane.RTC.Engine.Signalling.WebRTC.Payload.SdpAnswer";
   static readonly fields: FieldList;
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Payload_SdpAnswer;
+  static fromBinary(
+    bytes: Uint8Array,
+    options?: Partial<BinaryReadOptions>
+  ): Payload_SdpAnswer;
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Payload_SdpAnswer;
+  static fromJson(
+    jsonValue: JsonValue,
+    options?: Partial<JsonReadOptions>
+  ): Payload_SdpAnswer;
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Payload_SdpAnswer;
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): Payload_SdpAnswer;
 
-  static equals(a: Payload_SdpAnswer | PlainMessage<Payload_SdpAnswer> | undefined, b: Payload_SdpAnswer | PlainMessage<Payload_SdpAnswer> | undefined): boolean;
+  static equals(
+    a: Payload_SdpAnswer | PlainMessage<Payload_SdpAnswer> | undefined,
+    b: Payload_SdpAnswer | PlainMessage<Payload_SdpAnswer> | undefined
+  ): boolean;
 }
 
 /**
@@ -402,16 +555,29 @@ export declare class Payload_TrackVariant extends Message<Payload_TrackVariant> 
   constructor(data?: PartialMessage<Payload_TrackVariant>);
 
   static readonly runtime: typeof proto3;
-  static readonly typeName = "Membrane.RTC.Engine.Signalling.WebRTC.Payload.TrackVariant";
+  static readonly typeName =
+    "Membrane.RTC.Engine.Signalling.WebRTC.Payload.TrackVariant";
   static readonly fields: FieldList;
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Payload_TrackVariant;
+  static fromBinary(
+    bytes: Uint8Array,
+    options?: Partial<BinaryReadOptions>
+  ): Payload_TrackVariant;
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Payload_TrackVariant;
+  static fromJson(
+    jsonValue: JsonValue,
+    options?: Partial<JsonReadOptions>
+  ): Payload_TrackVariant;
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Payload_TrackVariant;
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): Payload_TrackVariant;
 
-  static equals(a: Payload_TrackVariant | PlainMessage<Payload_TrackVariant> | undefined, b: Payload_TrackVariant | PlainMessage<Payload_TrackVariant> | undefined): boolean;
+  static equals(
+    a: Payload_TrackVariant | PlainMessage<Payload_TrackVariant> | undefined,
+    b: Payload_TrackVariant | PlainMessage<Payload_TrackVariant> | undefined
+  ): boolean;
 }
 
 /**
@@ -431,16 +597,35 @@ export declare class Payload_TrackVariantSwitched extends Message<Payload_TrackV
   constructor(data?: PartialMessage<Payload_TrackVariantSwitched>);
 
   static readonly runtime: typeof proto3;
-  static readonly typeName = "Membrane.RTC.Engine.Signalling.WebRTC.Payload.TrackVariantSwitched";
+  static readonly typeName =
+    "Membrane.RTC.Engine.Signalling.WebRTC.Payload.TrackVariantSwitched";
   static readonly fields: FieldList;
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Payload_TrackVariantSwitched;
+  static fromBinary(
+    bytes: Uint8Array,
+    options?: Partial<BinaryReadOptions>
+  ): Payload_TrackVariantSwitched;
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Payload_TrackVariantSwitched;
+  static fromJson(
+    jsonValue: JsonValue,
+    options?: Partial<JsonReadOptions>
+  ): Payload_TrackVariantSwitched;
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Payload_TrackVariantSwitched;
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): Payload_TrackVariantSwitched;
 
-  static equals(a: Payload_TrackVariantSwitched | PlainMessage<Payload_TrackVariantSwitched> | undefined, b: Payload_TrackVariantSwitched | PlainMessage<Payload_TrackVariantSwitched> | undefined): boolean;
+  static equals(
+    a:
+      | Payload_TrackVariantSwitched
+      | PlainMessage<Payload_TrackVariantSwitched>
+      | undefined,
+    b:
+      | Payload_TrackVariantSwitched
+      | PlainMessage<Payload_TrackVariantSwitched>
+      | undefined
+  ): boolean;
 }
 
 /**
@@ -465,16 +650,29 @@ export declare class Payload_OfferData extends Message<Payload_OfferData> {
   constructor(data?: PartialMessage<Payload_OfferData>);
 
   static readonly runtime: typeof proto3;
-  static readonly typeName = "Membrane.RTC.Engine.Signalling.WebRTC.Payload.OfferData";
+  static readonly typeName =
+    "Membrane.RTC.Engine.Signalling.WebRTC.Payload.OfferData";
   static readonly fields: FieldList;
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Payload_OfferData;
+  static fromBinary(
+    bytes: Uint8Array,
+    options?: Partial<BinaryReadOptions>
+  ): Payload_OfferData;
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Payload_OfferData;
+  static fromJson(
+    jsonValue: JsonValue,
+    options?: Partial<JsonReadOptions>
+  ): Payload_OfferData;
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Payload_OfferData;
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): Payload_OfferData;
 
-  static equals(a: Payload_OfferData | PlainMessage<Payload_OfferData> | undefined, b: Payload_OfferData | PlainMessage<Payload_OfferData> | undefined): boolean;
+  static equals(
+    a: Payload_OfferData | PlainMessage<Payload_OfferData> | undefined,
+    b: Payload_OfferData | PlainMessage<Payload_OfferData> | undefined
+  ): boolean;
 }
 
 /**
@@ -509,16 +707,35 @@ export declare class Payload_OfferData_TurnServer extends Message<Payload_OfferD
   constructor(data?: PartialMessage<Payload_OfferData_TurnServer>);
 
   static readonly runtime: typeof proto3;
-  static readonly typeName = "Membrane.RTC.Engine.Signalling.WebRTC.Payload.OfferData.TurnServer";
+  static readonly typeName =
+    "Membrane.RTC.Engine.Signalling.WebRTC.Payload.OfferData.TurnServer";
   static readonly fields: FieldList;
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Payload_OfferData_TurnServer;
+  static fromBinary(
+    bytes: Uint8Array,
+    options?: Partial<BinaryReadOptions>
+  ): Payload_OfferData_TurnServer;
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Payload_OfferData_TurnServer;
+  static fromJson(
+    jsonValue: JsonValue,
+    options?: Partial<JsonReadOptions>
+  ): Payload_OfferData_TurnServer;
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Payload_OfferData_TurnServer;
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): Payload_OfferData_TurnServer;
 
-  static equals(a: Payload_OfferData_TurnServer | PlainMessage<Payload_OfferData_TurnServer> | undefined, b: Payload_OfferData_TurnServer | PlainMessage<Payload_OfferData_TurnServer> | undefined): boolean;
+  static equals(
+    a:
+      | Payload_OfferData_TurnServer
+      | PlainMessage<Payload_OfferData_TurnServer>
+      | undefined,
+    b:
+      | Payload_OfferData_TurnServer
+      | PlainMessage<Payload_OfferData_TurnServer>
+      | undefined
+  ): boolean;
 }
 
 /**
@@ -538,16 +755,29 @@ export declare class Payload_Peer extends Message<Payload_Peer> {
   constructor(data?: PartialMessage<Payload_Peer>);
 
   static readonly runtime: typeof proto3;
-  static readonly typeName = "Membrane.RTC.Engine.Signalling.WebRTC.Payload.Peer";
+  static readonly typeName =
+    "Membrane.RTC.Engine.Signalling.WebRTC.Payload.Peer";
   static readonly fields: FieldList;
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Payload_Peer;
+  static fromBinary(
+    bytes: Uint8Array,
+    options?: Partial<BinaryReadOptions>
+  ): Payload_Peer;
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Payload_Peer;
+  static fromJson(
+    jsonValue: JsonValue,
+    options?: Partial<JsonReadOptions>
+  ): Payload_Peer;
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Payload_Peer;
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): Payload_Peer;
 
-  static equals(a: Payload_Peer | PlainMessage<Payload_Peer> | undefined, b: Payload_Peer | PlainMessage<Payload_Peer> | undefined): boolean;
+  static equals(
+    a: Payload_Peer | PlainMessage<Payload_Peer> | undefined,
+    b: Payload_Peer | PlainMessage<Payload_Peer> | undefined
+  ): boolean;
 }
 
 /**
@@ -567,15 +797,27 @@ export declare class Payload_VoiceActivity extends Message<Payload_VoiceActivity
   constructor(data?: PartialMessage<Payload_VoiceActivity>);
 
   static readonly runtime: typeof proto3;
-  static readonly typeName = "Membrane.RTC.Engine.Signalling.WebRTC.Payload.VoiceActivity";
+  static readonly typeName =
+    "Membrane.RTC.Engine.Signalling.WebRTC.Payload.VoiceActivity";
   static readonly fields: FieldList;
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Payload_VoiceActivity;
+  static fromBinary(
+    bytes: Uint8Array,
+    options?: Partial<BinaryReadOptions>
+  ): Payload_VoiceActivity;
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Payload_VoiceActivity;
+  static fromJson(
+    jsonValue: JsonValue,
+    options?: Partial<JsonReadOptions>
+  ): Payload_VoiceActivity;
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Payload_VoiceActivity;
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): Payload_VoiceActivity;
 
-  static equals(a: Payload_VoiceActivity | PlainMessage<Payload_VoiceActivity> | undefined, b: Payload_VoiceActivity | PlainMessage<Payload_VoiceActivity> | undefined): boolean;
+  static equals(
+    a: Payload_VoiceActivity | PlainMessage<Payload_VoiceActivity> | undefined,
+    b: Payload_VoiceActivity | PlainMessage<Payload_VoiceActivity> | undefined
+  ): boolean;
 }
-

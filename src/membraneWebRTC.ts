@@ -897,6 +897,7 @@ export class MembraneWebRTC {
     if (parameters.encodings.length === 0) {
       parameters.encodings = [{}];
     } else {
+      // TODO: sent MediaEvent with updated variant bitrates
       this.applyBandwidthLimitation(parameters.encodings, bandwidth);
     }
 
@@ -937,6 +938,14 @@ export class MembraneWebRTC {
       delete encoding.maxBitrate;
     } else {
       encoding.maxBitrate = bandwidth * 1024;
+      let mediaEvent = generateCustomEvent({
+        type: "setTrackVariantBitrates",
+        data: {
+          trackId: trackId,
+          variantBitrates: { [rid]: bandwidth },
+        },
+      });
+      this.sendMediaEvent(mediaEvent);
     }
 
     return sender

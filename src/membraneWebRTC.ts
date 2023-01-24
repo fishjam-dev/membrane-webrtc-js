@@ -939,7 +939,7 @@ export class MembraneWebRTC {
     } else {
       encoding.maxBitrate = bandwidth * 1024;
       let mediaEvent = generateCustomEvent({
-        type: "setTrackVariantBitrates",
+        type: "trackVariantBitrates",
         data: {
           trackId: trackId,
           variantBitrates: { [rid]: bandwidth },
@@ -1264,13 +1264,16 @@ export class MembraneWebRTC {
       ([trackId, metadata]) => {
         const maxBandwidth =
           this.localTrackIdToTrack.get(trackId)!.maxBandwidth;
+        const trackMid = trackIdToMid?.get(trackId);
+        if (!trackId)
+          throw `Unavailable MID of track ${trackId}, RTCConnection might have not been established`;
         tracksInfo[trackId] = {
           trackMetadata: metadata,
           maxBandwidth:
             maxBandwidth instanceof Map
               ? Object.fromEntries(maxBandwidth)
               : maxBandwidth,
-          mid: trackIdToMid ? trackIdToMid.get(trackId!) : null,
+          mid: trackMid,
         };
       }
     );
@@ -1280,7 +1283,8 @@ export class MembraneWebRTC {
   private getTrackIdToMid = () => {
     const localTrackMidToTrackId = new Map<string, string>();
 
-    if (!this.connection) return null;
+    if (!this.connection)
+      throw "Tracks MIDs unavailable, RTCConnection might have not been established";
     this.connection.getTransceivers().forEach((transceiver) => {
       const localTrackId = transceiver.sender.track?.id;
       const mid = transceiver.mid;

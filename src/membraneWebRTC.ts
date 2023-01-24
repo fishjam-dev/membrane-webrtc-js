@@ -736,7 +736,8 @@ export class MembraneWebRTC {
     if (trackContext.maxBandwidth && transceiverConfig.sendEncodings)
       this.applyBandwidthLimitation(
         transceiverConfig.sendEncodings,
-        trackContext.maxBandwidth
+        trackContext.maxBandwidth,
+        null
       );
 
     return transceiverConfig;
@@ -744,11 +745,16 @@ export class MembraneWebRTC {
 
   private applyBandwidthLimitation(
     encodings: RTCRtpEncodingParameters[],
-    max_bandwidth: TrackBandwidthLimit
+    max_bandwidth: TrackBandwidthLimit,
+    mediaEvent: MediaEvent | null
   ) {
     if (typeof max_bandwidth === "number") {
       // non-simulcast limitation
-      this.splitBandwidth(encodings, (max_bandwidth as number) * 1024);
+      this.splitBandwidth(
+        encodings,
+        (max_bandwidth as number) * 1024,
+        mediaEvent
+      );
     } else {
       // simulcast bandwidth limit
       encodings
@@ -767,7 +773,8 @@ export class MembraneWebRTC {
 
   private splitBandwidth(
     encodings: RTCRtpEncodingParameters[],
-    bandwidth: number
+    bandwidth: number,
+    mediaEvent: MediaEvent | null
   ) {
     if (bandwidth === 0) {
       encodings.forEach((encoding) => delete encoding.maxBitrate);
@@ -794,11 +801,14 @@ export class MembraneWebRTC {
     );
     const x = bandwidth / bitrate_parts;
 
-    encodings.forEach(
-      (value) =>
-        (value.maxBitrate =
-          x * (firstScaleDownBy / (value.scaleResolutionDownBy || 1)) ** 2)
-    );
+    encodings.forEach((value) => {
+      value.maxBitrate =
+        x * (firstScaleDownBy / (value.scaleResolutionDownBy || 1)) ** 2;
+      if (mediaEvent)
+        mediaEvent.data.data.variantBitrates[value.rid!] =
+          value.maxBitrate / 1024;
+    });
+    if (mediaEvent) this.sendMediaEvent(mediaEvent);
   }
 
   /**
@@ -897,8 +907,18 @@ export class MembraneWebRTC {
     if (parameters.encodings.length === 0) {
       parameters.encodings = [{}];
     } else {
-      // TODO: sent MediaEvent with updated variant bitrates
-      this.applyBandwidthLimitation(parameters.encodings, bandwidth);
+      let mediaEvent = generateCustomEvent({
+        type: "trackVariantBitrates",
+        data: {
+          trackId: trackId,
+          variantBitrates: {},
+        },
+      });
+      this.applyBandwidthLimitation(
+        parameters.encodings,
+        bandwidth,
+        mediaEvent
+      );
     }
 
     return sender
@@ -1265,7 +1285,7 @@ export class MembraneWebRTC {
         const maxBandwidth =
           this.localTrackIdToTrack.get(trackId)!.maxBandwidth;
         const trackMid = trackIdToMid?.get(trackId);
-        if (!trackId)
+        if (!trackMid)
           throw `Unavailable MID of track ${trackId}, RTCConnection might have not been established`;
         tracksInfo[trackId] = {
           trackMetadata: metadata,

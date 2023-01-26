@@ -159,6 +159,12 @@ export interface TrackContext {
   onVoiceActivityChanged?: (this: TrackContext) => void;
 }
 
+enum TrackNegotiationStatus {
+  Awaiting,
+  Offered,
+  Done,
+}
+
 class TrackContextImpl implements TrackContext {
   peer: Peer;
   trackId: string;
@@ -172,7 +178,8 @@ class TrackContextImpl implements TrackContext {
   vadStatus: VadStatus = "silence";
   onEncodingChanged?: (this: TrackContext) => void;
   onVoiceActivityChanged?: (this: TrackContext) => void;
-  isOffered: boolean = false;
+  negotiationStatus: TrackNegotiationStatus = TrackNegotiationStatus.Awaiting;
+  onNegotiationDone: (() => void)[] = [];
 
   constructor(peer: Peer, trackId: string, metadata: any) {
     this.peer = peer;
@@ -464,6 +471,19 @@ export class MembraneWebRTC {
         this.midToTrackId = new Map(
           Object.entries(deserializedMediaEvent.data.midToTrackId)
         );
+
+        for (let trackId of Object.values(
+          deserializedMediaEvent.data.midToTrackId
+        )) {
+          const track = this.localTrackIdToTrack.get(trackId as string);
+          // if is local track
+          if (track) {
+            track.negotiationStatus = TrackNegotiationStatus.Done;
+            track.onNegotiationDone.forEach((callback) => callback());
+            track.onNegotiationDone = [];
+          }
+        }
+
         this.onAnswer(deserializedMediaEvent.data);
         break;
 
@@ -1144,13 +1164,25 @@ export class MembraneWebRTC {
     this.localTrackIdToTrack.set(trackId, trackContext);
 
     this.localPeer.trackIdToMetadata.set(trackId, trackMetadata);
+    const mediaEvent = generateMediaEvent("updateTrackMetadata", {
+      trackId,
+      trackMetadata,
+    });
 
-    if (trackContext.isOffered) {
-      let mediaEvent = generateMediaEvent("updateTrackMetadata", {
-        trackId,
-        trackMetadata,
-      });
-      this.sendMediaEvent(mediaEvent);
+    switch (trackContext.negotiationStatus) {
+      case TrackNegotiationStatus.Done:
+        this.sendMediaEvent(mediaEvent);
+        break;
+
+      case TrackNegotiationStatus.Offered:
+        trackContext.onNegotiationDone.push(() => {
+          this.sendMediaEvent(mediaEvent);
+        });
+        break;
+
+      case TrackNegotiationStatus.Awaiting:
+        // We don't need to do anything
+        break;
     }
   };
 
@@ -1263,7 +1295,7 @@ export class MembraneWebRTC {
       this.sendMediaEvent(mediaEvent);
 
       for (let track of this.localTrackIdToTrack.values()) {
-        track.isOffered = true;
+        track.negotiationStatus = TrackNegotiationStatus.Offered;
       }
     } catch (error) {
       console.error(error);

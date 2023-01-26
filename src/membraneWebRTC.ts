@@ -159,11 +159,7 @@ export interface TrackContext {
   onVoiceActivityChanged?: (this: TrackContext) => void;
 }
 
-enum TrackNegotiationStatus {
-  Awaiting,
-  Offered,
-  Done,
-}
+type TrackNegotiationStatus = "awaiting" | "offered" | "done";
 
 class TrackContextImpl implements TrackContext {
   peer: Peer;
@@ -178,8 +174,8 @@ class TrackContextImpl implements TrackContext {
   vadStatus: VadStatus = "silence";
   onEncodingChanged?: (this: TrackContext) => void;
   onVoiceActivityChanged?: (this: TrackContext) => void;
-  negotiationStatus: TrackNegotiationStatus = TrackNegotiationStatus.Awaiting;
-  onNegotiationDone: (() => void)[] = [];
+  negotiationStatus: TrackNegotiationStatus = "awaiting";
+  metadataUpdatePending: boolean = false;
 
   constructor(peer: Peer, trackId: string, metadata: any) {
     this.peer = peer;
@@ -478,9 +474,17 @@ export class MembraneWebRTC {
           const track = this.localTrackIdToTrack.get(trackId as string);
           // if is local track
           if (track) {
-            track.negotiationStatus = TrackNegotiationStatus.Done;
-            track.onNegotiationDone.forEach((callback) => callback());
-            track.onNegotiationDone = [];
+            track.negotiationStatus = "done";
+
+            if (track.metadataUpdatePending) {
+              const mediaEvent = generateMediaEvent("updateTrackMetadata", {
+                trackId,
+                metadata: track.metadata,
+              });
+              this.sendMediaEvent(mediaEvent);
+            }
+
+            track.metadataUpdatePending = false;
           }
         }
 
@@ -1170,17 +1174,15 @@ export class MembraneWebRTC {
     });
 
     switch (trackContext.negotiationStatus) {
-      case TrackNegotiationStatus.Done:
+      case "done":
         this.sendMediaEvent(mediaEvent);
         break;
 
-      case TrackNegotiationStatus.Offered:
-        trackContext.onNegotiationDone.push(() => {
-          this.sendMediaEvent(mediaEvent);
-        });
+      case "offered":
+        trackContext.metadataUpdatePending = true;
         break;
 
-      case TrackNegotiationStatus.Awaiting:
+      case "awaiting":
         // We don't need to do anything
         break;
     }
@@ -1295,7 +1297,7 @@ export class MembraneWebRTC {
       this.sendMediaEvent(mediaEvent);
 
       for (let track of this.localTrackIdToTrack.values()) {
-        track.negotiationStatus = TrackNegotiationStatus.Offered;
+        track.negotiationStatus = "offered";
       }
     } catch (error) {
       console.error(error);

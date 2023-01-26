@@ -159,6 +159,8 @@ export interface TrackContext {
   onVoiceActivityChanged?: (this: TrackContext) => void;
 }
 
+type TrackNegotiationStatus = "awaiting" | "offered" | "done";
+
 class TrackContextImpl implements TrackContext {
   peer: Peer;
   trackId: string;
@@ -172,6 +174,11 @@ class TrackContextImpl implements TrackContext {
   vadStatus: VadStatus = "silence";
   onEncodingChanged?: (this: TrackContext) => void;
   onVoiceActivityChanged?: (this: TrackContext) => void;
+  negotiationStatus: TrackNegotiationStatus = "awaiting";
+
+  // Indicates that metadata were changed when in "offered" negotiationStatus
+  // and `updateTrackMetadata` Media Event should be sent after the transition to "done"
+  pendingMetadataUpdate: boolean = false;
 
   constructor(peer: Peer, trackId: string, metadata: any) {
     this.peer = peer;
@@ -463,6 +470,27 @@ export class MembraneWebRTC {
         this.midToTrackId = new Map(
           Object.entries(deserializedMediaEvent.data.midToTrackId)
         );
+
+        for (let trackId of Object.values(
+          deserializedMediaEvent.data.midToTrackId
+        )) {
+          const track = this.localTrackIdToTrack.get(trackId as string);
+          // if is local track
+          if (track) {
+            track.negotiationStatus = "done";
+
+            if (track.pendingMetadataUpdate) {
+              const mediaEvent = generateMediaEvent("updateTrackMetadata", {
+                trackId,
+                metadata: track.metadata,
+              });
+              this.sendMediaEvent(mediaEvent);
+            }
+
+            track.pendingMetadataUpdate = false;
+          }
+        }
+
         this.onAnswer(deserializedMediaEvent.data);
         break;
 
@@ -1143,11 +1171,24 @@ export class MembraneWebRTC {
     this.localTrackIdToTrack.set(trackId, trackContext);
 
     this.localPeer.trackIdToMetadata.set(trackId, trackMetadata);
-    let mediaEvent = generateMediaEvent("updateTrackMetadata", {
+    const mediaEvent = generateMediaEvent("updateTrackMetadata", {
       trackId,
       trackMetadata,
     });
-    this.sendMediaEvent(mediaEvent);
+
+    switch (trackContext.negotiationStatus) {
+      case "done":
+        this.sendMediaEvent(mediaEvent);
+        break;
+
+      case "offered":
+        trackContext.pendingMetadataUpdate = true;
+        break;
+
+      case "awaiting":
+        // We don't need to do anything
+        break;
+    }
   };
 
   private getMidToTrackId = () => {
@@ -1257,6 +1298,10 @@ export class MembraneWebRTC {
         },
       });
       this.sendMediaEvent(mediaEvent);
+
+      for (let track of this.localTrackIdToTrack.values()) {
+        track.negotiationStatus = "offered";
+      }
     } catch (error) {
       console.error(error);
     }

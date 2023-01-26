@@ -172,6 +172,7 @@ class TrackContextImpl implements TrackContext {
   vadStatus: VadStatus = "silence";
   onEncodingChanged?: (this: TrackContext) => void;
   onVoiceActivityChanged?: (this: TrackContext) => void;
+  isOffered: boolean = false;
 
   constructor(peer: Peer, trackId: string, metadata: any) {
     this.peer = peer;
@@ -1143,11 +1144,14 @@ export class MembraneWebRTC {
     this.localTrackIdToTrack.set(trackId, trackContext);
 
     this.localPeer.trackIdToMetadata.set(trackId, trackMetadata);
-    let mediaEvent = generateMediaEvent("updateTrackMetadata", {
-      trackId,
-      trackMetadata,
-    });
-    this.sendMediaEvent(mediaEvent);
+
+    if (trackContext.isOffered) {
+      let mediaEvent = generateMediaEvent("updateTrackMetadata", {
+        trackId,
+        trackMetadata,
+      });
+      this.sendMediaEvent(mediaEvent);
+    }
   };
 
   private getMidToTrackId = () => {
@@ -1257,6 +1261,10 @@ export class MembraneWebRTC {
         },
       });
       this.sendMediaEvent(mediaEvent);
+
+      for (let track of this.localTrackIdToTrack.values()) {
+        track.isOffered = true;
+      }
     } catch (error) {
       console.error(error);
     }

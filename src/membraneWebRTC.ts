@@ -175,7 +175,10 @@ class TrackContextImpl implements TrackContext {
   onEncodingChanged?: (this: TrackContext) => void;
   onVoiceActivityChanged?: (this: TrackContext) => void;
   negotiationStatus: TrackNegotiationStatus = "awaiting";
-  metadataUpdatePending: boolean = false;
+
+  // Indicates that metadata were changed when in "offered" negotiationStatus
+  // and `updateTrackMetadata` Media Event should be sent after the transition to "done"
+  pendingMetadataUpdate: boolean = false;
 
   constructor(peer: Peer, trackId: string, metadata: any) {
     this.peer = peer;
@@ -476,7 +479,7 @@ export class MembraneWebRTC {
           if (track) {
             track.negotiationStatus = "done";
 
-            if (track.metadataUpdatePending) {
+            if (track.pendingMetadataUpdate) {
               const mediaEvent = generateMediaEvent("updateTrackMetadata", {
                 trackId,
                 metadata: track.metadata,
@@ -484,7 +487,7 @@ export class MembraneWebRTC {
               this.sendMediaEvent(mediaEvent);
             }
 
-            track.metadataUpdatePending = false;
+            track.pendingMetadataUpdate = false;
           }
         }
 
@@ -1179,7 +1182,7 @@ export class MembraneWebRTC {
         break;
 
       case "offered":
-        trackContext.metadataUpdatePending = true;
+        trackContext.pendingMetadataUpdate = true;
         break;
 
       case "awaiting":

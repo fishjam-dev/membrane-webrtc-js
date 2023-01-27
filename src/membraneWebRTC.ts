@@ -328,6 +328,7 @@ export class MembraneWebRTC {
   private midToTrackId: Map<string, string> = new Map();
   private disabledTrackEncodings: Map<string, TrackEncoding[]> = new Map();
   private rtcConfig: RTCConfiguration = {
+    bundlePolicy: "max-bundle",
     iceServers: [],
     iceTransportPolicy: "relay",
   };

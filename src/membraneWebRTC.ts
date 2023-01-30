@@ -483,7 +483,7 @@ export class MembraneWebRTC {
             if (track.pendingMetadataUpdate) {
               const mediaEvent = generateMediaEvent("updateTrackMetadata", {
                 trackId,
-                metadata: track.metadata,
+                trackMetadata: track.metadata,
               });
               this.sendMediaEvent(mediaEvent);
             }

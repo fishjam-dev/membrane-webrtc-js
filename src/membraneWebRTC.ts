@@ -1390,6 +1390,9 @@ export class MembraneWebRTC {
   }
 
   private onIceConnectionStateChange = (event: Event) => {
+    if (this.connection?.iceConnectionState === "disconnected") {
+      console.warn("ICE connection: disconnected");
+    }
     if (this.connection?.iceConnectionState === "failed") {
       this.callbacks.onConnectionError?.("Ice connection failed");
     }

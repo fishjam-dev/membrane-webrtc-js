@@ -1330,7 +1330,7 @@ export class MembraneWebRTC {
     if (!this.connection) {
       this.connection = new RTCPeerConnection(this.rtcConfig);
       this.connection.onicecandidate = this.onLocalCandidate();
-      this.connection.onicecandidateerror = this.onIceCandidateError
+      this.connection.onicecandidateerror = this.onIceCandidateError as (event: Event) => void
       this.connection.onconnectionstatechange = this.onConnectionStateChange
       this.connection.oniceconnectionstatechange = this.onIceConnectionStateChange
 
@@ -1390,11 +1390,13 @@ export class MembraneWebRTC {
   }
 
   private onIceConnectionStateChange = (event: Event) => {
-    if (this.connection?.iceConnectionState === "disconnected") {
-      console.warn("ICE connection: disconnected");
-    }
-    if (this.connection?.iceConnectionState === "failed") {
-      this.callbacks.onConnectionError?.("Ice connection failed");
+    switch (this.connection?.iceConnectionState) {
+      case "disconnected":
+        console.warn("ICE connection: disconnected");
+        break;
+      case "failed":
+        this.callbacks.onConnectionError?.("Ice connection failed");
+        break;
     }
   }
 

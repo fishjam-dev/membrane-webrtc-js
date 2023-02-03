@@ -1022,6 +1022,7 @@ export class MembraneWebRTC {
     });
     this.sendMediaEvent(mediaEvent);
   }
+
   /**
    * Currently, this function only works when DisplayManager in RTC Engine is
    * enabled and simulcast is disabled.
@@ -1228,6 +1229,9 @@ export class MembraneWebRTC {
     if (this.connection) {
       this.connection.onicecandidate = null;
       this.connection.ontrack = null;
+      this.connection.onconnectionstatechange = null;
+      this.connection.onicecandidateerror = null;
+      this.connection.oniceconnectionstatechange = null;
     }
 
     this.localTracksWithStreams.forEach(({ track }) => track.stop());
@@ -1326,6 +1330,9 @@ export class MembraneWebRTC {
     if (!this.connection) {
       this.connection = new RTCPeerConnection(this.rtcConfig);
       this.connection.onicecandidate = this.onLocalCandidate();
+      this.connection.onicecandidateerror = this.onIceCandidateError as (event: Event) => void
+      this.connection.onconnectionstatechange = this.onConnectionStateChange
+      this.connection.oniceconnectionstatechange = this.onIceConnectionStateChange
 
       Array.from(this.localTrackIdToTrack.values()).forEach((trackContext) =>
         this.addTrackToConnection(trackContext)
@@ -1371,6 +1378,27 @@ export class MembraneWebRTC {
       }
     };
   };
+
+  private onIceCandidateError = (event: RTCPeerConnectionIceErrorEvent) => {
+    console.warn(event);
+  };
+
+  private onConnectionStateChange = (event: Event) => {
+    if (this.connection?.connectionState === "failed") {
+      this.callbacks.onConnectionError?.("Connection failed");
+    }
+  }
+
+  private onIceConnectionStateChange = (event: Event) => {
+    switch (this.connection?.iceConnectionState) {
+      case "disconnected":
+        console.warn("ICE connection: disconnected");
+        break;
+      case "failed":
+        this.callbacks.onConnectionError?.("Ice connection failed");
+        break;
+    }
+  }
 
   private onTrack = () => {
     return (event: RTCTrackEvent) => {

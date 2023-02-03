@@ -1379,8 +1379,8 @@ export class MembraneWebRTC {
     };
   };
 
-  private onIceCandidateError = (event: Event) => {
-    this.callbacks.onConnectionError?.("Ice candidate error occurred");
+  private onIceCandidateError = (event: RTCPeerConnectionIceErrorEvent) => {
+    console.warn(event);
   };
 
   private onConnectionStateChange = (event: Event) => {

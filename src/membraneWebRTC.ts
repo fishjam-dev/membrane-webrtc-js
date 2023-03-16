@@ -159,6 +159,8 @@ export interface TrackContext {
   onVoiceActivityChanged?: (this: TrackContext) => void;
 }
 
+type TrackNegotiationStatus = "awaiting" | "offered" | "done";
+
 class TrackContextImpl implements TrackContext {
   peer: Peer;
   trackId: string;
@@ -172,6 +174,11 @@ class TrackContextImpl implements TrackContext {
   vadStatus: VadStatus = "silence";
   onEncodingChanged?: (this: TrackContext) => void;
   onVoiceActivityChanged?: (this: TrackContext) => void;
+  negotiationStatus: TrackNegotiationStatus = "awaiting";
+
+  // Indicates that metadata were changed when in "offered" negotiationStatus
+  // and `updateTrackMetadata` Media Event should be sent after the transition to "done"
+  pendingMetadataUpdate: boolean = false;
 
   constructor(peer: Peer, trackId: string, metadata: any) {
     this.peer = peer;
@@ -463,6 +470,27 @@ export class MembraneWebRTC {
         this.midToTrackId = new Map(
           Object.entries(deserializedMediaEvent.data.midToTrackId)
         );
+
+        for (let trackId of Object.values(
+          deserializedMediaEvent.data.midToTrackId
+        )) {
+          const track = this.localTrackIdToTrack.get(trackId as string);
+          // if is local track
+          if (track) {
+            track.negotiationStatus = "done";
+
+            if (track.pendingMetadataUpdate) {
+              const mediaEvent = generateMediaEvent("updateTrackMetadata", {
+                trackId,
+                trackMetadata: track.metadata,
+              });
+              this.sendMediaEvent(mediaEvent);
+            }
+
+            track.pendingMetadataUpdate = false;
+          }
+        }
+
         this.onAnswer(deserializedMediaEvent.data);
         break;
 
@@ -1026,6 +1054,7 @@ export class MembraneWebRTC {
     });
     this.sendMediaEvent(mediaEvent);
   }
+
   /**
    * Currently, this function only works when DisplayManager in RTC Engine is
    * enabled and simulcast is disabled.
@@ -1175,11 +1204,24 @@ export class MembraneWebRTC {
     this.localTrackIdToTrack.set(trackId, trackContext);
 
     this.localPeer.trackIdToMetadata.set(trackId, trackMetadata);
-    let mediaEvent = generateMediaEvent("updateTrackMetadata", {
+    const mediaEvent = generateMediaEvent("updateTrackMetadata", {
       trackId,
       trackMetadata,
     });
-    this.sendMediaEvent(mediaEvent);
+
+    switch (trackContext.negotiationStatus) {
+      case "done":
+        this.sendMediaEvent(mediaEvent);
+        break;
+
+      case "offered":
+        trackContext.pendingMetadataUpdate = true;
+        break;
+
+      case "awaiting":
+        // We don't need to do anything
+        break;
+    }
   };
 
   /**
@@ -1202,6 +1244,9 @@ export class MembraneWebRTC {
     if (this.connection) {
       this.connection.onicecandidate = null;
       this.connection.ontrack = null;
+      this.connection.onconnectionstatechange = null;
+      this.connection.onicecandidateerror = null;
+      this.connection.oniceconnectionstatechange = null;
     }
 
     this.localTracksWithStreams.forEach(({ track }) => track.stop());
@@ -1271,6 +1316,10 @@ export class MembraneWebRTC {
         },
       });
       this.sendMediaEvent(mediaEvent);
+
+      for (let track of this.localTrackIdToTrack.values()) {
+        track.negotiationStatus = "offered";
+      }
     } catch (error) {
       console.error(error);
     }
@@ -1327,6 +1376,9 @@ export class MembraneWebRTC {
     if (!this.connection) {
       this.connection = new RTCPeerConnection(this.rtcConfig);
       this.connection.onicecandidate = this.onLocalCandidate();
+      this.connection.onicecandidateerror = this.onIceCandidateError as (event: Event) => void
+      this.connection.onconnectionstatechange = this.onConnectionStateChange
+      this.connection.oniceconnectionstatechange = this.onIceConnectionStateChange
 
       Array.from(this.localTrackIdToTrack.values()).forEach((trackContext) =>
         this.addTrackToConnection(trackContext)
@@ -1372,6 +1424,27 @@ export class MembraneWebRTC {
       }
     };
   };
+
+  private onIceCandidateError = (event: RTCPeerConnectionIceErrorEvent) => {
+    console.warn(event);
+  };
+
+  private onConnectionStateChange = (event: Event) => {
+    if (this.connection?.connectionState === "failed") {
+      this.callbacks.onConnectionError?.("Connection failed");
+    }
+  }
+
+  private onIceConnectionStateChange = (event: Event) => {
+    switch (this.connection?.iceConnectionState) {
+      case "disconnected":
+        console.warn("ICE connection: disconnected");
+        break;
+      case "failed":
+        this.callbacks.onConnectionError?.("Ice connection failed");
+        break;
+    }
+  }
 
   private onTrack = () => {
     return (event: RTCTrackEvent) => {

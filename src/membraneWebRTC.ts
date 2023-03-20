@@ -793,9 +793,14 @@ export class MembraneWebRTC {
               encoding.rid! as TrackEncoding
             ) || 0;
 
-          if (limit > 0) encoding.maxBitrate = limit * 1024;
-          else delete encoding.maxBitrate;
+          if (limit > 0) {
+            encoding.maxBitrate = limit * 1024;
+            if (mediaEvent)
+              mediaEvent.data.data.variantBitrates[encoding.rid!] =
+                encoding.maxBitrate;
+          } else delete encoding.maxBitrate;
         });
+      if (mediaEvent) this.sendMediaEvent(mediaEvent);
     }
   }
 
@@ -989,7 +994,7 @@ export class MembraneWebRTC {
         type: "trackVariantBitrates",
         data: {
           trackId: trackId,
-          variantBitrates: { [rid]: bandwidth },
+          variantBitrates: { [rid]: encoding.maxBitrate },
         },
       });
       this.sendMediaEvent(mediaEvent);

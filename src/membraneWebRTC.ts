@@ -833,8 +833,7 @@ export class MembraneWebRTC {
       value.maxBitrate =
         x * (firstScaleDownBy / (value.scaleResolutionDownBy || 1)) ** 2;
       if (mediaEvent)
-        mediaEvent.data.data.variantBitrates[value.rid!] =
-          value.maxBitrate / 1024;
+        mediaEvent.data.data.variantBitrates[value.rid!] = value.maxBitrate;
     });
     if (mediaEvent) this.sendMediaEvent(mediaEvent);
   }
@@ -1224,6 +1223,23 @@ export class MembraneWebRTC {
     }
   };
 
+  private getMidToTrackId = () => {
+    const localTrackMidToTrackId = {} as any;
+
+    if (!this.connection) return null;
+    this.connection.getTransceivers().forEach((transceiver) => {
+      const localTrackId = transceiver.sender.track?.id;
+      const mid = transceiver.mid;
+      if (localTrackId && mid) {
+        const trackContext = Array.from(this.localTrackIdToTrack.values()).find(
+          (trackContext) => trackContext!.track!!.id === localTrackId
+        )!;
+        localTrackMidToTrackId[mid] = trackContext.trackId;
+      }
+    });
+    return localTrackMidToTrackId;
+  };
+
   /**
    * Leaves the room. This function should be called when user leaves the room
    * in a clean way e.g. by clicking a dedicated, custom button `disconnect`.
@@ -1312,7 +1328,9 @@ export class MembraneWebRTC {
         type: "sdpOffer",
         data: {
           sdpOffer: offer,
-          trackIdToTrackInfo: this.getTrackIdToTrackInfo(),
+          trackIdToTrackMetadata: this.getTrackIdToMetadata(),
+          trackIdToTrackBitrates: this.getTrackIdToTrackBitrates(),
+          midToTrackId: this.getMidToTrackId(),
         },
       });
       this.sendMediaEvent(mediaEvent);
@@ -1325,46 +1343,33 @@ export class MembraneWebRTC {
     }
   }
 
-  private getTrackIdToTrackInfo = () => {
-    const trackIdToMid = this.getTrackIdToMid();
-
-    const tracksInfo = {} as any;
+  private getTrackIdToMetadata = () => {
+    const trackIdToMetadata = {} as any;
     Array.from(this.localPeer.trackIdToMetadata.entries()).forEach(
       ([trackId, metadata]) => {
-        const maxBandwidth =
-          this.localTrackIdToTrack.get(trackId)!.maxBandwidth;
-        const trackMid = trackIdToMid?.get(trackId);
-        if (!trackMid)
-          throw `Unavailable MID of track ${trackId}, RTCConnection might have not been established`;
-        tracksInfo[trackId] = {
-          trackMetadata: metadata,
-          maxBandwidth:
-            maxBandwidth instanceof Map
-              ? Object.fromEntries(maxBandwidth)
-              : maxBandwidth,
-          mid: trackMid,
-        };
+        trackIdToMetadata[trackId] = metadata;
       }
     );
-    return tracksInfo;
+    return trackIdToMetadata;
   };
 
-  private getTrackIdToMid = () => {
-    const localTrackMidToTrackId = new Map<string, string>();
-
-    if (!this.connection)
-      throw "Tracks MIDs unavailable, RTCConnection might have not been established";
-    this.connection.getTransceivers().forEach((transceiver) => {
-      const localTrackId = transceiver.sender.track?.id;
-      const mid = transceiver.mid;
-      if (localTrackId && mid) {
-        const trackContext = Array.from(this.localTrackIdToTrack.values()).find(
-          (trackContext) => trackContext!.track!!.id === localTrackId
-        )!;
-        localTrackMidToTrackId.set(trackContext.trackId, mid);
+  private getTrackIdToTrackBitrates = () => {
+    const trackIdToTrackBitrates = {} as any;
+    Array.from(this.localPeer.trackIdToMetadata.entries()).forEach(
+      ([trackId, _metadata]) => {
+        let bitrates = this.localTrackIdToTrack.get(trackId)!.maxBandwidth;
+        if (bitrates instanceof Map) {
+          bitrates.forEach((value, key) =>
+            (bitrates as SimulcastBandwidthLimit).set(key, value * 1024)
+          );
+        }
+        trackIdToTrackBitrates[trackId] =
+          bitrates instanceof Map
+            ? Object.fromEntries(bitrates)
+            : bitrates * 1024;
       }
-    });
-    return localTrackMidToTrackId;
+    );
+    return trackIdToTrackBitrates;
   };
 
   private checkIfTrackBelongToPeer = (trackId: string, peer: Peer) =>
@@ -1376,9 +1381,12 @@ export class MembraneWebRTC {
     if (!this.connection) {
       this.connection = new RTCPeerConnection(this.rtcConfig);
       this.connection.onicecandidate = this.onLocalCandidate();
-      this.connection.onicecandidateerror = this.onIceCandidateError as (event: Event) => void
-      this.connection.onconnectionstatechange = this.onConnectionStateChange
-      this.connection.oniceconnectionstatechange = this.onIceConnectionStateChange
+      this.connection.onicecandidateerror = this.onIceCandidateError as (
+        event: Event
+      ) => void;
+      this.connection.onconnectionstatechange = this.onConnectionStateChange;
+      this.connection.oniceconnectionstatechange =
+        this.onIceConnectionStateChange;
 
       Array.from(this.localTrackIdToTrack.values()).forEach((trackContext) =>
         this.addTrackToConnection(trackContext)
@@ -1433,7 +1441,7 @@ export class MembraneWebRTC {
     if (this.connection?.connectionState === "failed") {
       this.callbacks.onConnectionError?.("Connection failed");
     }
-  }
+  };
 
   private onIceConnectionStateChange = (event: Event) => {
     switch (this.connection?.iceConnectionState) {
@@ -1444,7 +1452,7 @@ export class MembraneWebRTC {
         this.callbacks.onConnectionError?.("Ice connection failed");
         break;
     }
-  }
+  };
 
   private onTrack = () => {
     return (event: RTCTrackEvent) => {

@@ -1362,16 +1362,13 @@ export class MembraneWebRTC {
     else if (kind == "audio")
       throw "Audio track cannot have multiple encodings";
 
-    let bitrates = {};
+    let bitrates = {} as any;
 
     encodings
       .filter((encoding) => encoding.rid)
       .forEach((encoding) => {
         const rid = encoding.rid! as TrackEncoding;
-        bitrates = {
-          ...bitrates,
-          [rid]: encoding.maxBitrate || defaultSimulcastBitrates[rid],
-        };
+        bitrates[rid] = encoding.maxBitrate || defaultSimulcastBitrates[rid];
       });
 
     return bitrates;

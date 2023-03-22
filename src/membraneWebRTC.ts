@@ -1217,8 +1217,6 @@ export class MembraneWebRTC {
         // We don't need to do anything
         break;
     }
-
-    this.setTrackBandwidth(trackId, 5_000);
   };
 
   private getMidToTrackId = () => {

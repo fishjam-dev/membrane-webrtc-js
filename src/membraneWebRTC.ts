@@ -101,7 +101,7 @@ export interface SimulcastConfig {
 /**
  * Track's context i.e. all data that can be useful when operating on track.
  */
-export interface TrackContext {
+interface TrackContextFields {
   readonly track: MediaStreamTrack | null;
 
   /**
@@ -147,6 +147,9 @@ export interface TrackContext {
    */
   readonly encodingReason?: EncodingReason;
 
+}
+
+interface TrackContextCallbacks {
   /**
    * Called each time track encoding has changed.
    *
@@ -157,17 +160,23 @@ export interface TrackContext {
    *
    * Some of those reasons are indicated in {@link TrackContext.encodingReason}.
    */
-  onEncodingChanged?: (this: TrackContext) => void;
+  onEncodingChanged?: (context: TrackContext) => void;
 
   /**
    * Called every time an update about voice activity is received from the server.
    */
-  onVoiceActivityChanged?: (this: TrackContext) => void;
+  onVoiceActivityChanged?: (context: TrackContext) => void;
 }
+
+export interface TrackContext extends TrackContextFields, TrackContextCallbacks { }
+
+
 
 type TrackNegotiationStatus = "awaiting" | "offered" | "done";
 
-class TrackContextImpl implements TrackContext {
+class TrackContextImpl extends (EventEmitter as new () => TypedEmitter<
+  Partial<TrackContextCallbacks>
+>) implements TrackContext {
   peer: Peer;
   trackId: string;
   track: MediaStreamTrack | null = null;
@@ -187,6 +196,7 @@ class TrackContextImpl implements TrackContext {
   pendingMetadataUpdate: boolean = false;
 
   constructor(peer: Peer, trackId: string, metadata: any) {
+    super();
     this.peer = peer;
     this.trackId = trackId;
     this.metadata = metadata;
@@ -608,6 +618,7 @@ export class MembraneWebRTC extends (EventEmitter as new () => TypedEmitter<
         trackContext.encodingReason = deserializedMediaEvent.data.reason;
 
         trackContext.onEncodingChanged?.();
+        trackContext.emit("onEncodingChanged", trackContext);
 
         // will be removed in the future
         this.callbacks?.onTrackEncodingChanged?.(
@@ -644,6 +655,7 @@ export class MembraneWebRTC extends (EventEmitter as new () => TypedEmitter<
         if (vadStatuses.includes(vadStatus)) {
           ctx.vadStatus = vadStatus;
           ctx.onVoiceActivityChanged?.();
+          ctx.emit("onVoiceActivityChanged", ctx);
         } else {
           console.warn("Received unknown vad status: ", vadStatus);
         }

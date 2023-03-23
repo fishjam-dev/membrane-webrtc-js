@@ -7,9 +7,13 @@ import {
   serializeMediaEvent,
 } from "./mediaEvent";
 import { v4 as uuidv4 } from "uuid";
-import { simulcastTransceiverConfig } from "./const";
 import TypedEmitter from "typed-emitter";
 import { EventEmitter } from "events";
+import {
+  simulcastTransceiverConfig,
+  defaultBitrates,
+  defaultSimulcastBitrates,
+} from "./const";
 
 /**
  * Interface describing Peer.
@@ -714,6 +718,8 @@ export class MembraneWebRTC extends (EventEmitter as new () => TypedEmitter<
     simulcastConfig: SimulcastConfig = { enabled: false, active_encodings: [] },
     maxBandwidth: TrackBandwidthLimit = 0 // unlimited bandwidth
   ): string {
+    if (!simulcastConfig.enabled && !(typeof maxBandwidth === "number"))
+      throw "Invalid type of `maxBandwidth` argument for a non-simulcast track, expected: number";
     if (this.getPeerId() === "")
       throw "Cannot add tracks before being accepted by the server";
     const trackId = this.getTrackId(uuidv4());
@@ -740,10 +746,10 @@ export class MembraneWebRTC extends (EventEmitter as new () => TypedEmitter<
         .getTransceivers()
         .forEach(
           (transceiver) =>
-            (transceiver.direction =
-              transceiver.direction === "sendrecv"
-                ? "sendonly"
-                : transceiver.direction)
+          (transceiver.direction =
+            transceiver.direction === "sendrecv"
+              ? "sendonly"
+              : transceiver.direction)
         );
     }
 
@@ -835,8 +841,9 @@ export class MembraneWebRTC extends (EventEmitter as new () => TypedEmitter<
               encoding.rid! as TrackEncoding
             ) || 0;
 
-          if (limit > 0) encoding.maxBitrate = limit * 1024;
-          else delete encoding.maxBitrate;
+          if (limit > 0) {
+            encoding.maxBitrate = limit * 1024;
+          } else delete encoding.maxBitrate;
         });
     }
   }
@@ -870,11 +877,10 @@ export class MembraneWebRTC extends (EventEmitter as new () => TypedEmitter<
     );
     const x = bandwidth / bitrate_parts;
 
-    encodings.forEach(
-      (value) =>
-        (value.maxBitrate =
-          x * (firstScaleDownBy / (value.scaleResolutionDownBy || 1)) ** 2)
-    );
+    encodings.forEach((value) => {
+      value.maxBitrate =
+        x * (firstScaleDownBy / (value.scaleResolutionDownBy || 1)) ** 2;
+    });
   }
 
   /**
@@ -960,13 +966,14 @@ export class MembraneWebRTC extends (EventEmitter as new () => TypedEmitter<
     trackId: string,
     bandwidth: BandwidthLimit
   ): Promise<boolean> {
+    // FIXME: maxBandwidth in TrackContext is not updated
     const trackContext = this.localTrackIdToTrack.get(trackId);
 
     if (!trackContext) {
       return Promise.reject(`Track '${trackId}' doesn't exist`);
     }
 
-    const sender = this.findSender(trackContext.track!!.id);
+    const sender = this.findSender(trackContext.track!.id);
     const parameters = sender.getParameters();
 
     if (parameters.encodings.length === 0) {
@@ -977,8 +984,18 @@ export class MembraneWebRTC extends (EventEmitter as new () => TypedEmitter<
 
     return sender
       .setParameters(parameters)
-      .then(() => true)
-      .catch(() => false);
+      .then(() => {
+        let mediaEvent = generateCustomEvent({
+          type: "trackVariantBitrates",
+          data: {
+            trackId: trackId,
+            variantBitrates: this.getTrackBitrates(trackId),
+          },
+        });
+        this.sendMediaEvent(mediaEvent);
+        return true;
+      })
+      .catch((_error) => false);
   }
 
   /**
@@ -1016,7 +1033,17 @@ export class MembraneWebRTC extends (EventEmitter as new () => TypedEmitter<
 
     return sender
       .setParameters(parameters)
-      .then(() => true)
+      .then(() => {
+        let mediaEvent = generateCustomEvent({
+          type: "trackVariantBitrates",
+          data: {
+            trackId: trackId,
+            variantBitrates: this.getTrackBitrates(trackId),
+          },
+        });
+        this.sendMediaEvent(mediaEvent);
+        return true;
+      })
       .catch((_error) => false);
   }
 
@@ -1350,6 +1377,7 @@ export class MembraneWebRTC extends (EventEmitter as new () => TypedEmitter<
         data: {
           sdpOffer: offer,
           trackIdToTrackMetadata: this.getTrackIdToMetadata(),
+          trackIdToTrackBitrates: this.getTrackIdToTrackBitrates(),
           midToTrackId: this.getMidToTrackId(),
         },
       });
@@ -1371,6 +1399,43 @@ export class MembraneWebRTC extends (EventEmitter as new () => TypedEmitter<
       }
     );
     return trackIdToMetadata;
+  };
+
+  private getTrackBitrates = (trackId: string) => {
+    const trackContext = this.localTrackIdToTrack.get(trackId);
+    if (!trackContext)
+      throw "Track with id ${trackId} not present in 'localTrackIdToTrack'";
+    const kind = trackContext.track!.kind as "audio" | "video";
+    const sender = this.findSender(trackContext.track!.id);
+    const encodings = sender.getParameters().encodings;
+
+    if (encodings.length == 1 && !encodings[0].rid)
+      return encodings[0].maxBitrate || defaultBitrates[kind];
+    else if (kind == "audio")
+      throw "Audio track cannot have multiple encodings";
+
+    let bitrates = {} as any;
+
+    encodings
+      .filter((encoding) => encoding.rid)
+      .forEach((encoding) => {
+        const rid = encoding.rid! as TrackEncoding;
+        bitrates[rid] = encoding.maxBitrate || defaultSimulcastBitrates[rid];
+      });
+
+    return bitrates;
+  };
+
+  private getTrackIdToTrackBitrates = () => {
+    const trackIdToTrackBitrates = {} as any;
+
+    Array.from(this.localPeer.trackIdToMetadata.entries()).forEach(
+      ([trackId, _metadata]) => {
+        trackIdToTrackBitrates[trackId] = this.getTrackBitrates(trackId);
+      }
+    );
+
+    return trackIdToTrackBitrates;
   };
 
   private checkIfTrackBelongToPeer = (trackId: string, peer: Peer) =>

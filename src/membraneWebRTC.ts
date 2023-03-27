@@ -168,15 +168,11 @@ interface TrackContextCallbacks {
   onVoiceActivityChanged?: (context: TrackContext) => void;
 }
 
-export interface TrackContext extends TrackContextFields, TrackContextCallbacks { }
-
-
+export interface TrackContext extends TrackContextFields, TrackContextCallbacks, TypedEmitter<Required<TrackContextCallbacks>> { }
 
 type TrackNegotiationStatus = "awaiting" | "offered" | "done";
 
-class TrackContextImpl extends (EventEmitter as new () => TypedEmitter<
-  Partial<TrackContextCallbacks>
->) implements TrackContext {
+class TrackContextImpl extends (EventEmitter as new () => TypedEmitter<Required<TrackContextCallbacks>>) implements TrackContext {
   peer: Peer;
   trackId: string;
   track: MediaStreamTrack | null = null;
@@ -327,9 +323,7 @@ export interface Callbacks {
 /**
  * Main class that is responsible for connecting to the RTC Engine, sending and receiving media.
  */
-export class MembraneWebRTC extends (EventEmitter as new () => TypedEmitter<
-  Partial<Callbacks>
->) {
+export class MembraneWebRTC extends (EventEmitter as new () => TypedEmitter<Required<Callbacks>>) {
   private localTracksWithStreams: {
     track: MediaStreamTrack;
     stream: MediaStream;

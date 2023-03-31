@@ -1261,7 +1261,6 @@ export class MembraneWebRTC {
       this.connection.oniceconnectionstatechange = null;
     }
 
-    this.localTracksWithStreams.forEach(({ track }) => track.stop());
     this.localTracksWithStreams = [];
     this.connection = undefined;
   };

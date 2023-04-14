@@ -7,6 +7,8 @@ import {
   serializeMediaEvent,
 } from "./mediaEvent";
 import { v4 as uuidv4 } from "uuid";
+import TypedEmitter from "typed-emitter";
+import { EventEmitter } from "events";
 import {
   simulcastTransceiverConfig,
   defaultBitrates,
@@ -99,7 +101,7 @@ export interface SimulcastConfig {
 /**
  * Track's context i.e. all data that can be useful when operating on track.
  */
-export interface TrackContext {
+interface TrackContextFields {
   readonly track: MediaStreamTrack | null;
 
   /**
@@ -145,6 +147,9 @@ export interface TrackContext {
    */
   readonly encodingReason?: EncodingReason;
 
+}
+
+interface TrackContextCallbacks {
   /**
    * Called each time track encoding has changed.
    *
@@ -155,17 +160,19 @@ export interface TrackContext {
    *
    * Some of those reasons are indicated in {@link TrackContext.encodingReason}.
    */
-  onEncodingChanged?: (this: TrackContext) => void;
+  onEncodingChanged?: (context: TrackContext) => void;
 
   /**
    * Called every time an update about voice activity is received from the server.
    */
-  onVoiceActivityChanged?: (this: TrackContext) => void;
+  onVoiceActivityChanged?: (context: TrackContext) => void;
 }
+
+export interface TrackContext extends TrackContextFields, TrackContextCallbacks, TypedEmitter<Required<TrackContextCallbacks>> { }
 
 type TrackNegotiationStatus = "awaiting" | "offered" | "done";
 
-class TrackContextImpl implements TrackContext {
+class TrackContextImpl extends (EventEmitter as new () => TypedEmitter<Required<TrackContextCallbacks>>) implements TrackContext {
   peer: Peer;
   trackId: string;
   track: MediaStreamTrack | null = null;
@@ -185,6 +192,7 @@ class TrackContextImpl implements TrackContext {
   pendingMetadataUpdate: boolean = false;
 
   constructor(peer: Peer, trackId: string, metadata: any) {
+    super();
     this.peer = peer;
     this.trackId = trackId;
     this.metadata = metadata;
@@ -315,7 +323,7 @@ export interface Callbacks {
 /**
  * Main class that is responsible for connecting to the RTC Engine, sending and receiving media.
  */
-export class MembraneWebRTC {
+export class MembraneWebRTC extends (EventEmitter as new () => TypedEmitter<Required<Callbacks>>) {
   private localTracksWithStreams: {
     track: MediaStreamTrack;
     stream: MediaStream;
@@ -336,11 +344,11 @@ export class MembraneWebRTC {
     iceTransportPolicy: "relay",
   };
 
-  private readonly callbacks: Callbacks;
+  private readonly callbacks?: Callbacks;
 
-  constructor(config: MembraneWebRTCConfig) {
-    const { callbacks } = config;
-    this.callbacks = callbacks;
+  constructor(config?: MembraneWebRTCConfig) {
+    super();
+    this.callbacks = config?.callbacks;
   }
 
   /**
@@ -364,7 +372,9 @@ export class MembraneWebRTC {
       });
       this.sendMediaEvent(mediaEvent);
     } catch (e: any) {
-      this.callbacks.onConnectionError?.(e);
+      this.callbacks?.onConnectionError?.(e);
+      this.emit("onConnectionError", e);
+
       this.leave();
     }
   };
@@ -389,7 +399,13 @@ export class MembraneWebRTC {
     switch (deserializedMediaEvent.type) {
       case "peerAccepted":
         this.localPeer.id = deserializedMediaEvent.data.id;
-        this.callbacks.onJoinSuccess?.(
+
+        this.callbacks?.onJoinSuccess?.(
+          deserializedMediaEvent.data.id,
+          deserializedMediaEvent.data.peersInRoom
+        );
+        this.emit(
+          "onJoinSuccess",
           deserializedMediaEvent.data.id,
           deserializedMediaEvent.data.peersInRoom
         );
@@ -404,14 +420,17 @@ export class MembraneWebRTC {
             ([trackId, metadata]) => {
               const ctx = new TrackContextImpl(peer, trackId, metadata);
               this.trackIdToTrack.set(trackId, ctx);
-              this.callbacks.onTrackAdded?.(ctx);
+
+              this.callbacks?.onTrackAdded?.(ctx);
+              this.emit("onTrackAdded", ctx);
             }
           );
         });
         break;
 
       case "peerDenied":
-        this.callbacks.onJoinError?.(deserializedMediaEvent.data);
+        this.callbacks?.onJoinError?.(deserializedMediaEvent.data);
+        this.emit("onJoinError", deserializedMediaEvent.data);
         break;
 
       default:
@@ -453,7 +472,9 @@ export class MembraneWebRTC {
             if (!oldTrackIdToMetadata.has(trackId)) {
               const ctx = new TrackContextImpl(peer, trackId, metadata);
               this.trackIdToTrack.set(trackId, ctx);
-              this.callbacks.onTrackAdded?.(ctx);
+
+              this.callbacks?.onTrackAdded?.(ctx);
+              this.emit("onTrackAdded", ctx);
             }
           }
         );
@@ -465,7 +486,10 @@ export class MembraneWebRTC {
         const trackIds = data.trackIds as string[];
         trackIds.forEach((trackId) => {
           const trackContext = this.trackIdToTrack.get(trackId)!;
-          this.callbacks.onTrackRemoved?.(trackContext);
+
+          this.callbacks?.onTrackRemoved?.(trackContext);
+          this.emit("onTrackRemoved", trackContext);
+
           this.eraseTrack(trackId, peerId);
         });
         break;
@@ -506,17 +530,24 @@ export class MembraneWebRTC {
         peer = deserializedMediaEvent.data.peer;
         if (peer.id === this.getPeerId()) return;
         this.addPeer(peer);
-        this.callbacks.onPeerJoined?.(peer);
+
+        this.callbacks?.onPeerJoined?.(peer);
+        this.emit("onPeerJoined", peer);
         break;
 
       case "peerLeft":
         peer = this.idToPeer.get(deserializedMediaEvent.data.peerId)!;
         if (peer === undefined) return;
-        Array.from(peer.trackIdToMetadata.keys()).forEach((trackId) =>
-          this.callbacks.onTrackRemoved?.(this.trackIdToTrack.get(trackId)!)
-        );
+
+        Array.from(peer.trackIdToMetadata.keys()).forEach((trackId) => {
+          this.callbacks?.onTrackRemoved?.(this.trackIdToTrack.get(trackId)!);
+          this.emit("onTrackRemoved", this.trackIdToTrack.get(trackId)!);
+        });
+
         this.erasePeer(peer);
-        this.callbacks.onPeerLeft?.(peer);
+
+        this.callbacks?.onPeerLeft?.(peer);
+        this.emit("onPeerLeft", peer);
         break;
 
       case "peerUpdated":
@@ -524,7 +555,9 @@ export class MembraneWebRTC {
         peer = this.idToPeer.get(deserializedMediaEvent.data.peerId)!;
         peer.metadata = deserializedMediaEvent.data.metadata;
         this.addPeer(peer);
-        this.callbacks.onPeerUpdated?.(peer);
+
+        this.callbacks?.onPeerUpdated?.(peer);
+        this.emit("onPeerUpdated", peer);
         break;
 
       case "peerRemoved":
@@ -535,20 +568,25 @@ export class MembraneWebRTC {
           return;
         }
 
-        this.callbacks.onRemoved?.(deserializedMediaEvent.data.reason);
+        this.callbacks?.onRemoved?.(deserializedMediaEvent.data.reason);
+        this.emit("onRemoved", deserializedMediaEvent.data.reason);
         break;
 
       case "trackUpdated": {
         if (this.getPeerId() === deserializedMediaEvent.data.peerId) return;
+
         peer = this.idToPeer.get(deserializedMediaEvent.data.peerId)!;
         if (peer == null)
           throw `Peer with id: ${deserializedMediaEvent.data.peerId} doesn't exist`;
+
         const trackId = deserializedMediaEvent.data.trackId;
         const trackMetadata = deserializedMediaEvent.data.metadata;
         peer.trackIdToMetadata.set(trackId, trackMetadata);
         const trackContext = this.trackIdToTrack.get(trackId)!;
         trackContext.metadata = trackMetadata;
-        this.callbacks.onTrackUpdated?.(trackContext);
+
+        this.callbacks?.onTrackUpdated?.(trackContext);
+        this.emit("onTrackUpdated", trackContext);
         break;
       }
 
@@ -556,11 +594,16 @@ export class MembraneWebRTC {
         const enabledTracks = (
           deserializedMediaEvent.data.tracks as string[]
         ).map((trackId) => this.trackIdToTrack.get(trackId)!!);
+
         const disabledTracks = Array.from(this.trackIdToTrack.values()).filter(
           (track) => !enabledTracks.includes(track)
         );
 
-        this.callbacks.onTracksPriorityChanged?.(enabledTracks, disabledTracks);
+        this.callbacks?.onTracksPriorityChanged?.(
+          enabledTracks,
+          disabledTracks
+        );
+        this.emit("onTracksPriorityChanged", enabledTracks, disabledTracks);
 
       case "encodingSwitched":
         const trackId = deserializedMediaEvent.data.trackId;
@@ -569,9 +612,16 @@ export class MembraneWebRTC {
         trackContext.encodingReason = deserializedMediaEvent.data.reason;
 
         trackContext.onEncodingChanged?.();
+        trackContext.emit("onEncodingChanged", trackContext);
 
         // will be removed in the future
-        this.callbacks.onTrackEncodingChanged?.(
+        this.callbacks?.onTrackEncodingChanged?.(
+          trackContext.peer.id,
+          trackId,
+          trackContext.encoding!
+        );
+        this.emit(
+          "onTrackEncodingChanged",
           trackContext.peer.id,
           trackId,
           trackContext.encoding!
@@ -584,7 +634,11 @@ export class MembraneWebRTC {
         break;
 
       case "error":
-        this.callbacks.onConnectionError?.(deserializedMediaEvent.data.message);
+        this.callbacks?.onConnectionError?.(
+          deserializedMediaEvent.data.message
+        );
+        this.emit("onConnectionError", deserializedMediaEvent.data.message);
+
         this.leave();
         break;
 
@@ -595,6 +649,7 @@ export class MembraneWebRTC {
         if (vadStatuses.includes(vadStatus)) {
           ctx.vadStatus = vadStatus;
           ctx.onVoiceActivityChanged?.();
+          ctx.emit("onVoiceActivityChanged", ctx);
         } else {
           console.warn("Received unknown vad status: ", vadStatus);
         }
@@ -604,7 +659,8 @@ export class MembraneWebRTC {
       case "bandwidthEstimation": {
         const estimation = deserializedMediaEvent.data.estimation;
 
-        this.callbacks.onBandwidthEstimationChanged?.(estimation as bigint);
+        this.callbacks?.onBandwidthEstimationChanged?.(estimation as bigint);
+        this.emit("onBandwidthEstimationChanged", estimation as bigint);
         break;
       }
 
@@ -696,10 +752,10 @@ export class MembraneWebRTC {
         .getTransceivers()
         .forEach(
           (transceiver) =>
-            (transceiver.direction =
-              transceiver.direction === "sendrecv"
-                ? "sendonly"
-                : transceiver.direction)
+          (transceiver.direction =
+            transceiver.direction === "sendrecv"
+              ? "sendonly"
+              : transceiver.direction)
         );
     }
 
@@ -1270,7 +1326,9 @@ export class MembraneWebRTC {
   }
 
   private sendMediaEvent = (mediaEvent: MediaEvent) => {
-    this.callbacks.onSendMediaEvent(serializeMediaEvent(mediaEvent));
+    const serializedMediaEvent = serializeMediaEvent(mediaEvent);
+    this.callbacks?.onSendMediaEvent(serializedMediaEvent);
+    this.emit("onSendMediaEvent", serializedMediaEvent);
   };
 
   private onAnswer = async (answer: RTCSessionDescriptionInit) => {
@@ -1452,17 +1510,22 @@ export class MembraneWebRTC {
 
   private onConnectionStateChange = (event: Event) => {
     if (this.connection?.connectionState === "failed") {
-      this.callbacks.onConnectionError?.("Connection failed");
+      const message = "Connection failed";
+      this.callbacks?.onConnectionError?.(message);
+      this.emit("onConnectionError", message);
     }
   };
 
   private onIceConnectionStateChange = (event: Event) => {
+    const errorMessages = "Ice connection failed";
+
     switch (this.connection?.iceConnectionState) {
       case "disconnected":
         console.warn("ICE connection: disconnected");
         break;
       case "failed":
-        this.callbacks.onConnectionError?.("Ice connection failed");
+        this.callbacks?.onConnectionError?.(errorMessages);
+        this.emit("onConnectionError", errorMessages);
         break;
     }
   };
@@ -1479,7 +1542,8 @@ export class MembraneWebRTC {
       trackContext.stream = stream;
       trackContext.track = event.track;
 
-      this.callbacks.onTrackReady?.(trackContext);
+      this.callbacks?.onTrackReady?.(trackContext);
+      this.emit("onTrackReady", trackContext);
     };
   };
 

@@ -63,7 +63,7 @@ export type SimulcastBandwidthLimit = Map<TrackEncoding, BandwidthLimit>;
 export type TrackBandwidthLimit = BandwidthLimit | SimulcastBandwidthLimit;
 
 /**
- * Type describing possible reasons of currently selected encoding.
+ * Type describing possible reasons for currently selected encoding.
  * - `other` - the exact reason couldn't be determined
  * - `encodingInactive` - previously selected encoding became inactive
  * - `lowBandwidth` - there is no longer enough bandwidth to maintain previously selected encoding
@@ -82,7 +82,7 @@ export interface MembraneWebRTCConfig {
  *
  * At the moment, simulcast track is initialized in three versions - low, medium and high.
  * High resolution is the original track resolution, while medium and low resolutions
- * are the original track resoultion scaled down by 2 and 4 respectively.
+ * are the original track resolution scaled down by 2 and 4 respectively.
  */
 export interface SimulcastConfig {
   /**
@@ -213,7 +213,7 @@ class TrackContextImpl extends (EventEmitter as new () => TypedEmitter<Required<
 export type TrackEncoding = "l" | "m" | "h";
 
 /**
- * Callbacks that has to be implemented by user.
+ * Callbacks that have to be implemented by the user.
  */
 export interface Callbacks {
   /**
@@ -240,7 +240,7 @@ export interface Callbacks {
    * Called when data in a new track arrives.
    *
    * This callback is always called after {@link onTrackAdded}.
-   * It informs user that data related to the given track arrives and can be played or displayed.
+   * It informs the user that data related to the given track arrives and can be played or displayed.
    */
   onTrackReady?: (ctx: TrackContext) => void;
   /**
@@ -312,7 +312,7 @@ export interface Callbacks {
   ) => void;
 
   /**
-   * Called every time the server estimates client's bandiwdth.
+   * Called every time the server estimates client's bandwidth.
    *
    * @param {bigint} estimation - client's available incoming bitrate estimated
    * by the server. It's measured in bits per second.
@@ -352,7 +352,7 @@ export class MembraneWebRTC extends (EventEmitter as new () => TypedEmitter<Requ
   }
 
   /**
-   * Tries to join to the RTC Engine. If user is accepted then {@link Callbacks.onJoinSuccess}
+   * Tries to join the RTC Engine. If user is accepted then {@link Callbacks.onJoinSuccess}
    * will be called. In other case {@link Callbacks.onJoinError} is invoked.
    *
    * @param peerMetadata - Any information that other peers will receive in {@link Callbacks.onPeerJoined}
@@ -387,7 +387,7 @@ export class MembraneWebRTC extends (EventEmitter as new () => TypedEmitter<Requ
    * @param mediaEvent - String data received over custom signalling layer.
    *
    * @example
-   * This example assumes pheonix channels as signalling layer.
+   * This example assumes phoenix channels as signalling layer.
    * As phoenix channels require objects, RTC Engine encapsulates binary data into
    * map with one field that is converted to object with one field on the TS side.
    * ```ts
@@ -678,7 +678,7 @@ export class MembraneWebRTC extends (EventEmitter as new () => TypedEmitter<Requ
    * @param track - Audio or video track e.g. from your microphone or camera.
    * @param stream  - Stream that this track belongs to.
    * @param trackMetadata - Any information about this track that other peers will
-   * receive in {@link Callbacks.onPeerJoined}. E.g. this can source of the track - wheather it's
+   * receive in {@link Callbacks.onPeerJoined}. E.g. this can source of the track - whether it's
    * screensharing, webcam or some other media device.
    * @param simulcastConfig - Simulcast configuration. By default simulcast is disabled.
    * For more information refer to {@link SimulcastConfig}.
@@ -1054,7 +1054,7 @@ export class MembraneWebRTC extends (EventEmitter as new () => TypedEmitter<Requ
   }
 
   /**
-   * Removes a track from connection that was being sent to the RTC Engine.
+   * Removes a track from connection that was sent to the RTC Engine.
    * @param {string} trackId - Id of audio or video track to remove.
    * @example
    * ```ts
@@ -1152,8 +1152,8 @@ export class MembraneWebRTC extends (EventEmitter as new () => TypedEmitter<Requ
    * Sets track encoding that server should send to the client library.
    *
    * The encoding will be sent whenever it is available.
-   * If choosen encoding is temporarily unavailable, some other encoding
-   * will be sent until choosen encoding becomes active again.
+   * If chosen encoding is temporarily unavailable, some other encoding
+   * will be sent until the chosen encoding becomes active again.
    *
    * @param {string} trackId - id of track
    * @param {TrackEncoding} encoding - encoding to receive

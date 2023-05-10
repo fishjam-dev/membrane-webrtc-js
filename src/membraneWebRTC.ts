@@ -146,7 +146,6 @@ interface TrackContextFields {
    * Only present for remote tracks.
    */
   readonly encodingReason?: EncodingReason;
-
 }
 
 interface TrackContextCallbacks {
@@ -168,11 +167,19 @@ interface TrackContextCallbacks {
   onVoiceActivityChanged?: (context: TrackContext) => void;
 }
 
-export interface TrackContext extends TrackContextFields, TrackContextCallbacks, TypedEmitter<Required<TrackContextCallbacks>> { }
+export interface TrackContext
+  extends TrackContextFields,
+    TrackContextCallbacks,
+    TypedEmitter<Required<TrackContextCallbacks>> {}
 
 type TrackNegotiationStatus = "awaiting" | "offered" | "done";
 
-class TrackContextImpl extends (EventEmitter as new () => TypedEmitter<Required<TrackContextCallbacks>>) implements TrackContext {
+class TrackContextImpl
+  extends (EventEmitter as new () => TypedEmitter<
+    Required<TrackContextCallbacks>
+  >)
+  implements TrackContext
+{
   peer: Peer;
   trackId: string;
   track: MediaStreamTrack | null = null;
@@ -323,7 +330,9 @@ export interface Callbacks {
 /**
  * Main class that is responsible for connecting to the RTC Engine, sending and receiving media.
  */
-export class MembraneWebRTC extends (EventEmitter as new () => TypedEmitter<Required<Callbacks>>) {
+export class MembraneWebRTC extends (EventEmitter as new () => TypedEmitter<
+  Required<Callbacks>
+>) {
   private localTracksWithStreams: {
     track: MediaStreamTrack;
     stream: MediaStream;
@@ -752,10 +761,10 @@ export class MembraneWebRTC extends (EventEmitter as new () => TypedEmitter<Requ
         .getTransceivers()
         .forEach(
           (transceiver) =>
-          (transceiver.direction =
-            transceiver.direction === "sendrecv"
-              ? "sendonly"
-              : transceiver.direction)
+            (transceiver.direction =
+              transceiver.direction === "sendrecv"
+                ? "sendonly"
+                : transceiver.direction)
         );
     }
 
@@ -1371,29 +1380,26 @@ export class MembraneWebRTC extends (EventEmitter as new () => TypedEmitter<Requ
       this.connection?.addTransceiver(kind, { direction: "recvonly" });
   };
 
-  private async createAndSendOffer() {
-    if (!this.connection) return;
-    try {
-      const offer = await this.connection.createOffer();
-      await this.connection.setLocalDescription(offer);
+  private createAndSendOffer() {
+    const offer = this.connection!.createOffer()
+      .then((offer) => this.connection!.setLocalDescription(offer))
+      .then(() => {
+        let mediaEvent = generateCustomEvent({
+          type: "sdpOffer",
+          data: {
+            sdpOffer: offer,
+            trackIdToTrackMetadata: this.getTrackIdToMetadata(),
+            trackIdToTrackBitrates: this.getTrackIdToTrackBitrates(),
+            midToTrackId: this.getMidToTrackId(),
+          },
+        });
+        this.sendMediaEvent(mediaEvent);
 
-      let mediaEvent = generateCustomEvent({
-        type: "sdpOffer",
-        data: {
-          sdpOffer: offer,
-          trackIdToTrackMetadata: this.getTrackIdToMetadata(),
-          trackIdToTrackBitrates: this.getTrackIdToTrackBitrates(),
-          midToTrackId: this.getMidToTrackId(),
-        },
-      });
-      this.sendMediaEvent(mediaEvent);
-
-      for (let track of this.localTrackIdToTrack.values()) {
-        track.negotiationStatus = "offered";
-      }
-    } catch (error) {
-      console.error(error);
-    }
+        for (let track of this.localTrackIdToTrack.values()) {
+          track.negotiationStatus = "offered";
+        }
+      })
+      .catch((error) => console.error(error));
   }
 
   private getTrackIdToMetadata = () => {
@@ -1459,6 +1465,8 @@ export class MembraneWebRTC extends (EventEmitter as new () => TypedEmitter<Requ
       this.connection.oniceconnectionstatechange =
         this.onIceConnectionStateChange;
 
+      this.connection.onnegotiationneeded = this.onNegotiationNeeded;
+
       Array.from(this.localTrackIdToTrack.values()).forEach((trackContext) =>
         this.addTrackToConnection(trackContext)
       );
@@ -1471,8 +1479,6 @@ export class MembraneWebRTC extends (EventEmitter as new () => TypedEmitter<Requ
     }
 
     this.addTransceiversIfNeeded(offerData);
-
-    await this.createAndSendOffer();
   };
 
   private onRemoteCandidate = (candidate: RTCIceCandidate) => {
@@ -1528,6 +1534,10 @@ export class MembraneWebRTC extends (EventEmitter as new () => TypedEmitter<Requ
         this.emit("onConnectionError", errorMessages);
         break;
     }
+  };
+
+  private onNegotiationNeeded = (event: Event) => {
+    this.createAndSendOffer();
   };
 
   private onTrack = () => {

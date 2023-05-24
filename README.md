@@ -26,7 +26,7 @@ npm install jellyfish-dev/membrane-webrtc-js#<branch>
 
 ## Documentation
 
-Docummentation is available [here](https://jellyfish-dev.github.io/membrane-webrtc-js/)
+Documentation is available [here](https://jellyfish-dev.github.io/membrane-webrtc-js/)
 
 ## Supported Membrane RTC Engine versions
 

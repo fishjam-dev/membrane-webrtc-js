@@ -252,7 +252,7 @@ export interface MembraneWebRTCEvents {
    */
   endpointAdded: (endpoint: Endpoint) => void;
   /**
-   * Emitted each time endpoint is removed.
+   * Emitted each time endpoint is removed, emitted both for the local endpoint and other endpoints.
    */
   endpointRemoved: (endpoint: Endpoint) => void;
   /**
@@ -357,7 +357,6 @@ export class MembraneWebRTC extends (EventEmitter as new () => TypedEmitter<
    */
   public receiveMediaEvent = (mediaEvent: SerializedMediaEvent) => {
     const deserializedMediaEvent = deserializeMediaEvent(mediaEvent);
-    console.log("MEDIA", deserializedMediaEvent);
     switch (deserializedMediaEvent.type) {
       case "connected":
         this.localEndpoint.id = deserializedMediaEvent.data.id;
@@ -414,7 +413,6 @@ export class MembraneWebRTC extends (EventEmitter as new () => TypedEmitter<
           Object.entries(data.trackIdToMetadata)
         );
         endpoint = this.idToEndpoint.get(data.endpointId)!;
-        console.log("END", endpoint);
         const oldTrackIdToMetadata = endpoint.trackIdToMetadata;
         endpoint.trackIdToMetadata = new Map([
           ...endpoint.trackIdToMetadata,

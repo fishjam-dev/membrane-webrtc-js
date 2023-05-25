@@ -221,12 +221,12 @@ export interface MembraneWebRTCEvents {
   sendMediaEvent: (mediaEvent: SerializedMediaEvent) => void;
 
   /**
-   * Emitted when endpoint of this peer is ready. Triggered by {@link MembraneWebRTC.connect}
+   * Emitted when endpoint of this {@link MembraneWebRTC} instance is ready. Triggered by {@link MembraneWebRTC.connect}
    */
   connected: (endpointId: string, otherEndpoints: [Endpoint]) => void;
 
   /**
-   * Emitted when endpoint of this peer was removed.
+   * Emitted when endpoint of this {@link MembraneWebRTC} instance was removed.
    */
   disconnected: () => void;
 
@@ -262,7 +262,7 @@ export interface MembraneWebRTCEvents {
   endpointAdded: (endpoint: Endpoint) => void;
 
   /**
-   * Emitted each time endpoint is removed, emitted for other endpoints.
+   * Emitted each time endpoint is removed, emitted only for other endpoints.
    */
   endpointRemoved: (endpoint: Endpoint) => void;
 

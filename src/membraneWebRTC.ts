@@ -221,9 +221,14 @@ export interface MembraneWebRTCEvents {
   sendMediaEvent: (mediaEvent: SerializedMediaEvent) => void;
 
   /**
-   * Called when endpoint is ready. Triggered by {@link MembraneWebRTC.connect}
+   * Emitted when endpoint of this peer is ready. Triggered by {@link MembraneWebRTC.connect}
    */
   connected: (endpointId: string, otherEndpoints: [Endpoint]) => void;
+
+  /**
+   * Emitted when endpoint of this peer was removed.
+   */
+  disconnected: () => void;
 
   /**
    * Emitted when data in a new track arrives.
@@ -232,29 +237,35 @@ export interface MembraneWebRTCEvents {
    * It informs the user that data related to the given track arrives and can be played or displayed.
    */
   trackReady: (ctx: TrackContext) => void;
+
   /**
    * Emitted each time the endpoint which was already in the room, adds new track. Fields track and stream will be set to null.
    * These fields will be set to non-null value in {@link trackReady}
    */
   trackAdded: (ctx: TrackContext) => void;
+
   /**
    * Emitted when some track will no longer be sent.
    *
    * It will also be emitted before {@link endpointRemoved} for each track of this endpoint.
    */
   trackRemoved: (ctx: TrackContext) => void;
+
   /**
    * Emitted each time endpoint has its track metadata updated.
    */
   trackUpdated: (ctx: TrackContext) => void;
+
   /**
    * Emitted each time new endpoint is added to the room.
    */
   endpointAdded: (endpoint: Endpoint) => void;
+
   /**
-   * Emitted each time endpoint is removed, emitted both for the local endpoint and other endpoints.
+   * Emitted each time endpoint is removed, emitted for other endpoints.
    */
   endpointRemoved: (endpoint: Endpoint) => void;
+
   /**
    * Emitted each time endpoint has its metadata updated.
    */
@@ -269,7 +280,7 @@ export interface MembraneWebRTCEvents {
    * Currently, this event is only emitted when DisplayManager in RTC Engine is
    * enabled and simulcast is disabled.
    *
-   * Called when priority of video tracks have changed.
+   * Emitted when priority of video tracks have changed.
    * @param enabledTracks - list of tracks which will be sent to client from SFU
    * @param disabledTracks - list of tracks which will not be sent to client from SFU
    */
@@ -485,7 +496,12 @@ export class MembraneWebRTC extends (EventEmitter as new () => TypedEmitter<
         break;
 
       case "endpointRemoved":
-        // TODO differentiate between self and other endpoints ?
+        if (deserializedMediaEvent.data.id === this.localEndpoint.id) {
+          this.cleanUp();
+          this.emit("disconnected");
+          return;
+        }
+
         endpoint = this.idToEndpoint.get(deserializedMediaEvent.data.id)!;
         if (endpoint === undefined) return;
 
@@ -1146,7 +1162,7 @@ export class MembraneWebRTC extends (EventEmitter as new () => TypedEmitter<
    * @param metadata - Data about this endpoint that other endpoints will receive upon being added.
    *
    * If the metadata is different from what is already tracked in the room, the optional
-   * callback `onEndpointUpdated` will be triggered for other endpoint in the room.
+   * event `endpointUpdated` will be emitted for other endpoint in the room.
    */
   public updateEndpointMetadata = (metadata: any): void => {
     let mediaEvent = generateMediaEvent("updateEndpointMetadata", {
@@ -1158,7 +1174,7 @@ export class MembraneWebRTC extends (EventEmitter as new () => TypedEmitter<
   /**
    * Updates the metadata for a specific track.
    * @param trackId - trackId (generated in addTrack) of audio or video track.
-   * @param trackMetadata - Data about this track that other endppoint will receive upon being added.
+   * @param trackMetadata - Data about this track that other endpoint will receive upon being added.
    *
    * If the metadata is different from what is already tracked in the room, the optional
    * event `trackUpdated` will be emitted for other endpoints in the room.

@@ -2,15 +2,15 @@ export {
   TrackBandwidthLimit,
   SimulcastBandwidthLimit,
   BandwidthLimit,
+  WebRTCEndpoint,
+  WebRTCEndpointEvents,
   TrackContextEvents,
-  MembraneWebRTCEvents,
-  MembraneWebRTC,
   Endpoint,
   SimulcastConfig,
   TrackContext,
   TrackEncoding,
   VadStatus,
   EncodingReason,
-} from "./membraneWebRTC";
+} from "./webRTCEndpoint";
 
-export { SerializedMediaEvent } from "./mediaEvent";
+export { SerializedMediaEvent, MediaEvent } from "./mediaEvent";

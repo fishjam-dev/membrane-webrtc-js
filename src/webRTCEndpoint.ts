@@ -571,7 +571,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
       case "error":
         this.emit("connectionError", deserializedMediaEvent.data.message);
 
-        this.leave();
+        this.disconnect();
         break;
 
       case "vadNotification": {
@@ -1223,14 +1223,14 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
   };
 
   /**
-   * Leaves the room. This function should be called when user leaves the room
+   * Disconnects from the room. This function should be called when user disconnects from the room
    * in a clean way e.g. by clicking a dedicated, custom button `disconnect`.
    * As a result there will be generated one more media event that should be
    * sent to the RTC Engine. Thanks to it each other endpoint will be notified
    * that endpoint was removed in {@link WebRTCEndpointEvents.endpointRemoved},
    */
-  public leave = () => {
-    let mediaEvent = generateMediaEvent("leave");
+  public disconnect = () => {
+    let mediaEvent = generateMediaEvent("disconnect");
     this.sendMediaEvent(mediaEvent);
     this.cleanUp();
   };

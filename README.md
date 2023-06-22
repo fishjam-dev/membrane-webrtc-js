@@ -36,7 +36,8 @@ Below table presents mappings between JS SDK and RTC Engine versions that can be
 | ------- | ---------- |
 | 0.1-0.2 | 0.2-0.7    |
 | 0.3.0   | 0.7-0.8    |
-| 0.4.0   | 0.9+       |
+| 0.4.0   | 0.9-0.13   |
+| 0.5.0   | 0.14+      |
 
 ## Copyright and License
 

@@ -321,6 +321,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
   private midToTrackId: Map<string, string> = new Map();
   private disabledTrackEncodings: Map<string, TrackEncoding[]> = new Map();
   private rtcConfig: RTCConfiguration = {
+    bundlePolicy: "max-bundle",
     iceServers: [],
     iceTransportPolicy: "relay",
   };

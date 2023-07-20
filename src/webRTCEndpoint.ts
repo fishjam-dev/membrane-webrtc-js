@@ -408,7 +408,13 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
     switch (deserializedMediaEvent.type) {
       case "offerData":
         const turnServers = deserializedMediaEvent.data.integratedTurnServers;
-        this.setTurns(turnServers);
+
+        if (turnServers.length == 0) {
+          this.rtcConfig.iceTransportPolicy = "all";
+        } else {
+          this.rtcConfig.iceTransportPolicy = "relay";
+          this.setTurns(turnServers);
+        }
 
         const offerData = new Map<string, number>(
           Object.entries(deserializedMediaEvent.data.tracksTypes)
@@ -654,6 +660,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
     simulcastConfig: SimulcastConfig = { enabled: false, active_encodings: [] },
     maxBandwidth: TrackBandwidthLimit = 0 // unlimited bandwidth
   ): string {
+    console.log("Add track");
     if (!simulcastConfig.enabled && !(typeof maxBandwidth === "number"))
       throw "Invalid type of `maxBandwidth` argument for a non-simulcast track, expected: number";
     if (this.getEndpointId() === "")
@@ -687,6 +694,12 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
                 ? "sendonly"
                 : transceiver.direction)
         );
+
+        const sender = this.findSender(trackContext.track!.id);
+        console.log(sender.getParameters());
+        console.log("after add track");
+    } else {
+      console.log("Caching tracks");
     }
 
     let mediaEvent = generateCustomEvent({ type: "renegotiateTracks" });
@@ -1343,10 +1356,14 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
     const sender = this.findSender(trackContext.track!.id);
     const encodings = sender.getParameters().encodings;
 
-    if (encodings.length == 1 && !encodings[0].rid)
+    if (kind == "audio") {
+      // we don't allow for setting
+      // max bitrate for audio tracks;
+      // see addTrack
+      return defaultBitrates[kind];
+    } else if (encodings.length == 1 && !encodings[0].rid) {
       return encodings[0].maxBitrate || defaultBitrates[kind];
-    else if (kind == "audio")
-      throw "Audio track cannot have multiple encodings";
+    }
 
     let bitrates = {} as any;
 
@@ -1382,6 +1399,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
 
   private onOfferData = async (offerData: Map<string, number>) => {
     if (!this.connection) {
+      console.log("Got offer data. Creating PC")
       this.connection = new RTCPeerConnection(this.rtcConfig);
       this.connection.onicecandidate = this.onLocalCandidate();
       this.connection.onicecandidateerror = this.onIceCandidateError as (
@@ -1399,8 +1417,10 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
         .getTransceivers()
         .forEach((transceiver) => (transceiver.direction = "sendonly"));
     } else {
+      console.log("Got offer data. Restarting ICE")
       await this.connection.restartIce();
     }
+
 
     this.addTransceiversIfNeeded(offerData);
 

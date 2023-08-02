@@ -322,7 +322,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
   private disabledTrackEncodings: Map<string, TrackEncoding[]> = new Map();
   private rtcConfig: RTCConfiguration = {
     iceServers: [],
-    iceTransportPolicy: "relay",
+    iceTransportPolicy: "all",
   };
 
   constructor() {
@@ -408,13 +408,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
     switch (deserializedMediaEvent.type) {
       case "offerData":
         const turnServers = deserializedMediaEvent.data.integratedTurnServers;
-
-        if (turnServers.length == 0) {
-          this.rtcConfig.iceTransportPolicy = "all";
-        } else {
-          this.rtcConfig.iceTransportPolicy = "relay";
-          this.setTurns(turnServers);
-        }
+        this.setTurns(turnServers);
 
         const offerData = new Map<string, number>(
           Object.entries(deserializedMediaEvent.data.tracksTypes)

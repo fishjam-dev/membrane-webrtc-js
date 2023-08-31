@@ -98,7 +98,7 @@ export interface SimulcastConfig {
    * Encoding that is not present in this list might still be
    * enabled using {@link WebRTCEndpoint.enableTrackEncoding}.
    */
-  active_encodings: TrackEncoding[];
+  activeEncodings: TrackEncoding[];
 }
 
 /**
@@ -446,6 +446,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
         data.trackIdToSimulcastConfig = new Map<string, SimulcastConfig>(
           Object.entries(data.trackIdToSimulcastConfig)
         );
+        console.log("WUT tracksAdded: ", data.trackIdToSimulcastConfig);
         endpoint = this.idToEndpoint.get(data.endpointId)!;
         const oldTrackIdToMetadata = endpoint.trackIdToMetadata;
         endpoint.trackIdToMetadata = new Map([
@@ -453,14 +454,15 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
           ...data.trackIdToMetadata,
         ]);
         endpoint.trackIdToSimulcastConfig = new Map([
-          ...endpoint.trackIdToSimulcastConfig,
-          ...data.trackIdToSimulcastConfig,
+          ...Array.from(endpoint.trackIdToSimulcastConfig.entries()) as Iterable<[string, SimulcastConfig]>,
+          ...Array.from(data.trackIdToSimulcastConfig.entries()) as Iterable<[string, SimulcastConfig]>,
         ]);
         this.idToEndpoint.set(endpoint.id, endpoint);
         Array.from(endpoint.trackIdToMetadata.entries()).forEach(
           ([trackId, metadata]) => {
             if (!oldTrackIdToMetadata.has(trackId)) {
-              console.log("WUT tracks added: ", endpoint.trackIdToSimulcastConfig)
+              console.log("TrackIdTOSimulcastCOnfig in array.from")
+              console.log(endpoint.trackIdToSimulcastConfig)
               const ctx = new TrackContextImpl(endpoint, trackId, metadata, endpoint.trackIdToSimulcastConfig.get(trackId) as SimulcastConfig);
               this.trackIdToTrack.set(trackId, ctx);
 
@@ -679,7 +681,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
     track: MediaStreamTrack,
     stream: MediaStream,
     trackMetadata: any = new Map(),
-    simulcastConfig: SimulcastConfig = { enabled: false, active_encodings: [] },
+    simulcastConfig: SimulcastConfig = { enabled: false, activeEncodings: [] },
     maxBandwidth: TrackBandwidthLimit = 0 // unlimited bandwidth
   ): string {
     if (!simulcastConfig.enabled && !(typeof maxBandwidth === "number"))
@@ -755,7 +757,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
     if (trackContext.simulcastConfig!.enabled) {
       transceiverConfig = simulcastTransceiverConfig;
       const trackActiveEncodings =
-        trackContext.simulcastConfig!.active_encodings;
+        trackContext.simulcastConfig!.activeEncodings;
       let disabledTrackEncodings: TrackEncoding[] = [];
       transceiverConfig.sendEncodings?.forEach((encoding) => {
         if (trackActiveEncodings.includes(encoding.rid! as TrackEncoding)) {
@@ -1138,7 +1140,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
    * @param {TrackEncoding} encoding - encoding that will be enabled
    * @example
    * ```ts
-   * const trackId = webrtc.addTrack(track, stream, {}, {enabled: true, active_encodings: ["l", "m", "h"]});
+   * const trackId = webrtc.addTrack(track, stream, {}, {enabled: true, activeEncodings: ["l", "m", "h"]});
    * webrtc.disableTrackEncoding(trackId, "l");
    * // wait some time
    * webrtc.enableTrackEncoding(trackId, "l");
@@ -1164,7 +1166,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
    * @param {rackEncoding} encoding - encoding that will be disabled
    * @example
    * ```ts
-   * const trackId = webrtc.addTrack(track, stream, {}, {enabled: true, active_encodings: ["l", "m", "h"]});
+   * const trackId = webrtc.addTrack(track, stream, {}, {enabled: true, activeEncodings: ["l", "m", "h"]});
    * webrtc.disableTrackEncoding(trackId, "l");
    * ```
    */

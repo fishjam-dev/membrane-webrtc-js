@@ -229,7 +229,7 @@ export interface WebRTCEndpointEvents {
   /**
    * Emitted when endpoint of this {@link WebRTCEndpoint} instance is ready. Triggered by {@link WebRTCEndpoint.connect}
    */
-  connected: (endpointId: string, otherEndpoints: Endpoint[]) => void;
+  connected: (endpointId: string, otherEndpoints: [Endpoint]) => void;
 
   /**
    * Emitted when endpoint of this {@link WebRTCEndpoint} instance was removed.

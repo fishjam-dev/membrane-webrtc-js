@@ -380,11 +380,15 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
       case "connected":
         this.localEndpoint.id = deserializedMediaEvent.data.id;
 
+        console.log("WUT before emit: ", deserializedMediaEvent.data);
+
         this.emit(
           "connected",
           deserializedMediaEvent.data.id,
           deserializedMediaEvent.data.otherEndpoints
         );
+
+
 
         let otherEndpoints = deserializedMediaEvent.data
           .otherEndpoints as Endpoint[];
@@ -392,11 +396,18 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
           this.addEndpoint(endpoint);
         });
 
+        console.log("WUT otherEndpoints: ", otherEndpoints)
+
         otherEndpoints.forEach((endpoint) => {
-          console.log("WUT:  ", endpoint.trackIdToSimulcastConfig)
+          console.log("WUT otherEndpoints:  ", endpoint.trackIdToSimulcastConfig)
+          const trackIdToSimulcastConfig = new Map<String, SimulcastConfig>(
+            Object.entries(endpoint.trackIdToSimulcastConfig)
+          )
+
           Array.from(endpoint.trackIdToMetadata.entries()).forEach(
             ([trackId, metadata]) => {
-              const ctx = new TrackContextImpl(endpoint, trackId, metadata, endpoint.trackIdToSimulcastConfig.get(trackId)!!);
+              const simulcastConfig: SimulcastConfig = trackIdToSimulcastConfig.get(trackId) as SimulcastConfig;
+              const ctx = new TrackContextImpl(endpoint, trackId, metadata, simulcastConfig);
               this.trackIdToTrack.set(trackId, ctx);
 
               this.emit("trackAdded", ctx);
@@ -432,6 +443,9 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
         data.trackIdToMetadata = new Map<string, any>(
           Object.entries(data.trackIdToMetadata)
         );
+        data.trackIdToSimulcastConfig = new Map<string, SimulcastConfig>(
+          Object.entries(data.trackIdToSimulcastConfig)
+        );
         endpoint = this.idToEndpoint.get(data.endpointId)!;
         const oldTrackIdToMetadata = endpoint.trackIdToMetadata;
         endpoint.trackIdToMetadata = new Map([
@@ -443,11 +457,11 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
           ...data.trackIdToSimulcastConfig,
         ]);
         this.idToEndpoint.set(endpoint.id, endpoint);
-        console.log(endpoint);
         Array.from(endpoint.trackIdToMetadata.entries()).forEach(
           ([trackId, metadata]) => {
             if (!oldTrackIdToMetadata.has(trackId)) {
-              const ctx = new TrackContextImpl(endpoint, trackId, metadata, endpoint.trackIdToSimulcastConfig.get(trackId)!!);
+              console.log("WUT tracks added: ", endpoint.trackIdToSimulcastConfig)
+              const ctx = new TrackContextImpl(endpoint, trackId, metadata, endpoint.trackIdToSimulcastConfig.get(trackId) as SimulcastConfig);
               this.trackIdToTrack.set(trackId, ctx);
 
               this.emit("trackAdded", ctx);

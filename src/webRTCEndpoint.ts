@@ -1542,6 +1542,12 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
         Object.entries(endpoint.trackIdToMetadata)
       );
     else endpoint.trackIdToMetadata = new Map();
+    if (endpoint.hasOwnProperty("trackIdToSimulcastConfig"))
+      endpoint.trackIdToSimulcastConfig = new Map(
+        Object.entries(endpoint.trackIdToSimulcastConfig)
+      );
+    else endpoint.trackIdToSimulcastConfig = new Map();
+
     this.idToEndpoint.set(endpoint.id, endpoint);
   };
 

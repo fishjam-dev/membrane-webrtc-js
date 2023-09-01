@@ -380,7 +380,6 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
       case "connected":
         this.localEndpoint.id = deserializedMediaEvent.data.id;
 
-        console.log("WUT before emit: ", deserializedMediaEvent.data);
 
         this.emit(
           "connected",
@@ -396,10 +395,8 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
           this.addEndpoint(endpoint);
         });
 
-        console.log("WUT otherEndpoints: ", otherEndpoints)
 
         otherEndpoints.forEach((endpoint) => {
-          console.log("WUT otherEndpoints:  ", endpoint.trackIdToSimulcastConfig)
           const trackIdToSimulcastConfig = new Map<String, SimulcastConfig>(
             Object.entries(endpoint.trackIdToSimulcastConfig)
           )
@@ -446,7 +443,6 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
         data.trackIdToSimulcastConfig = new Map<string, SimulcastConfig>(
           Object.entries(data.trackIdToSimulcastConfig)
         );
-        console.log("WUT tracksAdded: ", data.trackIdToSimulcastConfig);
         endpoint = this.idToEndpoint.get(data.endpointId)!;
         const oldTrackIdToMetadata = endpoint.trackIdToMetadata;
         endpoint.trackIdToMetadata = new Map([
@@ -461,8 +457,6 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
         Array.from(endpoint.trackIdToMetadata.entries()).forEach(
           ([trackId, metadata]) => {
             if (!oldTrackIdToMetadata.has(trackId)) {
-              console.log("TrackIdTOSimulcastCOnfig in array.from")
-              console.log(endpoint.trackIdToSimulcastConfig)
               const ctx = new TrackContextImpl(endpoint, trackId, metadata, endpoint.trackIdToSimulcastConfig.get(trackId) as SimulcastConfig);
               this.trackIdToTrack.set(trackId, ctx);
 
@@ -1302,7 +1296,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
         }
       );
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 

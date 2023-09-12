@@ -229,7 +229,7 @@ export interface WebRTCEndpointEvents {
   /**
    * Emitted when endpoint of this {@link WebRTCEndpoint} instance is ready. Triggered by {@link WebRTCEndpoint.connect}
    */
-  connected: (endpointId: string, otherEndpoints: [Endpoint]) => void;
+  connected: (endpointId: string, otherEndpoints: Endpoint[]) => void;
 
   /**
    * Emitted when endpoint of this {@link WebRTCEndpoint} instance was removed.
@@ -397,13 +397,12 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
 
 
         otherEndpoints.forEach((endpoint) => {
-          const trackIdToSimulcastConfig = new Map<String, SimulcastConfig>(
-            Object.entries(endpoint.trackIdToSimulcastConfig)
-          )
 
           Array.from(endpoint.trackIdToMetadata.entries()).forEach(
             ([trackId, metadata]) => {
-              const simulcastConfig: SimulcastConfig = trackIdToSimulcastConfig.get(trackId) as SimulcastConfig;
+
+              if (!endpoint.trackIdToSimulcastConfig.has(trackId)) throw Error(`Simulcast config for track ${trackId} not found`);
+              const simulcastConfig: SimulcastConfig = endpoint.trackIdToSimulcastConfig.get(trackId)!!;
               const ctx = new TrackContextImpl(endpoint, trackId, metadata, simulcastConfig);
               this.trackIdToTrack.set(trackId, ctx);
 

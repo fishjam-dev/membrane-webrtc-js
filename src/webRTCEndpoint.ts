@@ -1553,7 +1553,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
   private getEndpointId = () => this.localEndpoint.id;
 
   private mapMediaEventTracksToTrackContextImpl = (tracks: [string, any][], endpoint: Endpoint): Map<string, TrackContextImpl> => {
-    const mappedTracks: Array<[string, TrackContextImpl]> = tracks.map(([trackId, track]) => [trackId, new TrackContextImpl(endpoint, trackId, track.metadata, track.simulcastConfig)]);
+    const mappedTracks: Array<[string, TrackContextImpl]> = Array.from(tracks).map(([trackId, track]) => [trackId, new TrackContextImpl(endpoint, trackId, track.metadata, track.simulcastConfig)]);
 
     return new Map(mappedTracks)
   }

@@ -26,13 +26,16 @@
     "docs": "typedoc src/index.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "lint": "eslint . --ext .ts,.tsx",
     "prepare": "rimraf dist && tsc"
   },
   "devDependencies": {
     "@types/events": "^3.0.0",
     "@types/uuid": "^8.3.1",
-    "eslint": "^7.21.0",
-    "prettier": "^2.2.1",
+    "@typescript-eslint/eslint-plugin": "^6.8.0",
+    "eslint": "^8.52.0",
+    "eslint-config-prettier": "^9.0.0",
+    "prettier": "3.0.3",
     "rimraf": "^3.0.2",
     "typedoc": "^0.23.0",
     "typescript": "^4.9.4"

@@ -299,7 +299,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
   }[] = [];
   private trackIdToTrack: Map<string, TrackContextImpl> = new Map();
   private connection?: RTCPeerConnection;
-  private idToEndpoint: Map<String, Endpoint> = new Map();
+  private idToEndpoint: Map<string, Endpoint> = new Map();
   private localEndpoint: Endpoint = {
     id: "",
     type: "webrtc",
@@ -334,7 +334,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
    */
   public connect = (metadata: any): void => {
     this.localEndpoint.metadata = metadata;
-    let mediaEvent = generateMediaEvent("connect", {
+    const mediaEvent = generateMediaEvent("connect", {
       metadata: metadata,
     });
     this.sendMediaEvent(mediaEvent);
@@ -359,13 +359,13 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
   public receiveMediaEvent = (mediaEvent: SerializedMediaEvent) => {
     const deserializedMediaEvent = deserializeMediaEvent(mediaEvent);
     switch (deserializedMediaEvent.type) {
-      case "connected":
+      case "connected": {
         this.localEndpoint.id = deserializedMediaEvent.data.id;
 
         this.emit("connected", deserializedMediaEvent.data.id, deserializedMediaEvent.data.otherEndpoints);
 
         const endpoints: any[] = deserializedMediaEvent.data.otherEndpoints;
-        let otherEndpoints: Endpoint[] = endpoints.map((endpoint) => {
+        const otherEndpoints: Endpoint[] = endpoints.map((endpoint) => {
           endpoint.tracks = this.mapMediaEventTracksToTrackContextImpl(Array.from(endpoint.tracks), endpoint);
 
           this.addEndpoint(endpoint);
@@ -380,7 +380,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
           });
         });
         break;
-
+      }
       default:
         if (this.localEndpoint.id != null) this.handleMediaEvent(deserializedMediaEvent);
     }
@@ -402,7 +402,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     let endpoint: Endpoint;
     let data;
     switch (deserializedMediaEvent.type) {
-      case "offerData":
+      case "offerData": {
         const turnServers = deserializedMediaEvent.data.integratedTurnServers;
         this.setTurns(turnServers);
 
@@ -410,8 +410,8 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
 
         this.onOfferData(offerData);
         break;
-
-      case "tracksAdded":
+      }
+      case "tracksAdded": {
         data = deserializedMediaEvent.data;
         if (this.getEndpointId() === data.endpointId) return;
         data.tracks = new Map<string, any>(Object.entries(data.tracks));
@@ -431,7 +431,8 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
           }
         });
         break;
-      case "tracksRemoved":
+      }
+      case "tracksRemoved": {
         data = deserializedMediaEvent.data;
         const endpointId = data.endpointId;
         if (this.getEndpointId() === endpointId) return;
@@ -444,11 +445,12 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
           this.eraseTrack(trackId, endpointId);
         });
         break;
+      }
 
       case "sdpAnswer":
         this.midToTrackId = new Map(Object.entries(deserializedMediaEvent.data.midToTrackId));
 
-        for (let trackId of Object.values(deserializedMediaEvent.data.midToTrackId)) {
+        for (const trackId of Object.values(deserializedMediaEvent.data.midToTrackId)) {
           const track = this.localTrackIdToTrack.get(trackId as string);
           // if is local track
           if (track) {
@@ -517,7 +519,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
 
         const trackId = deserializedMediaEvent.data.trackId;
         const trackMetadata = deserializedMediaEvent.data.metadata;
-        const prevTrack = endpoint.tracks.get(trackId)!!;
+        const prevTrack = endpoint.tracks.get(trackId)!;
         endpoint.tracks.set(trackId, { ...prevTrack, metadata: trackMetadata });
         const trackContext = this.trackIdToTrack.get(trackId)!;
         trackContext.metadata = trackMetadata;
@@ -526,9 +528,9 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
         break;
       }
 
-      case "tracksPriority":
+      case "tracksPriority": {
         const enabledTracks = (deserializedMediaEvent.data.tracks as string[]).map(
-          (trackId) => this.trackIdToTrack.get(trackId)!!,
+          (trackId) => this.trackIdToTrack.get(trackId)!,
         );
 
         const disabledTracks = Array.from(this.trackIdToTrack.values()).filter(
@@ -537,8 +539,8 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
 
         this.emit("tracksPriorityChanged", enabledTracks, disabledTracks);
         break;
-
-      case "encodingSwitched":
+      }
+      case "encodingSwitched": {
         const trackId = deserializedMediaEvent.data.trackId;
         const trackContext = this.trackIdToTrack.get(trackId)!;
         trackContext.encoding = deserializedMediaEvent.data.encoding;
@@ -546,7 +548,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
 
         trackContext.emit("encodingChanged", trackContext);
         break;
-
+      }
       case "custom":
         this.handleMediaEvent(deserializedMediaEvent.data as MediaEvent);
         break;
@@ -669,21 +671,21 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
         );
     }
 
-    let mediaEvent = generateCustomEvent({ type: "renegotiateTracks" });
+    const mediaEvent = generateCustomEvent({ type: "renegotiateTracks" });
     this.sendMediaEvent(mediaEvent);
     return trackId;
   }
 
   private addTrackToConnection = (trackContext: TrackContext) => {
-    let transceiverConfig = this.createTransceiverConfig(trackContext);
-    const track = trackContext.track!!;
+    const transceiverConfig = this.createTransceiverConfig(trackContext);
+    const track = trackContext.track!;
     this.connection!.addTransceiver(track, transceiverConfig);
   };
 
   private createTransceiverConfig(trackContext: TrackContext): RTCRtpTransceiverInit {
     let transceiverConfig: RTCRtpTransceiverInit;
 
-    if (trackContext.track!!.kind === "audio") {
+    if (trackContext.track!.kind === "audio") {
       transceiverConfig = this.createAudioTransceiverConfig(trackContext);
     } else {
       transceiverConfig = this.createVideoTransceiverConfig(trackContext);
@@ -701,7 +703,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     if (trackContext.simulcastConfig!.enabled) {
       transceiverConfig = simulcastTransceiverConfig;
       const trackActiveEncodings = trackContext.simulcastConfig!.activeEncodings;
-      let disabledTrackEncodings: TrackEncoding[] = [];
+      const disabledTrackEncodings: TrackEncoding[] = [];
       transceiverConfig.sendEncodings?.forEach((encoding) => {
         if (trackActiveEncodings.includes(encoding.rid! as TrackEncoding)) {
           encoding.active = true;
@@ -822,7 +824,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
    */
   public async replaceTrack(trackId: string, newTrack: MediaStreamTrack, newTrackMetadata?: any): Promise<boolean> {
     const trackContext = this.localTrackIdToTrack.get(trackId)!;
-    const sender = this.findSender(trackContext.track!!.id);
+    const sender = this.findSender(trackContext.track!.id);
     if (sender) {
       return sender
         .replaceTrack(newTrack)
@@ -867,7 +869,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     return sender
       .setParameters(parameters)
       .then(() => {
-        let mediaEvent = generateCustomEvent({
+        const mediaEvent = generateCustomEvent({
           type: "trackVariantBitrates",
           data: {
             trackId: trackId,
@@ -895,7 +897,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
       return Promise.reject(`Track '${trackId}' doesn't exist`);
     }
 
-    const sender = this.findSender(trackContext.track!!.id);
+    const sender = this.findSender(trackContext.track!.id);
     const parameters = sender.getParameters();
     const encoding = parameters.encodings.find((encoding) => encoding.rid === rid);
 
@@ -910,7 +912,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     return sender
       .setParameters(parameters)
       .then(() => {
-        let mediaEvent = generateCustomEvent({
+        const mediaEvent = generateCustomEvent({
           type: "trackVariantBitrates",
           data: {
             trackId: trackId,
@@ -952,9 +954,9 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
    */
   public removeTrack(trackId: string) {
     const trackContext = this.localTrackIdToTrack.get(trackId)!;
-    const sender = this.findSender(trackContext.track!!.id);
+    const sender = this.findSender(trackContext.track!.id);
     this.connection!.removeTrack(sender);
-    let mediaEvent = generateCustomEvent({ type: "renegotiateTracks" });
+    const mediaEvent = generateCustomEvent({ type: "renegotiateTracks" });
     this.sendMediaEvent(mediaEvent);
     this.localTrackIdToTrack.delete(trackId);
     this.localEndpoint.tracks.delete(trackId);
@@ -969,7 +971,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
    * @param {string} trackId - Id of video track to prioritize.
    */
   public prioritizeTrack(trackId: string) {
-    let mediaEvent = generateCustomEvent({
+    const mediaEvent = generateCustomEvent({
       type: "prioritizeTrack",
       data: { trackId },
     });
@@ -985,7 +987,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
    * @param {string} trackId - Id of video track to unprioritize.
    */
   public unprioritizeTrack(trackId: string) {
-    let mediaEvent = generateCustomEvent({
+    const mediaEvent = generateCustomEvent({
       type: "unprioritizeTrack",
       data: { trackId },
     });
@@ -1011,7 +1013,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     mediumScreens: number = 0,
     allSameSize: boolean = false,
   ) {
-    let mediaEvent = generateCustomEvent({
+    const mediaEvent = generateCustomEvent({
       type: "preferedVideoSizes",
       data: { bigScreens, mediumScreens, smallScreens, allSameSize },
     });
@@ -1033,7 +1035,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
    * ```
    */
   public setTargetTrackEncoding(trackId: string, encoding: TrackEncoding) {
-    let mediaEvent = generateCustomEvent({
+    const mediaEvent = generateCustomEvent({
       type: "setTargetTrackVariant",
       data: {
         trackId: trackId,
@@ -1057,11 +1059,12 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
    * ```
    */
   public enableTrackEncoding(trackId: string, encoding: TrackEncoding) {
-    let track = this.localTrackIdToTrack.get(trackId)?.track;
-    let newDisabledTrackEncodings = this.disabledTrackEncodings.get(trackId)?.filter((en) => en !== encoding)!;
+    const track = this.localTrackIdToTrack.get(trackId)?.track;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+    const newDisabledTrackEncodings = this.disabledTrackEncodings.get(trackId)?.filter((en) => en !== encoding)!;
     this.disabledTrackEncodings.set(trackId, newDisabledTrackEncodings);
-    let sender = this.connection?.getSenders().filter((sender) => sender.track === track)[0];
-    let params = sender?.getParameters();
+    const sender = this.connection?.getSenders().filter((sender) => sender.track === track)[0];
+    const params = sender?.getParameters();
     params!.encodings.filter((en) => en.rid == encoding)[0].active = true;
     sender?.setParameters(params!);
   }
@@ -1077,10 +1080,10 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
    * ```
    */
   public disableTrackEncoding(trackId: string, encoding: TrackEncoding) {
-    let track = this.localTrackIdToTrack.get(trackId)?.track;
+    const track = this.localTrackIdToTrack.get(trackId)?.track;
     this.disabledTrackEncodings.get(trackId)!.push(encoding);
-    let sender = this.connection?.getSenders().filter((sender) => sender.track === track)[0];
-    let params = sender?.getParameters();
+    const sender = this.connection?.getSenders().filter((sender) => sender.track === track)[0];
+    const params = sender?.getParameters();
     params!.encodings.filter((en) => en.rid == encoding)[0].active = false;
     sender?.setParameters(params!);
   }
@@ -1097,7 +1100,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
    * event `endpointUpdated` will be emitted for other endpoint in the room.
    */
   public updateEndpointMetadata = (metadata: any): void => {
-    let mediaEvent = generateMediaEvent("updateEndpointMetadata", {
+    const mediaEvent = generateMediaEvent("updateEndpointMetadata", {
       metadata: metadata,
     });
     this.sendMediaEvent(mediaEvent);
@@ -1116,7 +1119,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     trackContext.metadata = trackMetadata;
     this.localTrackIdToTrack.set(trackId, trackContext);
 
-    const prevTrack = this.localEndpoint.tracks.get(trackId)!!;
+    const prevTrack = this.localEndpoint.tracks.get(trackId)!;
 
     this.localEndpoint.tracks.set(trackId, { ...prevTrack, metadata: trackMetadata });
     const mediaEvent = generateMediaEvent("updateTrackMetadata", {
@@ -1148,7 +1151,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
       const mid = transceiver.mid;
       if (localTrackId && mid) {
         const trackContext = Array.from(this.localTrackIdToTrack.values()).find(
-          (trackContext) => trackContext!.track!!.id === localTrackId,
+          (trackContext) => trackContext!.track!.id === localTrackId,
         )!;
         localTrackMidToTrackId[mid] = trackContext.trackId;
       }
@@ -1164,7 +1167,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
    * that endpoint was removed in {@link WebRTCEndpointEvents.endpointRemoved},
    */
   public disconnect = () => {
-    let mediaEvent = generateMediaEvent("disconnect");
+    const mediaEvent = generateMediaEvent("disconnect");
     this.sendMediaEvent(mediaEvent);
     this.cleanUp();
   };
@@ -1222,7 +1225,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     toAdd = toAdd.concat(audio);
     toAdd = toAdd.concat(video);
 
-    for (let kind of toAdd) this.connection?.addTransceiver(kind, { direction: "recvonly" });
+    for (const kind of toAdd) this.connection?.addTransceiver(kind, { direction: "recvonly" });
   };
 
   private async createAndSendOffer() {
@@ -1231,7 +1234,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
       const offer = await this.connection.createOffer();
       await this.connection.setLocalDescription(offer);
 
-      let mediaEvent = generateCustomEvent({
+      const mediaEvent = generateCustomEvent({
         type: "sdpOffer",
         data: {
           sdpOffer: offer,
@@ -1242,7 +1245,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
       });
       this.sendMediaEvent(mediaEvent);
 
-      for (let track of this.localTrackIdToTrack.values()) {
+      for (const track of this.localTrackIdToTrack.values()) {
         track.negotiationStatus = "offered";
       }
     } catch (error) {
@@ -1252,7 +1255,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
 
   private getTrackIdToMetadata = () => {
     const trackIdToMetadata = {} as any;
-    Array.from(this.localEndpoint.tracks.entries()).forEach(([trackId, { metadata, simulcastConfig }]) => {
+    Array.from(this.localEndpoint.tracks.entries()).forEach(([trackId, { metadata }]) => {
       trackIdToMetadata[trackId] = metadata;
     });
     return trackIdToMetadata;
@@ -1268,7 +1271,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     if (encodings.length == 1 && !encodings[0].rid) return encodings[0].maxBitrate || defaultBitrates[kind];
     else if (kind == "audio") throw "Audio track cannot have multiple encodings";
 
-    let bitrates = {} as any;
+    const bitrates = {} as any;
 
     encodings
       .filter((encoding) => encoding.rid)
@@ -1328,7 +1331,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
   private onLocalCandidate = () => {
     return (event: RTCPeerConnectionIceEvent) => {
       if (event.candidate) {
-        let mediaEvent = generateCustomEvent({
+        const mediaEvent = generateCustomEvent({
           type: "candidate",
           data: {
             candidate: event.candidate.candidate,
@@ -1344,14 +1347,14 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     console.warn(event);
   };
 
-  private onConnectionStateChange = (event: Event) => {
+  private onConnectionStateChange = (_event: Event) => {
     if (this.connection?.connectionState === "failed") {
       const message = "Connection failed";
       this.emit("connectionError", message);
     }
   };
 
-  private onIceConnectionStateChange = (event: Event) => {
+  private onIceConnectionStateChange = (_event: Event) => {
     const errorMessages = "Ice connection failed";
 
     switch (this.connection?.iceConnectionState) {
@@ -1382,7 +1385,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
 
   private setTurns = (turnServers: any[]): void => {
     turnServers.forEach((turnServer: any) => {
-      var transport, uri;
+      let transport, uri;
       if (turnServer.transport == "tls") {
         transport = "tcp";
         uri = "turns";
@@ -1403,7 +1406,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
 
   private addEndpoint = (endpoint: Endpoint): void => {
     // #TODO remove this line after fixing deserialization
-    if (endpoint.hasOwnProperty("trackIdToMetadata")) endpoint.tracks = new Map(Object.entries(endpoint.tracks));
+    if (Object.hasOwn(endpoint, "trackIdToMetadata")) endpoint.tracks = new Map(Object.entries(endpoint.tracks));
     else endpoint.tracks = new Map();
 
     this.idToEndpoint.set(endpoint.id, endpoint);
@@ -1421,7 +1424,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
   private eraseTrack = (trackId: string, endpointId: string) => {
     this.trackIdToTrack.delete(trackId);
     const midToTrackId = Array.from(this.midToTrackId.entries());
-    const [mid, _trackId] = midToTrackId.find(([mid, mapTrackId]) => mapTrackId === trackId)!;
+    const [mid, _trackId] = midToTrackId.find(([_mid, mapTrackId]) => mapTrackId === trackId)!;
     this.midToTrackId.delete(mid);
     this.idToEndpoint.get(endpointId)!.tracks.delete(trackId);
     this.disabledTrackEncodings.delete(trackId);

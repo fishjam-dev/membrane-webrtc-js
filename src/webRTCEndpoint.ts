@@ -410,8 +410,8 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
    * Returns a snapshot of currently received remote tracks.
    *
    * @example
-   * if (client.remoteTracks[trackId]?.simulcastConfig?.enabled) {
-   *   client.setTargetTrackEncoding(trackId, encoding);
+   * if (webRTCEndpoint.remoteTracks[trackId]?.simulcastConfig?.enabled) {
+   *   webRTCEndpoint.setTargetTrackEncoding(trackId, encoding);
    * }
    */
   get remoteTracks(): Record<string, TrackContext> {

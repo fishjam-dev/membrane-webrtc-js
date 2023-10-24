@@ -1406,7 +1406,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
 
   private addEndpoint = (endpoint: Endpoint): void => {
     // #TODO remove this line after fixing deserialization
-    if (Object.hasOwn(endpoint, "trackIdToMetadata")) endpoint.tracks = new Map(Object.entries(endpoint.tracks));
+    if (Object.prototype.hasOwnProperty.call(endpoint, "trackIdToMetadata")) endpoint.tracks = new Map(Object.entries(endpoint.tracks));
     else endpoint.tracks = new Map();
 
     this.idToEndpoint.set(endpoint.id, endpoint);

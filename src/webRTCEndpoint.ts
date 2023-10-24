@@ -414,7 +414,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
    *   webRTCEndpoint.setTargetTrackEncoding(trackId, encoding);
    * }
    */
-  get remoteTracks(): Record<string, TrackContext> {
+  public getRemoteTracks(): Record<string, TrackContext> {
     return Object.fromEntries(this.trackIdToTrack.entries());
   }
 

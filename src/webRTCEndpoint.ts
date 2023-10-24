@@ -32,7 +32,7 @@ export interface Endpoint {
    */
   metadata: any;
   /**
-   * List of tracks that are sent by the endpoint. 
+   * List of tracks that are sent by the endpoint.
    */
   tracks: Map<string, TrackContextImpl>;
 }
@@ -405,6 +405,18 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
           this.handleMediaEvent(deserializedMediaEvent);
     }
   };
+
+  /**
+   * Returns a snapshot of currently received remote tracks.
+   *
+   * @example
+   * if (webRTCEndpoint.getRemoteTracks()[trackId]?.simulcastConfig?.enabled) {
+   *   webRTCEndpoint.setTargetTrackEncoding(trackId, encoding);
+   * }
+   */
+  public getRemoteTracks(): Record<string, TrackContext> {
+    return Object.fromEntries(this.trackIdToTrack.entries());
+  }
 
   private handleMediaEvent = (deserializedMediaEvent: MediaEvent) => {
     let endpoint: Endpoint;

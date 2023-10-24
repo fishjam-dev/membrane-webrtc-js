@@ -406,7 +406,15 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
     }
   };
 
-  get tracks(): Readonly<Record<string, TrackContext>> {
+  /**
+   * Returns a snapshot of currently received remote tracks.
+   *
+   * @example
+   * if (client.remoteTracks[trackId]?.simulcastConfig?.enabled) {
+   *   client.setTargetTrackEncoding(trackId, encoding);
+   * }
+   */
+  get remoteTracks(): Record<string, TrackContext> {
     return Object.fromEntries(this.trackIdToTrack.entries());
   }
 

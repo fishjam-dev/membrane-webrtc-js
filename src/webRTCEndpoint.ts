@@ -677,7 +677,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
     maxBandwidth: TrackBandwidthLimit = 0 // unlimited bandwidth
   ): string {
 
-    const isUsedTrack = this.connection?.getSenders().some(val => val.track == track)
+    const isUsedTrack = this.connection?.getSenders().some(val => val.track === track)
 
     if (isUsedTrack) {
       throw "This track was already added to peerConnection, it can't be added again!"

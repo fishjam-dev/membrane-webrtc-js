@@ -676,6 +676,14 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
     simulcastConfig: SimulcastConfig = { enabled: false, activeEncodings: [] },
     maxBandwidth: TrackBandwidthLimit = 0 // unlimited bandwidth
   ): string {
+
+    const isUsedTrack = this.connection?.getSenders().some(val => val.track === track)
+
+    if (isUsedTrack) {
+      throw "This track was already added to peerConnection, it can't be added again!"
+    }
+
+
     if (!simulcastConfig.enabled && !(typeof maxBandwidth === "number"))
       throw "Invalid type of `maxBandwidth` argument for a non-simulcast track, expected: number";
     if (this.getEndpointId() === "")

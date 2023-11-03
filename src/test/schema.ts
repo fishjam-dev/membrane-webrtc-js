@@ -45,33 +45,27 @@ export const TracksAddedMediaEventSchema = z.object({
 
 export type TracksAddedMediaEvent = z.infer<typeof TracksAddedMediaEventSchema>;
 
+export const CustomOfferDataEventSchema = z.object({
+    data: z.object({
+        data: z.object({
+            integratedTurnServers: z.array(z.object({
+                password: z.string().min(1),
+                serverAddr: z.string().min(1),
+                serverPort: z.number(),
+                transport: z.string().min(1),
+                username: z.string().min(1),
+            })),
+            tracksTypes: z.object({
+                audio: z.number(), // .min(0).max(1) ?
+                video: z.number(), // .min(0).max(1) ?
+            }),
+        }),
+        type: z.literal("offerData"),
+    }),
+    type: z.literal("custom"),
+})
 
-// trackAdded
-// {
-//     "data": {
-//         "endpointId": "21897363-a7e6-4345-9a10-52bcc2828270",
-//         "trackIdToMetadata": {
-//             "21897363-a7e6-4345-9a10-52bcc2828270:85032441-9fe3-4de7-ba30-6c96bbcad212": {
-//                 "name": "track-name",
-//                 "type": "video"
-//             }
-//         },
-//         "tracks": {
-//             "21897363-a7e6-4345-9a10-52bcc2828270:85032441-9fe3-4de7-ba30-6c96bbcad212": {
-//                 "metadata": {
-//                     "name": "track-name",
-//                     "type": "video"
-//                 },
-//                 "simulcastConfig": {
-//                     "activeEncodings": [
-//                         "l",
-//                         "m",
-//                         "h"
-//                     ],
-//                     "enabled": true
-//                 }
-//             }
-//         }
-//     },
-//     "type": "tracksAdded"
-// }
+export type CustomOfferDataEvent = z.infer<typeof CustomOfferDataEventSchema>;
+
+export type MediaEvent = TracksAddedMediaEvent | ConnectedMediaEvent
+export type CustomEvent = CustomOfferDataEvent

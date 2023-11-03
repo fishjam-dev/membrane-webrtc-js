@@ -1,6 +1,6 @@
 import { WebRTCEndpoint } from "../webRTCEndpoint";
 import { createConnectedEvent, createEmptyEndpoint, createSimulcastTrack } from "./fixtures";
-import { TracksAddedMediaEvent } from "./schema";
+import { CustomOfferDataEvent, TracksAddedMediaEvent } from "./schema";
 
 test('Connecting to room with one peer then tracks added event occurred', () => {
     // Given
@@ -45,3 +45,65 @@ test('Connecting to room with one peer then tracks added event occurred', () => 
 
     expect(trackAddedCallback.mock.calls).toHaveLength(1);
 });
+
+
+test('tracksAdded -> offerData', () => {
+    // Given
+    const webRTCEndpoint = new WebRTCEndpoint()
+
+    const connectedEvent = createConnectedEvent()
+    connectedEvent.data.otherEndpoints = [
+        createEmptyEndpoint()
+    ]
+
+    webRTCEndpoint.receiveMediaEvent(JSON.stringify(connectedEvent))
+
+    const trackId = "trackId"
+
+    const trackAddedEvent: TracksAddedMediaEvent = {
+        type: "tracksAdded",
+        data: {
+            endpointId: connectedEvent.data.otherEndpoints[0].id,
+            tracks: {
+                [trackId]: createSimulcastTrack()
+            },
+            trackIdToMetadata: {
+                [trackId]: {}
+            }
+        }
+    }
+
+    webRTCEndpoint.receiveMediaEvent(JSON.stringify(trackAddedEvent))
+
+
+    const offerData: CustomOfferDataEvent = {
+        "data": {
+            "data": {
+                "integratedTurnServers": [
+                    {
+                        "password": "E9ck/2hJCkkuVSmPfFrNg2l1+JA=",
+                        "serverAddr": "192.168.1.95",
+                        "serverPort": 50018,
+                        "transport": "udp",
+                        "username": "1698997572:dedfa04f-b30a-433a-86d5-03336a828caa"
+                    }
+                ],
+                "tracksTypes": {
+                    "audio": 0,
+                    "video": 1
+                }
+            },
+            "type": "offerData"
+        },
+        "type": "custom"
+    }
+
+    // When
+    webRTCEndpoint.receiveMediaEvent(JSON.stringify(offerData))
+
+    // Then
+    const rtcConfig = webRTCEndpoint["rtcConfig"]
+    rtcConfig.iceServers
+
+    expect( rtcConfig.iceServers?.length).toBe(1);
+})

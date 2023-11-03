@@ -1428,7 +1428,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
         .getTransceivers()
         .forEach((transceiver) => (transceiver.direction = "sendonly"));
     } else {
-      await this.connection.restartIce();
+      this.connection.restartIce();
     }
 
     this.addTransceiversIfNeeded(offerData);

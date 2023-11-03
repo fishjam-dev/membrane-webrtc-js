@@ -63,3 +63,26 @@ const theSameEventAsAbove = {
     },
     type: 'connected'
 }
+
+
+const offerDataEvent = {
+    "data": {
+        "data": {
+            "integratedTurnServers": [
+                {
+                    "password": "E9ck/2hJCkkuVSmPfFrNg2l1+JA=",
+                    "serverAddr": "192.168.1.95",
+                    "serverPort": 50018,
+                    "transport": "udp",
+                    "username": "1698997572:dedfa04f-b30a-433a-86d5-03336a828caa"
+                }
+            ],
+            "tracksTypes": {
+                "audio": 0,
+                "video": 1
+            }
+        },
+        "type": "offerData"
+    },
+    "type": "custom"
+}

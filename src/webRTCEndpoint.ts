@@ -381,17 +381,20 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
         const endpoints: any[] = deserializedMediaEvent.data.otherEndpoints;
         let otherEndpoints: Endpoint[] = endpoints.map((endpoint) => {
 
-          endpoint.tracks = this.mapMediaEventTracksToTrackContextImpl(Array.from(endpoint.tracks), endpoint)
+          // The server's tracks are `Record`, and the tracks here are `Map`.
+          const endpointTracks:  [string, any][] = Object.entries(endpoint.tracks || {})
+          // Map<string, TrackContextImpl>
+          const tracks = this.mapMediaEventTracksToTrackContextImpl(endpointTracks, endpoint);
+          endpoint.tracks = tracks
 
-          this.addEndpoint(endpoint);
+          // this.addEndpoint(endpoint);
           return endpoint;
         });
 
 
         otherEndpoints.forEach((endpoint) => {
 
-          Array.from(endpoint.tracks.entries()).forEach(
-            ([trackId, ctx]) => {
+          endpoint.tracks.forEach((ctx, trackId) => {
               this.trackIdToTrack.set(trackId, ctx);
 
               this.emit("trackAdded", ctx);

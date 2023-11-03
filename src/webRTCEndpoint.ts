@@ -387,7 +387,8 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
           const tracks = this.mapMediaEventTracksToTrackContextImpl(endpointTracks, endpoint);
           endpoint.tracks = tracks
 
-          // this.addEndpoint(endpoint);
+          // endpoint ma tutaj takie pola jakie mieć powienie, tracks jest jako Map
+          this.addEndpoint(endpoint);
           return endpoint;
         });
 
@@ -1535,11 +1536,11 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
 
   private addEndpoint = (endpoint: Endpoint): void => {
     // #TODO remove this line after fixing deserialization
-    if (endpoint.hasOwnProperty("trackIdToMetadata"))
-      endpoint.tracks = new Map(
-        Object.entries(endpoint.tracks)
-      );
-    else endpoint.tracks = new Map();
+    // if (endpoint.hasOwnProperty("trackIdToMetadata"))
+    //   endpoint.tracks = new Map(
+    //     Object.entries(endpoint.tracks)
+    //   );
+    // else endpoint.tracks = new Map();
 
     this.idToEndpoint.set(endpoint.id, endpoint);
   };

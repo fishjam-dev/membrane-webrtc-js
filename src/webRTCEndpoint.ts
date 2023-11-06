@@ -636,13 +636,11 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     simulcastConfig: SimulcastConfig = { enabled: false, activeEncodings: [] },
     maxBandwidth: TrackBandwidthLimit = 0, // unlimited bandwidth
   ): string {
-
-    const isUsedTrack = this.connection?.getSenders().some(val => val.track === track)
+    const isUsedTrack = this.connection?.getSenders().some((val) => val.track === track);
 
     if (isUsedTrack) {
-      throw "This track was already added to peerConnection, it can't be added again!"
+      throw "This track was already added to peerConnection, it can't be added again!";
     }
-
 
     if (!simulcastConfig.enabled && !(typeof maxBandwidth === "number"))
       throw "Invalid type of `maxBandwidth` argument for a non-simulcast track, expected: number";
@@ -1406,7 +1404,8 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
 
   private addEndpoint = (endpoint: Endpoint): void => {
     // #TODO remove this line after fixing deserialization
-    if (Object.prototype.hasOwnProperty.call(endpoint, "trackIdToMetadata")) endpoint.tracks = new Map(Object.entries(endpoint.tracks));
+    if (Object.prototype.hasOwnProperty.call(endpoint, "trackIdToMetadata"))
+      endpoint.tracks = new Map(Object.entries(endpoint.tracks));
     else endpoint.tracks = new Map();
 
     this.idToEndpoint.set(endpoint.id, endpoint);

@@ -22,14 +22,14 @@
     "url": "git://github.com/jellyfish-dev/membrane-webrtc-js.git"
   },
   "scripts": {
-    "build": "rimraf dist && tsc",
+    "build": "tsc",
     "test": "jest",
     "test:coverag": "jest --coverage",
     "docs": "typedoc src/index.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepare": "rimraf dist && tsc",
-    "serveTestPage": "http-server -p 4004"
+    "prepare": "tsc",
+    "serveTestPage": "http-server -p 3000"
   },
   "devDependencies": {
     "@babel/core": "^7.23.2",

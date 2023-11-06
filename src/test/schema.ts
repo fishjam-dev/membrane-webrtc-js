@@ -56,8 +56,8 @@ export const CustomOfferDataEventSchema = z.object({
                 username: z.string().min(1),
             })),
             tracksTypes: z.object({
-                audio: z.number(), // .min(0).max(1) ?
-                video: z.number(), // .min(0).max(1) ?
+                audio: z.number(), // .min(0).max(infinity) - number of video tracks
+                video: z.number(), // .min(0).max(infinity) - number of audio tracks
             }),
         }),
         type: z.literal("offerData"),
@@ -67,5 +67,19 @@ export const CustomOfferDataEventSchema = z.object({
 
 export type CustomOfferDataEvent = z.infer<typeof CustomOfferDataEventSchema>;
 
+export const CustomSdpAnswerDataEventSchema = z.object({
+    data: z.object({
+        data: z.object({
+            midToTrackId: z.record(z.string().min(1)), // key is number.toString() eg. "0", "1"...
+            sdp: z.string().min(1),
+            type: z.literal("answer"),
+        }),
+        type: z.literal("sdpAnswer"),
+    }),
+    type: z.literal("custom"),
+})
+
+export type CustomSdpAnswerDataEvent = z.infer<typeof CustomSdpAnswerDataEventSchema>;
+
 export type MediaEvent = TracksAddedMediaEvent | ConnectedMediaEvent
-export type CustomEvent = CustomOfferDataEvent
+export type CustomEvent = CustomOfferDataEvent | CustomSdpAnswerDataEvent

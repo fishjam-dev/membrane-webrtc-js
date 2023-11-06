@@ -1,4 +1,11 @@
-import { ConnectedMediaEvent, Endpoint, Track } from "./schema";
+import {
+    ConnectedMediaEvent,
+    CustomOfferDataEvent,
+    CustomSdpAnswerDataEvent,
+    Endpoint,
+    Track,
+    TracksAddedMediaEvent
+} from "./schema";
 
 export const createSimulcastTrack = (): Track => ({
     metadata: {},
@@ -48,7 +55,7 @@ const second_event = {
     }
 }
 
-const theSameEventAsAbove = {
+const connectedExample = {
     data: {
         id: '7b789673-8600-4c8b-8f45-476b86cb820d',
         otherEndpoints: [
@@ -65,7 +72,7 @@ const theSameEventAsAbove = {
 }
 
 
-const offerDataEvent = {
+const offerDataEventExample = {
     "data": {
         "data": {
             "integratedTurnServers": [
@@ -85,4 +92,95 @@ const offerDataEvent = {
         "type": "offerData"
     },
     "type": "custom"
+}
+
+export const createConnectedEventWithOneEndpoint = () => {
+    const connectedEvent = createConnectedEvent()
+    connectedEvent.data.otherEndpoints = [
+        createEmptyEndpoint()
+    ]
+    return connectedEvent;
+};
+
+export const createAddTrackMediaEvent = (trackId: string, endpointId: string): TracksAddedMediaEvent => ({
+    type: "tracksAdded",
+    data: {
+        endpointId: endpointId,
+        tracks: {
+            [trackId]: createSimulcastTrack()
+        },
+        trackIdToMetadata: {
+            [trackId]: {}
+        }
+    }
+});
+
+export const createCustomOfferDataEventWithOneVideoTrack = (): CustomOfferDataEvent => ({
+    "data": {
+        "data": {
+            "integratedTurnServers": [
+                {
+                    "password": "E9ck/2hJCkkuVSmPfFrNg2l1+JA=",
+                    "serverAddr": "192.168.1.95",
+                    "serverPort": 50018,
+                    "transport": "udp",
+                    "username": "1698997572:dedfa04f-b30a-433a-86d5-03336a828caa"
+                }
+            ],
+            "tracksTypes": {
+                "audio": 0,
+                "video": 1
+            }
+        },
+        "type": "offerData"
+    },
+    "type": "custom"
+});
+
+export const createAnswerData = (trackId: string): CustomSdpAnswerDataEvent => {
+    return ({
+        "data": {
+            "data": {
+                "midToTrackId": {
+                    "0": "9afe80ce-1964-4958-a386-d7a9e3097ca7:5c74b6b3-cb72-49f1-a76b-0df4895a3d32"
+                },
+                "sdp": `v=0\r
+o=- 39483584182226872 0 IN IP4 127.0.0.1\r
+s=-\r
+t=0 0\r
+a=group:BUNDLE 0\r
+a=extmap-allow-mixed\r
+a=ice-lite\r
+m=video 9 UDP/TLS/RTP/SAVPF 102 103\r
+c=IN IP4 0.0.0.0\r
+a=sendonly\r
+a=ice-ufrag:fXa4\r
+a=ice-pwd:mC2wFgKGsN3cXnxadEhVaa\r
+a=ice-options:trickle\r
+a=fingerprint:sha-256 50:65:CB:9F:2B:B5:62:7F:20:59:79:C6:7B:49:D8:DF:C2:B5:59:1F:E2:7D:68:F8:C3:07:73:8B:16:70:FB:DD\r
+a=setup:passive\r
+a=mid:0\r
+a=msid:60ff1fb2-6868-42be-8c92-311733034415 ea1339b9-54ce-445b-9cff-2568f9ac504b\r
+a=rtcp-mux\r
+a=rtpmap:102 H264/90000\r
+a=fmtp:102 profile-level-id=42001f;level-asymmetry-allowed=1;packetization-mode=1\r
+a=rtpmap:103 rtx/90000\r
+a=fmtp:103 apt=102\r
+a=extmap:4 http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01\r
+a=rtcp-fb:102 transport-cc\r
+a=extmap:9 urn:ietf:params:rtp-hdrext:sdes:mid\r
+a=extmap:10 urn:ietf:params:rtp-hdrext:sdes:rtp-stream-id\r
+a=extmap:11 urn:ietf:params:rtp-hdrext:sdes:repaired-rtp-stream-id\r
+a=rtcp-fb:102 ccm fir\r
+a=rtcp-fb:102 nack\r
+a=rtcp-fb:102 nack pli\r
+a=rtcp-rsize\r
+a=ssrc:663086196 cname:${trackId}-video-60ff1fb2-6868-42be-8c92-311733034415\r
+`,
+                "type": "answer"
+            },
+            "type": "sdpAnswer"
+        },
+        "type": "custom"
+    })
 }

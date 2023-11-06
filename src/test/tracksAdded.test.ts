@@ -1,34 +1,24 @@
 import { WebRTCEndpoint } from "../webRTCEndpoint";
-import { createConnectedEvent, createEmptyEndpoint, createSimulcastTrack } from "./fixtures";
+import {
+    createAddTrackMediaEvent,
+    createAnswerData,
+    createConnectedEventWithOneEndpoint,
+    createCustomOfferDataEventWithOneVideoTrack
+} from "./fixtures";
 import { CustomOfferDataEvent, TracksAddedMediaEvent } from "./schema";
 import { deserializeMediaEvent } from "../mediaEvent";
+import { mockRTCPeerConnection } from "./mocks";
 
-test('Connecting to room with one peer then tracks added event occurred', () => {
+const trackId: string = "9afe80ce-1964-4958-a386-d7a9e3097ca7:5c74b6b3-cb72-49f1-a76b-0df4895a3d32"
+
+test('Connect to room with one endpoint than addTrack', () => {
     // Given
     const webRTCEndpoint = new WebRTCEndpoint()
     const trackAddedCallback = jest.fn(x => null);
 
-    const connectedEvent = createConnectedEvent()
-    connectedEvent.data.otherEndpoints = [
-        createEmptyEndpoint()
-    ]
+    webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEventWithOneEndpoint()))
 
-    webRTCEndpoint.receiveMediaEvent(JSON.stringify(connectedEvent))
-
-    const trackId = "trackId"
-
-    const trackAddedEvent: TracksAddedMediaEvent = {
-        type: "tracksAdded",
-        data: {
-            endpointId: connectedEvent.data.otherEndpoints[0].id,
-            tracks: {
-                [trackId]: createSimulcastTrack()
-            },
-            trackIdToMetadata: {
-                [trackId]: {}
-            }
-        }
-    }
+    const trackAddedEvent: TracksAddedMediaEvent = createAddTrackMediaEvent(trackId, createConnectedEventWithOneEndpoint().data.otherEndpoints[0].id)
 
     webRTCEndpoint.on("trackAdded", (ctx) => {
         trackAddedCallback(ctx)
@@ -47,95 +37,22 @@ test('Connecting to room with one peer then tracks added event occurred', () => 
     expect(trackAddedCallback.mock.calls).toHaveLength(1);
 });
 
-
 test('tracksAdded -> handle offerData with one video track from server', (done) => {
     // Given
-    const addTransceiverCallback = jest.fn((trackOrKind, init) => null);
-
-    (global as any).RTCPeerConnection = jest.fn().mockImplementation(() => {
-        const transceivers: RTCRtpTransceiver[] = []
-
-        return {
-            getTransceivers: () => {
-                return transceivers
-            },
-            addTransceiver: (trackOrKind: MediaStreamTrack | string, init?: RTCRtpTransceiverInit): RTCRtpTransceiver => {
-                addTransceiverCallback(trackOrKind, init)
-                // maybe move to callback declaration
-                const transceiver: RTCRtpTransceiver = {
-                    currentDirection: null,
-                    direction: init?.direction ?? "inactive",
-                    mid: null,
-                    receiver: {} as RTCRtpReceiver,
-                    sender: {} as RTCRtpSender,
-                    setCodecPreferences: (codecs: RTCRtpCodecCapability[]) => {
-                    },
-                    stop: () => {
-                    },
-                }
-                transceivers.push(transceiver)
-
-                return transceiver
-            },
-            createOffer: async (options?: RTCOfferOptions): Promise<RTCSessionDescriptionInit> => {
-                return {
-                    sdp: "",
-                    type: "offer",
-                }
-            },
-            setLocalDescription: async (description?: RTCLocalSessionDescriptionInit): Promise<void> => {
-            }
-        }
-    });
+    const { addTransceiverCallback } = mockRTCPeerConnection();
 
     const webRTCEndpoint = new WebRTCEndpoint()
 
-    const connectedEvent = createConnectedEvent()
-    connectedEvent.data.otherEndpoints = [
-        createEmptyEndpoint()
-    ]
+    const connectedEvent = createConnectedEventWithOneEndpoint();
+    const trackId = "trackId"
 
     webRTCEndpoint.receiveMediaEvent(JSON.stringify(connectedEvent))
 
-    const trackId = "trackId"
-
-    const trackAddedEvent: TracksAddedMediaEvent = {
-        type: "tracksAdded",
-        data: {
-            endpointId: connectedEvent.data.otherEndpoints[0].id,
-            tracks: {
-                [trackId]: createSimulcastTrack()
-            },
-            trackIdToMetadata: {
-                [trackId]: {}
-            }
-        }
-    }
+    const trackAddedEvent: TracksAddedMediaEvent = createAddTrackMediaEvent(trackId, connectedEvent.data.otherEndpoints[0].id)
 
     webRTCEndpoint.receiveMediaEvent(JSON.stringify(trackAddedEvent))
 
-
-    const offerData: CustomOfferDataEvent = {
-        "data": {
-            "data": {
-                "integratedTurnServers": [
-                    {
-                        "password": "E9ck/2hJCkkuVSmPfFrNg2l1+JA=",
-                        "serverAddr": "192.168.1.95",
-                        "serverPort": 50018,
-                        "transport": "udp",
-                        "username": "1698997572:dedfa04f-b30a-433a-86d5-03336a828caa"
-                    }
-                ],
-                "tracksTypes": {
-                    "audio": 0,
-                    "video": 1
-                }
-            },
-            "type": "offerData"
-        },
-        "type": "custom"
-    }
+    const offerData: CustomOfferDataEvent = createCustomOfferDataEventWithOneVideoTrack()
 
     webRTCEndpoint.on("sendMediaEvent", (mediaEvent) => {
         expect(mediaEvent).toContain("sdpOffer");
@@ -153,20 +70,8 @@ test('tracksAdded -> handle offerData with one video track from server', (done) 
 
     expect(rtcConfig.iceServers?.length).toBe(1);
 
-
-    // 2. if there is no connection: Setup callbacks
-    //    else restartIce
-    //
-    // this.connection = new RTCPeerConnection(this.rtcConfig);
-    //       this.connection.onicecandidate = this.onLocalCandidate();
-    //       this.connection.onicecandidateerror = this.onIceCandidateError as (
-    //         event: Event
-    //       ) => void;
-    //       this.connection.onconnectionstatechange = this.onConnectionStateChange;
-    //       this.connection.oniceconnectionstatechange =
-    //         this.onIceConnectionStateChange;
-    //
-    // 3. Add track to RTCPeerConnection for every track in localTrackIdToTrack as "sendonly"
+    // todo
+    //  if there is no connection: Setup callbacks else restartIce
 
     expect(addTransceiverCallback.mock.calls).toHaveLength(1);
     expect(addTransceiverCallback.mock.calls[0][0]).toBe("video");
@@ -175,12 +80,26 @@ test('tracksAdded -> handle offerData with one video track from server', (done) 
 
     expect(transceivers?.length).toBe(1);
     expect(transceivers?.[0].direction).toBe("recvonly");
+})
 
 
-    // private addTrackToConnection = (trackContext: TrackContext) => {
-    //     let transceiverConfig = this.createTransceiverConfig(trackContext);
-    //     const track = trackContext.track!!;
-    //     this.connection!.addTransceiver(track, transceiverConfig);
-    //   };
+test('tracksAdded -> offerData with one track -> handle sdpAnswer data with one video track from server', () => {
+    // Given
+    mockRTCPeerConnection();
 
+    const webRTCEndpoint = new WebRTCEndpoint()
+
+    webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEventWithOneEndpoint()))
+    webRTCEndpoint.receiveMediaEvent(JSON.stringify(createAddTrackMediaEvent(trackId, createConnectedEventWithOneEndpoint().data.otherEndpoints[0].id)))
+    webRTCEndpoint.receiveMediaEvent(JSON.stringify(createCustomOfferDataEventWithOneVideoTrack()))
+
+    // When
+    const answerData = createAnswerData(trackId)
+
+    webRTCEndpoint.receiveMediaEvent(JSON.stringify(answerData))
+
+    // Then
+    const midToTrackId = webRTCEndpoint["midToTrackId"]
+
+    expect(midToTrackId.size).toBe(1)
 })

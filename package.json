@@ -23,8 +23,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "jest",
-    "test:coverag": "jest --coverage",
+    "test": "jest --testPathPattern=./src/test/",
+    "test:coverage": "jest --coverage --testPathPattern=./src/test/",
     "docs": "typedoc src/index.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

@@ -7,7 +7,7 @@ on:
     branches: [master]
 
 jobs:
-  formating:
+  check_and_build:
     name: Check formatting and run linter
     runs-on: ubuntu-latest
 

@@ -24,8 +24,8 @@
   "scripts": {
     "build": "rimraf dist && tsc",
     "docs": "typedoc src/index.ts",
-    "format:fix": "prettier --write .",
-    "format:check": "prettier --check .",
+    "format:fix": "prettier --write . --ignore-path ./.eslintignore",
+    "format:check": "prettier --check . --ignore-path ./.eslintignore",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "lint:check": "eslint . --ext .ts,.tsx",
     "prepare": "rimraf dist && tsc"

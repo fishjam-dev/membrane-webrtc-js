@@ -418,6 +418,18 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
     return Object.fromEntries(this.trackIdToTrack.entries());
   }
 
+  /**
+   * Returns a snapshot of currently received remote tracks.
+   *
+   * @example
+   * if (webRTCEndpoint.getRemoteTracks()[trackId]?.simulcastConfig?.enabled) {
+   *   webRTCEndpoint.setTargetTrackEncoding(trackId, encoding);
+   * }
+   */
+  public getRemoteEndpoints(): Record<string, Endpoint> {
+    return Object.fromEntries(this.idToEndpoint.entries());
+  }
+
   private handleMediaEvent = (deserializedMediaEvent: MediaEvent) => {
     let endpoint: Endpoint;
     let data;

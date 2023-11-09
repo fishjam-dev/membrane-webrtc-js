@@ -1,5 +1,5 @@
-import { Endpoint, WebRTCEndpoint } from "../webRTCEndpoint";
-import { createConnectedEvent, createEmptyEndpoint, createSimulcastTrack } from "./fixtures";
+import { Endpoint, WebRTCEndpoint } from "../../webRTCEndpoint";
+import { createConnectedEvent, createEmptyEndpoint, createSimulcastTrack } from "../fixtures";
 
 
 test('Connecting to empty room', () => {

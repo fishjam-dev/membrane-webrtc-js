@@ -1,11 +1,11 @@
-import { WebRTCEndpoint } from "../webRTCEndpoint";
+import { WebRTCEndpoint } from "../../webRTCEndpoint";
 import {
     createConnectedEventWithOneEndpoint,
-} from "./fixtures";
+} from "../fixtures";
 import { FakeMediaStreamTrack } from "fake-mediastreamtrack";
-import { deserializeMediaEvent } from "../mediaEvent";
-import { CustomOfferDataEvent, CustomSdpAnswerDataEvent } from "./schema";
-import { mockRTCPeerConnection } from "./mocks";
+import { deserializeMediaEvent } from "../../mediaEvent";
+import { CustomOfferDataEvent, CustomSdpAnswerDataEvent } from "../schema";
+import { mockRTCPeerConnection } from "../mocks";
 
 const MediaStreamMock = jest.fn().mockImplementation(() => {
 })
@@ -83,8 +83,6 @@ test('Connect to room and then add track, webrtc not connected -> negotiate', (d
         //
         // webRTCEndpoint.receiveMediaEvent(JSON.stringify(createOfferData()))
         // webRTCEndpoint.receiveMediaEvent(JSON.stringify(createAnswerData("9bf0cc85-c795-43b2-baf1-2c974cd770b9:1b6d99d1-3630-4e01-b386-15cbbfe5a41f")))
-
-        console.log(JSON.parse(mediaEvent))
         done();
     })
 

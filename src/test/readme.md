@@ -6,8 +6,8 @@ tracksAdded - ⚠️
 trackRemoved - 
 sdpAnswer - ⚠️
 candidate -
-endpointAdded - 🌀
-endpointUpdated -
+endpointAdded - ✅
+endpointUpdated - 🌀
 trackUpdated -
 trackPriority -
 encodingSwitched -

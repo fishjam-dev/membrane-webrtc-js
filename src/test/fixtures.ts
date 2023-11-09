@@ -1,10 +1,10 @@
 import {
-    ConnectedMediaEvent,
-    CustomOfferDataEvent,
-    CustomSdpAnswerDataEvent,
-    Endpoint,
+    ConnectedMediaEvent, ConnectedMediaEventSchema,
+    CustomOfferDataEvent, CustomOfferDataEventSchema,
+    CustomSdpAnswerDataEvent, CustomSdpAnswerDataEventSchema,
+    Endpoint, EndpointSchema,
     Track,
-    TracksAddedMediaEvent
+    TracksAddedMediaEvent, TracksAddedMediaEventSchema
 } from "./schema";
 
 export const createSimulcastTrack = (): Track => ({
@@ -15,7 +15,7 @@ export const createSimulcastTrack = (): Track => ({
     }
 })
 
-export const createEmptyEndpoint = (): Endpoint => ({
+export const createEmptyEndpoint = (): Endpoint => EndpointSchema.parse({
     id: '210fdb82-80d2-4868-8c31-a45f54f6e3c9',
     // todo undefined metadata?
     metadata: { name: '210fdb82-80d2-4868-8c31-a45f54f6e3c9' },
@@ -24,7 +24,7 @@ export const createEmptyEndpoint = (): Endpoint => ({
     type: 'webrtc'
 })
 
-export const createConnectedEvent = (): ConnectedMediaEvent => ({
+export const createConnectedEvent = (): ConnectedMediaEvent => ConnectedMediaEventSchema.parse({
     type: "connected",
     data: {
         id: '7b789673-8600-4c8b-8f45-476b86cb820d', // peerId
@@ -94,15 +94,15 @@ const offerDataEventExample = {
     "type": "custom"
 }
 
-export const createConnectedEventWithOneEndpoint = () => {
+export const createConnectedEventWithOneEndpoint = (): ConnectedMediaEvent => {
     const connectedEvent = createConnectedEvent()
     connectedEvent.data.otherEndpoints = [
         createEmptyEndpoint()
     ]
-    return connectedEvent;
+    return ConnectedMediaEventSchema.parse(connectedEvent);
 };
 
-export const createAddTrackMediaEvent = (trackId: string, endpointId: string): TracksAddedMediaEvent => ({
+export const createAddTrackMediaEvent = (trackId: string, endpointId: string): TracksAddedMediaEvent => TracksAddedMediaEventSchema.parse({
     type: "tracksAdded",
     data: {
         endpointId: endpointId,
@@ -115,7 +115,7 @@ export const createAddTrackMediaEvent = (trackId: string, endpointId: string): T
     }
 });
 
-export const createCustomOfferDataEventWithOneVideoTrack = (): CustomOfferDataEvent => ({
+export const createCustomOfferDataEventWithOneVideoTrack = (): CustomOfferDataEvent => CustomOfferDataEventSchema.parse({
     "data": {
         "data": {
             "integratedTurnServers": [
@@ -137,8 +137,8 @@ export const createCustomOfferDataEventWithOneVideoTrack = (): CustomOfferDataEv
     "type": "custom"
 });
 
-export const createAnswerData = (trackId: string): CustomSdpAnswerDataEvent => {
-    return ({
+export const createAnswerData = (trackId: string): CustomSdpAnswerDataEvent =>
+    CustomSdpAnswerDataEventSchema.parse({
         "data": {
             "data": {
                 "midToTrackId": {
@@ -183,4 +183,3 @@ a=ssrc:663086196 cname:${trackId}-video-60ff1fb2-6868-42be-8c92-311733034415\r
         },
         "type": "custom"
     })
-}

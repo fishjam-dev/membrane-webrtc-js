@@ -18,7 +18,7 @@ const endpointAdded = {
     "type": "endpointAdded"
 }
 
-test('Connect to room and then add track, webrtc not connected -> negotiate', (done) => {
+test('Connect to room and then add track, webrtc not connected -> negotiate', () => {
     // Given
     mockRTCPeerConnection();
     const webRTCEndpoint = new WebRTCEndpoint()

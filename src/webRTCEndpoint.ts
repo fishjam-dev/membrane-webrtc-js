@@ -303,10 +303,6 @@ export interface WebRTCEndpointEvents {
 export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
   Required<WebRTCEndpointEvents>
 >) {
-  private localTracksWithStreams: {
-    track: MediaStreamTrack;
-    stream: MediaStream;
-  }[] = [];
   private trackIdToTrack: Map<string, TrackContextImpl> = new Map();
   private connection?: RTCPeerConnection;
   private idToEndpoint: Map<String, Endpoint> = new Map();
@@ -685,7 +681,6 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
     if (this.getEndpointId() === "")
       throw "Cannot add tracks before being accepted by the server";
     const trackId = this.getTrackId(uuidv4());
-    this.localTracksWithStreams.push({ track, stream });
 
     const trackContext = new TrackContextImpl(
       this.localEndpoint,
@@ -1276,7 +1271,6 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<
       this.connection.oniceconnectionstatechange = null;
     }
 
-    this.localTracksWithStreams = [];
     this.connection = undefined;
   };
 

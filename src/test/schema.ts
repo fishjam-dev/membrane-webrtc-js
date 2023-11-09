@@ -79,6 +79,29 @@ export const CustomSdpAnswerDataEventSchema = z.object({
     type: z.literal("custom"),
 })
 
+export const EndpointAddedWebrtcEventSchema = z.object({
+    data: z.object({
+        data: z.object({
+            id: z.string().min(1),
+            metadata: z.any(),
+        }),
+        type: z.literal("webrtc"),
+    }),
+    type: z.literal("endpointAdded"),
+})
+
+// endpointAdded
+// {
+//     "data": {
+//         "id": "73d400f3-f599-4e6b-a133-28231345c83b",
+//         "metadata": {
+//             "name": "73d400f3-f599-4e6b-a133-28231345c83b"
+//         },
+//         "type": "webrtc"
+//     },
+//     "type": "endpointAdded"
+// }
+
 export type CustomSdpAnswerDataEvent = z.infer<typeof CustomSdpAnswerDataEventSchema>;
 
 export type MediaEvent = TracksAddedMediaEvent | ConnectedMediaEvent

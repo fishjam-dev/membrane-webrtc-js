@@ -118,5 +118,17 @@ export const CustomEncodingSwitchedEventSchema = z.object({
 
 export type CustomEncodingUpdatedEvent = z.infer<typeof CustomEncodingSwitchedEventSchema>;
 
+export const CustomBandwidthEstimationEventSchema = z.object({
+    data: z.object({
+        data: z.object({
+            estimation: z.number(),
+        }),
+        type: z.literal("bandwidthEstimation"),
+    }),
+    type: z.literal("custom"),
+})
+
+export type CustomBandwidthEstimationEvent = z.infer<typeof CustomBandwidthEstimationEventSchema>;
+
 export type MediaEvent = TracksAddedMediaEvent | ConnectedMediaEvent
 export type CustomEvent = CustomOfferDataEvent | CustomSdpAnswerDataEvent

@@ -1,12 +1,30 @@
 import {
-    ConnectedMediaEvent, ConnectedMediaEventSchema, CustomEncodingUpdatedEvent, CustomEncodingSwitchedEventSchema,
-    CustomOfferDataEvent, CustomOfferDataEventSchema,
-    CustomSdpAnswerDataEvent, CustomSdpAnswerDataEventSchema,
-    Endpoint, EndpointSchema, EndpointUpdatedWebrtcEvent, EndpointUpdatedWebrtcEventSchema,
+    ConnectedMediaEvent,
+    ConnectedMediaEventSchema,
+    CustomEncodingUpdatedEvent,
+    CustomEncodingSwitchedEventSchema,
+    CustomOfferDataEvent,
+    CustomOfferDataEventSchema,
+    CustomSdpAnswerDataEvent,
+    CustomSdpAnswerDataEventSchema,
+    Endpoint,
+    EndpointSchema,
+    EndpointUpdatedWebrtcEvent,
+    EndpointUpdatedWebrtcEventSchema,
     Track,
-    TracksAddedMediaEvent, TracksAddedMediaEventSchema
+    TracksAddedMediaEvent,
+    TracksAddedMediaEventSchema,
+    CustomBandwidthEstimationEventSchema,
+    CustomBandwidthEstimationEvent
 } from "./schema";
 import { TrackEncoding } from "../webRTCEndpoint";
+
+export const endpointId = "exampleEndpointId"
+export const notExistingEndpointId = "notExistingEndpointId"
+
+export const trackId = "exampleTrackId"
+export const notExistingTrackId = "notExistingTrackId"
+
 
 export const createSimulcastTrack = (): Track => ({
     metadata: {},
@@ -41,6 +59,17 @@ export const createEncodingSwitchedEvent = (endpointId: string, trackId: string,
                 "trackId": trackId,
             },
             "type": "encodingSwitched"
+        },
+        "type": "custom"
+    }
+)
+
+export const createBandwidthEstimationEvent = (): CustomBandwidthEstimationEvent => CustomBandwidthEstimationEventSchema.parse({
+        "data": {
+            "data": {
+                "estimation": 261506.7264961106
+            },
+            "type": "bandwidthEstimation"
         },
         "type": "custom"
     }

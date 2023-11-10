@@ -1,15 +1,9 @@
 import { WebRTCEndpoint } from "../../webRTCEndpoint";
 import {
     createConnectedEventWithOneEndpointWithOneTrack,
-    createEncodingSwitchedEvent,
-    createEndpointUpdated
+    createEncodingSwitchedEvent, endpointId, notExistingEndpointId, notExistingTrackId, trackId,
 } from "../fixtures";
 
-const endpointId = "exampleEndpointId"
-const notExistingEndpointId = "notExistingEndpointId"
-
-const trackId = "exampleTrackId"
-const notExistingTrackId = "notExistingTrackId"
 
 test('Change existing track encoding', () => {
     // Given

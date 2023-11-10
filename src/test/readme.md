@@ -13,8 +13,8 @@ trackPriority -
 encodingSwitched - ✅
 custom -
 error -
-vadNotification -
-bandwidthEstimation - 🌀
+vadNotification - 🌀
+bandwidthEstimation - ✅
 
 ## Output events
 

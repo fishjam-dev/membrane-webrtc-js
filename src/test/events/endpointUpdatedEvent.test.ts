@@ -21,7 +21,7 @@ test('Update existing endpoint metadata', () => {
 
     // Then
     const endpoint = webRTCEndpoint.getRemoteEndpoints()[endpointId]
-    expect(endpoint.metadata["newField"]).toBe(metadata.newField)
+    expect(endpoint.metadata).toMatchObject(metadata)
 });
 
 test('Update existing endpoint with undefined metadata', () => {

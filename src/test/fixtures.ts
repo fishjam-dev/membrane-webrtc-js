@@ -17,8 +17,7 @@ export const createSimulcastTrack = (): Track => ({
 
 export const createEmptyEndpoint = (endpointId?: string): Endpoint => EndpointSchema.parse({
     id: endpointId ?? '210fdb82-80d2-4868-8c31-a45f54f6e3c9',
-    // todo undefined metadata?
-    metadata: { name: '210fdb82-80d2-4868-8c31-a45f54f6e3c9' },
+    metadata: null,
     trackIdToMetadata: {},
     tracks: {},
     type: 'webrtc'

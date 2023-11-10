@@ -16,8 +16,8 @@ export type Track = z.infer<typeof TrackSchema>;
 
 export const EndpointSchema = z.object({
     id: z.string().min(1), // peer / component id
-    metadata: z.record(z.any()),
-    trackIdToMetadata: TrackIdToMetadataSchema, // todo fix
+    metadata: z.union([z.null(), z.unknown()]), // null or object
+    trackIdToMetadata: TrackIdToMetadataSchema,
     tracks: z.record(TrackSchema),
     type: z.string(), // fix 'webrtc' etc.
 })

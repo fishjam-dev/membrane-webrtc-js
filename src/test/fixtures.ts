@@ -2,7 +2,7 @@ import {
     ConnectedMediaEvent, ConnectedMediaEventSchema,
     CustomOfferDataEvent, CustomOfferDataEventSchema,
     CustomSdpAnswerDataEvent, CustomSdpAnswerDataEventSchema,
-    Endpoint, EndpointSchema,
+    Endpoint, EndpointSchema, EndpointUpdatedWebrtcEvent, EndpointUpdatedWebrtcEventSchema,
     Track,
     TracksAddedMediaEvent, TracksAddedMediaEventSchema
 } from "./schema";
@@ -15,8 +15,8 @@ export const createSimulcastTrack = (): Track => ({
     }
 })
 
-export const createEmptyEndpoint = (): Endpoint => EndpointSchema.parse({
-    id: '210fdb82-80d2-4868-8c31-a45f54f6e3c9',
+export const createEmptyEndpoint = (endpointId?: string): Endpoint => EndpointSchema.parse({
+    id: endpointId ?? '210fdb82-80d2-4868-8c31-a45f54f6e3c9',
     // todo undefined metadata?
     metadata: { name: '210fdb82-80d2-4868-8c31-a45f54f6e3c9' },
     trackIdToMetadata: {},
@@ -94,10 +94,10 @@ const offerDataEventExample = {
     "type": "custom"
 }
 
-export const createConnectedEventWithOneEndpoint = (): ConnectedMediaEvent => {
+export const createConnectedEventWithOneEndpoint = (endpointId?: string): ConnectedMediaEvent => {
     const connectedEvent = createConnectedEvent()
     connectedEvent.data.otherEndpoints = [
-        createEmptyEndpoint()
+        createEmptyEndpoint(endpointId)
     ]
     return ConnectedMediaEventSchema.parse(connectedEvent);
 };
@@ -183,3 +183,14 @@ a=ssrc:663086196 cname:${trackId}-video-60ff1fb2-6868-42be-8c92-311733034415\r
         },
         "type": "custom"
     })
+
+
+export const createEndpointUpdated = (endpointId: string, metadata: any): EndpointUpdatedWebrtcEvent => EndpointUpdatedWebrtcEventSchema.parse(
+    {
+        "data": {
+            "id": endpointId,
+            "metadata": metadata
+        },
+        "type": "endpointUpdated"
+    }
+)

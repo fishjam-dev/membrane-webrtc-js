@@ -7,7 +7,7 @@ import { EndpointAddedWebrtcEvent, EndpointAddedWebrtcEventSchema } from "../sch
 export const createEndpointAdded = (endpointId: string): EndpointAddedWebrtcEvent => EndpointAddedWebrtcEventSchema.parse({
     "data": {
         "id": endpointId,
-        "metadata": {},
+        "metadata": undefined,
         "type": "webrtc"
     },
     "type": "endpointAdded"

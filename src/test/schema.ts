@@ -84,7 +84,7 @@ export type CustomSdpAnswerDataEvent = z.infer<typeof CustomSdpAnswerDataEventSc
 export const EndpointAddedWebrtcEventSchema = z.object({
     data: z.object({
         id: z.string().min(1),
-        metadata: z.any(),
+        metadata: z.any(), // undefined is possible
         type: z.literal("webrtc"),
     }),
     type: z.literal("endpointAdded"),
@@ -93,17 +93,15 @@ export const EndpointAddedWebrtcEventSchema = z.object({
 export type EndpointAddedWebrtcEvent = z.infer<typeof EndpointAddedWebrtcEventSchema>;
 
 
-// endpointAdded
-// {
-//     "data": {
-//         "id": "73d400f3-f599-4e6b-a133-28231345c83b",
-//         "metadata": {
-//             "name": "73d400f3-f599-4e6b-a133-28231345c83b"
-//         },
-//         "type": "webrtc"
-//     },
-//     "type": "endpointAdded"
-// }
+export const EndpointUpdatedWebrtcEventSchema = z.object({
+    data: z.object({
+        id: z.string().min(1),
+        metadata: z.any(), // undefined is possible
+    }),
+    type: z.literal("endpointUpdated"),
+})
+
+export type EndpointUpdatedWebrtcEvent = z.infer<typeof EndpointUpdatedWebrtcEventSchema>;
 
 
 export type MediaEvent = TracksAddedMediaEvent | ConnectedMediaEvent

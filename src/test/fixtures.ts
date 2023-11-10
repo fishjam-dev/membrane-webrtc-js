@@ -1,11 +1,12 @@
 import {
-    ConnectedMediaEvent, ConnectedMediaEventSchema,
+    ConnectedMediaEvent, ConnectedMediaEventSchema, CustomEncodingUpdatedEvent, CustomEncodingSwitchedEventSchema,
     CustomOfferDataEvent, CustomOfferDataEventSchema,
     CustomSdpAnswerDataEvent, CustomSdpAnswerDataEventSchema,
     Endpoint, EndpointSchema, EndpointUpdatedWebrtcEvent, EndpointUpdatedWebrtcEventSchema,
     Track,
     TracksAddedMediaEvent, TracksAddedMediaEventSchema
 } from "./schema";
+import { TrackEncoding } from "../webRTCEndpoint";
 
 export const createSimulcastTrack = (): Track => ({
     metadata: {},
@@ -30,6 +31,20 @@ export const createConnectedEvent = (): ConnectedMediaEvent => ConnectedMediaEve
         otherEndpoints: []
     }
 })
+
+export const createEncodingSwitchedEvent = (endpointId: string, trackId: string, encoding: TrackEncoding): CustomEncodingUpdatedEvent => CustomEncodingSwitchedEventSchema.parse({
+        "data": {
+            "data": {
+                "encoding": encoding,
+                "endpointId": endpointId,
+                "reason": "other",
+                "trackId": trackId,
+            },
+            "type": "encodingSwitched"
+        },
+        "type": "custom"
+    }
+)
 
 
 // --- TODO REMOVE
@@ -98,6 +113,22 @@ export const createConnectedEventWithOneEndpoint = (endpointId?: string): Connec
     connectedEvent.data.otherEndpoints = [
         createEmptyEndpoint(endpointId)
     ]
+    return ConnectedMediaEventSchema.parse(connectedEvent);
+};
+
+
+export const createConnectedEventWithOneEndpointWithOneTrack = (endpointId: string, trackId: string): ConnectedMediaEvent => {
+    const connectedEvent = createConnectedEvent()
+    connectedEvent.data.otherEndpoints = [
+        createEmptyEndpoint(endpointId)
+    ]
+
+    const endpoint = connectedEvent.data.otherEndpoints[0]
+
+    endpoint.tracks[trackId] = createSimulcastTrack()
+    endpoint.trackIdToMetadata[trackId] = {}
+
+
     return ConnectedMediaEventSchema.parse(connectedEvent);
 };
 

@@ -103,6 +103,20 @@ export const EndpointUpdatedWebrtcEventSchema = z.object({
 
 export type EndpointUpdatedWebrtcEvent = z.infer<typeof EndpointUpdatedWebrtcEventSchema>;
 
+export const CustomEncodingSwitchedEventSchema = z.object({
+    data: z.object({
+        data: z.object({
+            encoding: z.union([z.literal("l"), z.literal("m"), z.literal("h")]),
+            endpointId: z.string().min(1),
+            reason: z.string(),
+            trackId: z.string().min(1)
+        }),
+        type: z.literal("encodingSwitched"),
+    }),
+    type: z.literal("custom"),
+})
+
+export type CustomEncodingUpdatedEvent = z.infer<typeof CustomEncodingSwitchedEventSchema>;
 
 export type MediaEvent = TracksAddedMediaEvent | ConnectedMediaEvent
 export type CustomEvent = CustomOfferDataEvent | CustomSdpAnswerDataEvent

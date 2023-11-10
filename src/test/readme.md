@@ -8,13 +8,13 @@ sdpAnswer - ⚠️
 candidate -
 endpointAdded - ✅
 endpointUpdated - ✅
-trackUpdated - 🌀
+trackUpdated - 
 trackPriority -
-encodingSwitched -
+encodingSwitched - ✅
 custom -
 error -
 vadNotification -
-bandwidthEstimation -
+bandwidthEstimation - 🌀
 
 ## Output events
 

@@ -46,13 +46,17 @@ export const createEmptyEndpoint = (endpointId?: string): Endpoint => EndpointSc
     type: 'webrtc'
 })
 
-export const createConnectedEvent = (): ConnectedMediaEvent => ConnectedMediaEventSchema.parse({
-    type: "connected",
-    data: {
-        id: '7b789673-8600-4c8b-8f45-476b86cb820d', // peerId
-        otherEndpoints: []
-    }
-})
+export const createConnectedEvent = (localEndpointId?: string): ConnectedMediaEvent => {
+    const id = localEndpointId ?? '7b789673-8600-4c8b-8f45-476b86cb820d'
+
+    return ConnectedMediaEventSchema.parse({
+        type: "connected",
+        data: {
+            id: id, // peerId
+            otherEndpoints: []
+        }
+    });
+}
 
 export const createEncodingSwitchedEvent = (endpointId: string, trackId: string, encoding: TrackEncoding): CustomEncodingUpdatedEvent => CustomEncodingSwitchedEventSchema.parse({
         "data": {
@@ -183,10 +187,10 @@ export const createConnectedEventWithOneEndpoint = (endpointId?: string): Connec
 };
 
 
-export const createConnectedEventWithOneEndpointWithOneTrack = (endpointId: string, trackId: string): ConnectedMediaEvent => {
-    const connectedEvent = createConnectedEvent()
+export const createConnectedEventWithOneEndpointWithOneTrack = (remoteEndpointId: string, trackId: string, localEndpointId?: string): ConnectedMediaEvent => {
+    const connectedEvent = createConnectedEvent(localEndpointId)
     connectedEvent.data.otherEndpoints = [
-        createEmptyEndpoint(endpointId)
+        createEmptyEndpoint(remoteEndpointId)
     ]
 
     const endpoint = connectedEvent.data.otherEndpoints[0]

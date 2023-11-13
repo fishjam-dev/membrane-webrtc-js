@@ -2,7 +2,7 @@ import { Endpoint, WebRTCEndpoint } from "../../webRTCEndpoint";
 import { createConnectedEvent, createEmptyEndpoint, createSimulcastTrack, trackId } from "../fixtures";
 
 
-test('Connecting to empty room', () => {
+test('Connecting to empty room produce event', (done) => {
     const webRTCEndpoint = new WebRTCEndpoint()
 
     const connectedEvent = createConnectedEvent()
@@ -10,12 +10,26 @@ test('Connecting to empty room', () => {
     webRTCEndpoint.on("connected", (peerId: string, peersInRoom: Endpoint[]) => {
         expect(connectedEvent.data.id).toBe(peerId)
         expect(connectedEvent.data.otherEndpoints.length).toBe(0)
+        done()
     });
 
     webRTCEndpoint.receiveMediaEvent(JSON.stringify(connectedEvent))
 });
 
-test('Connecting to room with one peer', () => {
+test('Connecting to empty room set internal state', () => {
+    // Given
+    const webRTCEndpoint = new WebRTCEndpoint()
+
+    // When
+    const connectedEvent = createConnectedEvent()
+    webRTCEndpoint.receiveMediaEvent(JSON.stringify(connectedEvent))
+
+    // Then
+    const localEndpoint = webRTCEndpoint["localEndpoint"]
+    expect(localEndpoint.id).toBe(connectedEvent.data.id)
+});
+
+test('Connecting to room with one peer', (done) => {
     const webRTCEndpoint = new WebRTCEndpoint()
 
     const connectedEvent = createConnectedEvent()
@@ -26,12 +40,13 @@ test('Connecting to room with one peer', () => {
     webRTCEndpoint.on("connected", (peerId: string, peersInRoom: Endpoint[]) => {
         expect(connectedEvent.data.id).toBe(peerId)
         expect(connectedEvent.data.otherEndpoints.length).toBe(connectedEvent.data.otherEndpoints.length)
+        done()
     });
 
     webRTCEndpoint.receiveMediaEvent(JSON.stringify(connectedEvent))
 });
 
-test('Connecting to room with one peer with one track', () => {
+test('Connecting to room with one peer with one track', (done) => {
     // Given
     const webRTCEndpoint = new WebRTCEndpoint()
     const trackAddedCallback = jest.fn(x => null);
@@ -57,6 +72,7 @@ test('Connecting to room with one peer with one track', () => {
         trackAddedCallback(ctx)
         expect(ctx.trackId).toBe(trackId)
         expect(ctx.simulcastConfig?.enabled).toBe(endpoint.tracks[trackId].simulcastConfig.enabled)
+        done()
     })
 
     // When

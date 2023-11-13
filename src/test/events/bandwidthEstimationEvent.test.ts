@@ -13,6 +13,7 @@ test('Change existing track bandwidth estimation', (done) => {
     const bandwidthEstimationEvent = createBandwidthEstimationEvent()
 
     webRTCEndpoint.on("bandwidthEstimationChanged", (estimation) => {
+        // Then
         expect(estimation).toBe(bandwidthEstimationEvent.data.data.estimation)
         done()
     })

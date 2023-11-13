@@ -8,12 +8,12 @@ sdpAnswer - ⚠️
 candidate -
 endpointAdded - ✅
 endpointUpdated - ✅
-trackUpdated - 
+trackUpdated - 🌀
 trackPriority -
 encodingSwitched - ✅
 custom -
 error -
-vadNotification - 🌀
+vadNotification - ✅
 bandwidthEstimation - ✅
 
 ## Output events
@@ -31,6 +31,8 @@ endpointUpdated: (endpoint: Endpoint) => void;
 connectionError: (message: string) => void;
 tracksPriorityChanged: (enabledTracks: TrackContext[], disabledTracks: TrackContext[]) => void;
 bandwidthEstimationChanged: (estimation: bigint) => void;
+
+voiceActivityChanged - ✅
 
 # Functions
 

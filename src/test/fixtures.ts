@@ -15,9 +15,9 @@ import {
     TracksAddedMediaEvent,
     TracksAddedMediaEventSchema,
     CustomBandwidthEstimationEventSchema,
-    CustomBandwidthEstimationEvent
+    CustomBandwidthEstimationEvent, CustomVadNotificationEvent, CustomVadNotificationEventSchema
 } from "./schema";
-import { TrackEncoding } from "../webRTCEndpoint";
+import { TrackEncoding, VadStatus } from "../webRTCEndpoint";
 
 export const endpointId = "exampleEndpointId"
 export const notExistingEndpointId = "notExistingEndpointId"
@@ -70,6 +70,19 @@ export const createBandwidthEstimationEvent = (): CustomBandwidthEstimationEvent
                 "estimation": 261506.7264961106
             },
             "type": "bandwidthEstimation"
+        },
+        "type": "custom"
+    }
+)
+
+export const createCustomVadNotificationEvent = (trackId: string, vadStatus: VadStatus): CustomVadNotificationEvent => CustomVadNotificationEventSchema.parse(
+    {
+        "data": {
+            "data": {
+                "status": vadStatus,
+                "trackId": trackId
+            },
+            "type": "vadNotification"
         },
         "type": "custom"
     }

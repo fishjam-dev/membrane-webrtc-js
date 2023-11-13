@@ -130,5 +130,18 @@ export const CustomBandwidthEstimationEventSchema = z.object({
 
 export type CustomBandwidthEstimationEvent = z.infer<typeof CustomBandwidthEstimationEventSchema>;
 
+export const CustomVadNotificationEventSchema = z.object({
+    data: z.object({
+        data: z.object({
+            status: z.union([z.literal("speech"), z.literal("silence")]),
+            trackId: z.string().min(1)
+        }),
+        type: z.literal("vadNotification"),
+    }),
+    type: z.literal("custom"),
+})
+
+export type CustomVadNotificationEvent = z.infer<typeof CustomVadNotificationEventSchema>;
+
 export type MediaEvent = TracksAddedMediaEvent | ConnectedMediaEvent
 export type CustomEvent = CustomOfferDataEvent | CustomSdpAnswerDataEvent

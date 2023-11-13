@@ -5,6 +5,7 @@ import {
     endpointId, trackId,
 } from "../fixtures";
 
+
 test('Change existing track bandwidth estimation', (done) => {
     // Given
     const webRTCEndpoint = new WebRTCEndpoint()

@@ -3,14 +3,12 @@ import {
     createAddTrackMediaEvent,
     createAnswerData,
     createConnectedEventWithOneEndpoint,
-    createCustomOfferDataEventWithOneVideoTrack
+    createCustomOfferDataEventWithOneVideoTrack, trackId
 } from "../fixtures";
 import { CustomOfferDataEvent, TracksAddedMediaEvent } from "../schema";
 import { deserializeMediaEvent } from "../../mediaEvent";
 import { mockRTCPeerConnection } from "../mocks";
 
-
-const trackId: string = "9afe80ce-1964-4958-a386-d7a9e3097ca7:5c74b6b3-cb72-49f1-a76b-0df4895a3d32"
 
 test('Connect to room with one endpoint than addTrack', () => {
     // Given
@@ -45,7 +43,6 @@ test('tracksAdded -> handle offerData with one video track from server', (done) 
     const webRTCEndpoint = new WebRTCEndpoint()
 
     const connectedEvent = createConnectedEventWithOneEndpoint();
-    const trackId = "trackId"
 
     webRTCEndpoint.receiveMediaEvent(JSON.stringify(connectedEvent))
 

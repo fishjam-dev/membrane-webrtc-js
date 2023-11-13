@@ -15,7 +15,11 @@ import {
     TracksAddedMediaEvent,
     TracksAddedMediaEventSchema,
     CustomBandwidthEstimationEventSchema,
-    CustomBandwidthEstimationEvent, CustomVadNotificationEvent, CustomVadNotificationEventSchema
+    CustomBandwidthEstimationEvent,
+    CustomVadNotificationEvent,
+    CustomVadNotificationEventSchema,
+    TrackUpdatedEvent,
+    TrackUpdatedEventSchema, EndpointAddedWebrtcEvent, EndpointAddedWebrtcEventSchema
 } from "./schema";
 import { TrackEncoding, VadStatus } from "../webRTCEndpoint";
 
@@ -87,6 +91,26 @@ export const createCustomVadNotificationEvent = (trackId: string, vadStatus: Vad
         "type": "custom"
     }
 )
+
+export const createTrackUpdatedEvent = (trackId: string, endpointId: string, metadata: unknown): TrackUpdatedEvent => TrackUpdatedEventSchema.parse(
+    {
+        "data": {
+            "endpointId": endpointId,
+            "metadata": metadata,
+            "trackId": trackId
+        },
+        "type": "trackUpdated"
+    }
+)
+
+export const createEndpointAdded = (endpointId: string): EndpointAddedWebrtcEvent => EndpointAddedWebrtcEventSchema.parse({
+    "data": {
+        "id": endpointId,
+        "metadata": undefined,
+        "type": "webrtc"
+    },
+    "type": "endpointAdded"
+})
 
 
 // --- TODO REMOVE

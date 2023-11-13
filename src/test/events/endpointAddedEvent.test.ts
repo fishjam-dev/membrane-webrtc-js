@@ -1,17 +1,12 @@
 import { mockRTCPeerConnection } from "../mocks";
 import { WebRTCEndpoint } from "../../webRTCEndpoint";
-import { createConnectedEvent, createConnectedEventWithOneEndpoint } from "../fixtures";
-import { EndpointAddedWebrtcEvent, EndpointAddedWebrtcEventSchema } from "../schema";
+import {
+    createConnectedEvent,
+    createConnectedEventWithOneEndpoint,
+    createEndpointAdded,
+    endpointId
+} from "../fixtures";
 
-
-export const createEndpointAdded = (endpointId: string): EndpointAddedWebrtcEvent => EndpointAddedWebrtcEventSchema.parse({
-    "data": {
-        "id": endpointId,
-        "metadata": undefined,
-        "type": "webrtc"
-    },
-    "type": "endpointAdded"
-})
 
 test('Add endpoint to empty state', () => {
     // Given
@@ -19,8 +14,6 @@ test('Add endpoint to empty state', () => {
     const webRTCEndpoint = new WebRTCEndpoint()
 
     webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEvent()))
-
-    const endpointId = "73d400f3-f599-4e6b-a133-28231345c83b"
 
     // When
     webRTCEndpoint.receiveMediaEvent(JSON.stringify(createEndpointAdded(endpointId)))
@@ -37,8 +30,6 @@ test('Add another endpoint', () => {
     const webRTCEndpoint = new WebRTCEndpoint()
 
     webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEventWithOneEndpoint()))
-
-    const endpointId = "73d400f3-f599-4e6b-a133-28231345c83b"
 
     // When
     webRTCEndpoint.receiveMediaEvent(JSON.stringify(createEndpointAdded(endpointId)))

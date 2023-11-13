@@ -1,6 +1,11 @@
 import { mockRTCPeerConnection } from "../mocks";
 import { WebRTCEndpoint } from "../../webRTCEndpoint";
-import { createConnectedEvent, createConnectedEventWithOneEndpoint, createEndpointUpdated } from "../fixtures";
+import {
+    createConnectedEvent,
+    createConnectedEventWithOneEndpoint,
+    createEndpointUpdated,
+    endpointId, notExistingEndpointId
+} from "../fixtures";
 
 
 test('Update existing endpoint metadata', () => {
@@ -8,7 +13,6 @@ test('Update existing endpoint metadata', () => {
     mockRTCPeerConnection();
     const webRTCEndpoint = new WebRTCEndpoint()
 
-    const endpointId = "73d400f3-f599-4e6b-a133-28231345c83b"
     const connectedMediaEvent = createConnectedEventWithOneEndpoint(endpointId);
     webRTCEndpoint.receiveMediaEvent(JSON.stringify(connectedMediaEvent))
 
@@ -29,7 +33,6 @@ test('Update existing endpoint with undefined metadata', () => {
     mockRTCPeerConnection();
     const webRTCEndpoint = new WebRTCEndpoint()
 
-    const endpointId = "73d400f3-f599-4e6b-a133-28231345c83b"
     const connectedMediaEvent = createConnectedEventWithOneEndpoint(endpointId);
     webRTCEndpoint.receiveMediaEvent(JSON.stringify(connectedMediaEvent))
 
@@ -49,15 +52,13 @@ test('Update endpoint that not exist', () => {
 
     webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEvent()))
 
-    const endpointId = "THAT ENDPOINT DOES NOT EXIST"
-
     // When
     const metadata = {
         newField: "new field value"
     }
 
     expect(() => {
-        webRTCEndpoint.receiveMediaEvent(JSON.stringify(createEndpointUpdated(endpointId, metadata)))
+        webRTCEndpoint.receiveMediaEvent(JSON.stringify(createEndpointUpdated(notExistingEndpointId, metadata)))
         // todo change this error in production code
     }).toThrow("Cannot set properties of undefined (setting 'metadata')");
 });

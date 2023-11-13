@@ -143,5 +143,17 @@ export const CustomVadNotificationEventSchema = z.object({
 
 export type CustomVadNotificationEvent = z.infer<typeof CustomVadNotificationEventSchema>;
 
+export const TrackUpdatedEventSchema = z.object({
+    data: z.object({
+        endpointId: z.string().min(1),
+        metadata: z.union([z.null(), z.unknown()]),
+        trackId: z.string().min(1)
+    }),
+    type: z.literal("trackUpdated"),
+})
+
+export type TrackUpdatedEvent = z.infer<typeof TrackUpdatedEventSchema>;
+
+
 export type MediaEvent = TracksAddedMediaEvent | ConnectedMediaEvent
 export type CustomEvent = CustomOfferDataEvent | CustomSdpAnswerDataEvent

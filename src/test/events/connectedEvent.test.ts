@@ -1,5 +1,5 @@
 import { Endpoint, WebRTCEndpoint } from "../../webRTCEndpoint";
-import { createConnectedEvent, createEmptyEndpoint, createSimulcastTrack } from "../fixtures";
+import { createConnectedEvent, createEmptyEndpoint, createSimulcastTrack, trackId } from "../fixtures";
 
 
 test('Connecting to empty room', () => {
@@ -41,7 +41,6 @@ test('Connecting to room with one peer with one track', () => {
     connectedEvent.data.otherEndpoints = [
         createEmptyEndpoint()
     ]
-    const trackId = "trackId"
     const endpoint = connectedEvent.data.otherEndpoints[0]
 
     endpoint.tracks[trackId] = createSimulcastTrack()

@@ -33,6 +33,7 @@ tracksPriorityChanged: (enabledTracks: TrackContext[], disabledTracks: TrackCont
 bandwidthEstimationChanged: (estimation: bigint) => void;
 
 voiceActivityChanged - ✅
+encodingChanged - ✅
 
 # Functions
 

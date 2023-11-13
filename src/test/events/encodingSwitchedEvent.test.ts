@@ -58,3 +58,24 @@ test('Changing track encoding when endpoint does not exist but track exist in ot
     const finalTrackEncoding = webRTCEndpoint.getRemoteTracks()[trackId].encoding
     expect(finalTrackEncoding).toBe(encodingUpdatedEvent.data.data.encoding)
 });
+
+test('Change existing track encoding produces event', (done) => {
+    // Given
+    const webRTCEndpoint = new WebRTCEndpoint()
+
+    webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEventWithOneEndpointWithOneTrack(endpointId, trackId)))
+
+    const initialTrackEncoding = webRTCEndpoint.getRemoteTracks()[trackId].encoding
+    expect(initialTrackEncoding).toBe(undefined)
+
+    const encodingUpdatedEvent = createEncodingSwitchedEvent(endpointId, trackId, "m")
+
+    webRTCEndpoint.getRemoteTracks()[trackId].on("encodingChanged", (context) => {
+        // Then
+        expect(context.encoding).toBe(encodingUpdatedEvent.data.data.encoding)
+        done()
+    })
+
+    // When
+    webRTCEndpoint.receiveMediaEvent(JSON.stringify(encodingUpdatedEvent))
+});

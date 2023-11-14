@@ -87,8 +87,6 @@ test('Adding track updates internal state', () => {
 
     // then
     const localTrackIdToTrack = webRTCEndpoint["localTrackIdToTrack"]
-
-    // this tracks will be added after renegotiation
     expect(localTrackIdToTrack.size).toBe(1)
 
     const localEndpoint = webRTCEndpoint["localEndpoint"]

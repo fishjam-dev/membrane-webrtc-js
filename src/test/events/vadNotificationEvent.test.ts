@@ -14,7 +14,7 @@ test(`Changing VAD notification to "speech" on existing track id`, () => {
     const vadNotificationEvent = createCustomVadNotificationEvent( trackId, "speech");
     webRTCEndpoint.receiveMediaEvent(JSON.stringify(vadNotificationEvent))
 
-    // then
+    // Then
     const track = webRTCEndpoint.getRemoteTracks()[trackId]
     expect(track.vadStatus).toBe(vadNotificationEvent.data.data.status)
 });
@@ -29,7 +29,7 @@ test(`Changing VAD notification to "silence" on existing track id`, () => {
     const vadNotificationEvent = createCustomVadNotificationEvent( trackId, "silence");
     webRTCEndpoint.receiveMediaEvent(JSON.stringify(vadNotificationEvent))
 
-    // then
+    // Then
     const track = webRTCEndpoint.getRemoteTracks()[trackId]
     expect(track.vadStatus).toBe(vadNotificationEvent.data.data.status)
 });

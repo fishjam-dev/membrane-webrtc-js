@@ -22,6 +22,7 @@ import {
     TrackUpdatedEventSchema, EndpointAddedWebrtcEvent, EndpointAddedWebrtcEventSchema
 } from "./schema";
 import { TrackEncoding, VadStatus } from "../webRTCEndpoint";
+import { FakeMediaStreamTrack } from "fake-mediastreamtrack";
 
 export const endpointId = "exampleEndpointId"
 export const notExistingEndpointId = "notExistingEndpointId"
@@ -29,6 +30,10 @@ export const notExistingEndpointId = "notExistingEndpointId"
 export const trackId = "exampleTrackId"
 export const notExistingTrackId = "notExistingTrackId"
 
+export const track = new FakeMediaStreamTrack({ kind: 'video' });
+const MediaStreamMock = jest.fn().mockImplementation(() => {
+})
+export const stream = new MediaStreamMock()
 
 export const createSimulcastTrack = (): Track => ({
     metadata: {},

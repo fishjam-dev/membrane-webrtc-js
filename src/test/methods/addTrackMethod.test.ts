@@ -10,22 +10,27 @@ import { mockRTCPeerConnection } from "../mocks";
 const MediaStreamMock = jest.fn().mockImplementation(() => {
 })
 
-test('Connect to room and then add track, webrtc not connected -> negotiate', (done) => {
+test('Adding track invokes renegotiation', (done) => {
     // Given
     const webRTCEndpoint = new WebRTCEndpoint()
 
     webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEventWithOneEndpoint()))
 
-    const track = new FakeMediaStreamTrack({ kind: 'video' });
     webRTCEndpoint.on("sendMediaEvent", (mediaEvent) => {
+        // then
         expect(mediaEvent).toContain("renegotiateTracks");
         const event = deserializeMediaEvent(mediaEvent)
         expect(event.type).toBe("custom");
         expect(event.data.type).toBe("renegotiateTracks");
         done()
+
+        // now it's time to create offer and answer
+        // webRTCEndpoint.receiveMediaEvent(JSON.stringify(createOfferData()))
+        // webRTCEndpoint.receiveMediaEvent(JSON.stringify(createAnswerData("9bf0cc85-c795-43b2-baf1-2c974cd770b9:1b6d99d1-3630-4e01-b386-15cbbfe5a41f")))
     })
 
     // When
+    const track = new FakeMediaStreamTrack({ kind: 'video' });
     webRTCEndpoint.addTrack(track, new MediaStreamMock())
 });
 
@@ -69,26 +74,18 @@ const createAnswerData = (trackId: string): CustomSdpAnswerDataEvent => (
     }
 )
 
-test('Connect to room and then add track, webrtc not connected -> negotiate', (done) => {
+test('Adding track updates internal state', () => {
     // Given
     mockRTCPeerConnection();
     const webRTCEndpoint = new WebRTCEndpoint()
 
     webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEventWithOneEndpoint()))
 
-    const track = new FakeMediaStreamTrack({ kind: 'video' });
-
-    webRTCEndpoint.on("sendMediaEvent", (mediaEvent) => {
-        // expect(mediaEvent).toContain("renegotiateTracks");
-        //
-        // webRTCEndpoint.receiveMediaEvent(JSON.stringify(createOfferData()))
-        // webRTCEndpoint.receiveMediaEvent(JSON.stringify(createAnswerData("9bf0cc85-c795-43b2-baf1-2c974cd770b9:1b6d99d1-3630-4e01-b386-15cbbfe5a41f")))
-        done();
-    })
-
     // When
+    const track = new FakeMediaStreamTrack({ kind: 'video' });
     webRTCEndpoint.addTrack(track, new MediaStreamMock())
 
+    // then
     const localTrackIdToTrack = webRTCEndpoint["localTrackIdToTrack"]
 
     // this tracks will be added after renegotiation

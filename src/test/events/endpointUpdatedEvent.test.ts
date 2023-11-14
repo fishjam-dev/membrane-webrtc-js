@@ -28,6 +28,28 @@ test('Update existing endpoint metadata', () => {
     expect(endpoint.metadata).toMatchObject(metadata)
 });
 
+test('Update existing endpoint produce event', (done) => {
+    // Given
+    mockRTCPeerConnection();
+    const webRTCEndpoint = new WebRTCEndpoint()
+
+    const connectedMediaEvent = createConnectedEventWithOneEndpoint(endpointId);
+    webRTCEndpoint.receiveMediaEvent(JSON.stringify(connectedMediaEvent))
+
+    const metadata = {
+        newField: "new field value"
+    }
+
+    webRTCEndpoint.on("endpointUpdated", (endpoint) => {
+        // Then
+        expect(endpoint.metadata).toMatchObject(metadata)
+        done()
+    })
+
+    // When
+    webRTCEndpoint.receiveMediaEvent(JSON.stringify(createEndpointUpdated(endpointId, metadata)))
+});
+
 test('Update existing endpoint with undefined metadata', () => {
     // Given
     mockRTCPeerConnection();

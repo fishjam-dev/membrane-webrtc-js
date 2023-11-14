@@ -10,20 +10,19 @@ import { deserializeMediaEvent } from "../../mediaEvent";
 import { mockRTCPeerConnection } from "../mocks";
 
 
-test('Connect to room with one endpoint than addTrack', () => {
+test('Connect to room with one endpoint then addTrack produce event', (done) => {
     // Given
     const webRTCEndpoint = new WebRTCEndpoint()
-    const trackAddedCallback = jest.fn(x => null);
 
     webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEventWithOneEndpoint()))
 
     const trackAddedEvent: TracksAddedMediaEvent = createAddTrackMediaEvent(trackId, createConnectedEventWithOneEndpoint().data.otherEndpoints[0].id)
 
     webRTCEndpoint.on("trackAdded", (ctx) => {
-        trackAddedCallback(ctx)
         expect(ctx.trackId).toBe(trackId)
         expect(ctx.endpoint.id).toBe(trackAddedEvent.data.endpointId)
         expect(ctx.simulcastConfig?.enabled).toBe(trackAddedEvent.data.tracks[trackId].simulcastConfig.enabled)
+        done()
     })
 
     // When
@@ -32,8 +31,6 @@ test('Connect to room with one endpoint than addTrack', () => {
     // Then
     const remoteTracks = webRTCEndpoint.getRemoteTracks()
     expect(Object.values(remoteTracks).length).toBe(1)
-
-    expect(trackAddedCallback.mock.calls).toHaveLength(1);
 });
 
 test('tracksAdded -> handle offerData with one video track from server', (done) => {

@@ -38,3 +38,23 @@ test('Add another endpoint', () => {
     const endpoints = webRTCEndpoint.getRemoteEndpoints()
     expect(Object.values(endpoints).length).toBe(2)
 });
+
+test('Add endpoint produces event', (done) => {
+    // Given
+    mockRTCPeerConnection();
+    const webRTCEndpoint = new WebRTCEndpoint()
+
+    webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEventWithOneEndpoint()))
+
+    const addEndpointEvent = createEndpointAdded(endpointId);
+
+    webRTCEndpoint.on("endpointAdded", (endpoint) => {
+        // Then
+        expect(endpoint.id).toBe(addEndpointEvent.data.id)
+        expect(endpoint.metadata).toBe(addEndpointEvent.data.metadata)
+        done()
+    })
+
+    // When
+    webRTCEndpoint.receiveMediaEvent(JSON.stringify(addEndpointEvent))
+});

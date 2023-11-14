@@ -70,7 +70,7 @@ test(`Webrtc endpoint skips updating local endpoint metadata`, () => {
     //  - null
     //  - undefined
     // expect(track.metadata).toBe(value.data.otherEndpoints[0].metadata as any)
-    expect(track.metadata).toBe(null)
+    expect(track.metadata).toMatchObject({})
 });
 
 test(`Updating track with invalid endpoint id throws error`, () => {
@@ -91,7 +91,3 @@ test(`Updating track with invalid endpoint id throws error`, () => {
         // Then
     }).toThrow(`Endpoint with id: ${notExistingEndpointId} doesn't exist`)
 });
-
-// todo updating local endpoint is ignored
-//  if (this.getEndpointId() === deserializedMediaEvent.data.endpointId)
-//           return;

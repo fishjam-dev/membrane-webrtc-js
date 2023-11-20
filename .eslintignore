@@ -1,4 +1,5 @@
 dist
+tests/app/dist
 
 # Playwright
 test-results

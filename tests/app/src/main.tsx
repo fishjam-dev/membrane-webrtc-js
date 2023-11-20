@@ -3,8 +3,31 @@ import ReactDOM from 'react-dom/client'
 import { type SerializedMediaEvent, WebRTCEndpoint, TrackContext } from "@jellyfish-dev/membrane-webrtc-js";
 import { PeerMessage } from "./peer_notifications"
 
+class RemoteTracksStore {
+  cache: Record<string, Record<string, TrackContext>> = {};
+  
+  constructor(private webrtc: WebRTCEndpoint) {}
+  
+  subscribe(callback: () => void) {
+    this.webrtc.on("trackReady", callback);
+    return () => {
+      this.webrtc.removeAllListeners("trackReady");
+    }
+  }
+  
+  snapshot() {
+    const newTracks = webrtc.getRemoteTracks();
+    const ids = Object.keys(newTracks).sort().join(":");
+    if (!(ids in this.cache)) {
+      this.cache[ids] = newTracks;
+    }
+    return this.cache[ids];
+  } 
+}
+
 const webrtc = new WebRTCEndpoint();
 (window as typeof window & { webrtc: WebRTCEndpoint}).webrtc = webrtc;
+const remoteTracksStore = new RemoteTracksStore(webrtc);
 
 function connect(token: string) {
   const websocketUrl = "ws://localhost:5002/socket/peer/websocket";
@@ -58,27 +81,13 @@ async function addScreenshareTrack(): Promise<string> {
     return webrtc.addTrack(track, stream, trackMetadata, simulcastConfig, maxBandwidth);
 };
 
-const DUMB_CACHE: Record<string, Record<string, TrackContext>> = {};
-
 function App() {
   const [tokenInput, setTokenInput] = useState("");
 
   const handleConnect = () => connect(tokenInput);
   const handleStartScreenshare = () => addScreenshareTrack();
 
-  const remoteTracks = useSyncExternalStore((callback) => {
-    webrtc.on("trackReady", callback);
-    return () => {
-      webrtc.removeAllListeners("trackReady");
-    }
-  }, () => {
-    const newTracks = webrtc.getRemoteTracks();
-    const ids = Object.keys(newTracks).sort().join(":");
-    if (!(ids in DUMB_CACHE)) {
-      DUMB_CACHE[ids] = newTracks;
-    }
-    return DUMB_CACHE[ids];
-  });
+  const remoteTracks = useSyncExternalStore((callback) => remoteTracksStore.subscribe(callback), () => remoteTracksStore.snapshot());
     
   return (
     <>

@@ -1,5 +1,5 @@
 import { SerializedMediaEvent, TrackContext, WebRTCEndpoint } from "@jellyfish-dev/membrane-webrtc-js";
-import { PeerMessage } from "./peer_notifications";
+import { PeerMessage } from "./protos/jellyfish/peer_notifications";
 import { useState, useSyncExternalStore } from "react";
 
 class RemoteTracksStore {

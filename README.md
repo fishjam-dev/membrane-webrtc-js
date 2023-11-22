@@ -24,6 +24,25 @@ Using **GitHub**:
 npm install jellyfish-dev/membrane-webrtc-js#<branch>
 ```
 
+## e2e tests
+
+We use [Playwright](https://playwright.dev/) to run e2e tests.
+
+Use the `npm run e2e` command to run them. You may need to install the browsers using this command: `npx playwright install --with-deps`.
+
+The e2e tests start a Jellyfish instance via Docker and [Testcontainers](https://node.testcontainers.org/).
+
+### Colima
+
+If you are using [colima](https://github.com/abiosoft/colima), you need to run these commands first:
+
+```bash
+export DOCKER_HOST=unix://${HOME}/.colima/default/docker.sock
+export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
+```
+
+See the Testcontainers' documentation to learn about [known issues](https://node.testcontainers.org/supported-container-runtimes/#known-issues_1).
+
 ## Documentation
 
 Documentation is available [here](https://jellyfish-dev.github.io/membrane-webrtc-js/)

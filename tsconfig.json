@@ -10,7 +10,12 @@
     "outDir": "dist/",
     "strict": true,
     "target": "ESNext",
-    "lib": ["es2020", "dom"]
+    "lib": [
+      "es2020",
+      "dom"
+    ]
   },
-  "include": ["src/**/*", "tests/**/*"]
+  "include": [
+    "src/**/*"
+  ]
 }

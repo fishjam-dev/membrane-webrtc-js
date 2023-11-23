@@ -362,27 +362,23 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
 
         const endpoints: any[] = deserializedMediaEvent.data.otherEndpoints;
         const otherEndpoints: Endpoint[] = endpoints.map((endpoint) => {
-
           // The server's tracks are `Record`, and the tracks here are `Map`.
-          const endpointTracks:  [string, any][] = Object.entries(endpoint.tracks || {})
+          const endpointTracks: [string, any][] = Object.entries(endpoint.tracks || {});
           // Map<string, TrackContextImpl>
           const tracks = this.mapMediaEventTracksToTrackContextImpl(endpointTracks, endpoint);
-          endpoint.tracks = tracks
+          endpoint.tracks = tracks;
 
           // endpoint ma tutaj takie pola jakie mieć powienie, tracks jest jako Map
           this.addEndpoint(endpoint);
           return endpoint;
         });
 
-
         otherEndpoints.forEach((endpoint) => {
-
           endpoint.tracks.forEach((ctx, trackId) => {
-              this.trackIdToTrack.set(trackId, ctx);
+            this.trackIdToTrack.set(trackId, ctx);
 
-              this.emit("trackAdded", ctx);
-            }
-          );
+            this.emit("trackAdded", ctx);
+          });
         });
         break;
       }
@@ -435,14 +431,9 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
         endpoint = this.idToEndpoint.get(data.endpointId)!;
         const oldTracks = endpoint.tracks;
 
-        data.tracks = this.mapMediaEventTracksToTrackContextImpl(data.tracks, endpoint)
+        data.tracks = this.mapMediaEventTracksToTrackContextImpl(data.tracks, endpoint);
 
-        endpoint.tracks = new Map([
-          ...endpoint.tracks,
-          ...data.tracks,
-        ]);
-
-
+        endpoint.tracks = new Map([...endpoint.tracks, ...data.tracks]);
 
         this.idToEndpoint.set(endpoint.id, endpoint);
         Array.from(endpoint.tracks.entries()).forEach(([trackId, ctx]) => {
@@ -967,7 +958,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
    */
   public removeTrack(trackId: string) {
     const trackContext = this.localTrackIdToTrack.get(trackId)!;
-    const sender = this.findSender(trackContext.track!!.id);
+    const sender = this.findSender(trackContext.track!.id);
     this.connection!.removeTrack(sender);
     const mediaEvent = generateCustomEvent({ type: "renegotiateTracks" });
     this.sendMediaEvent(mediaEvent);
@@ -1456,6 +1447,6 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
       new TrackContextImpl(endpoint, trackId, track.metadata, track.simulcastConfig),
     ]);
 
-    return new Map(mappedTracks)
-  }
+    return new Map(mappedTracks);
+  };
 }

@@ -1,86 +1,86 @@
 import { mockRTCPeerConnection } from "../mocks";
 import { WebRTCEndpoint } from "../../webRTCEndpoint";
 import {
-    createConnectedEvent,
-    createConnectedEventWithOneEndpoint,
-    createEndpointUpdated,
-    endpointId, notExistingEndpointId
+  createConnectedEvent,
+  createConnectedEventWithOneEndpoint,
+  createEndpointUpdated,
+  endpointId,
+  notExistingEndpointId,
 } from "../fixtures";
 
+test("Update existing endpoint metadata", () => {
+  // Given
+  mockRTCPeerConnection();
+  const webRTCEndpoint = new WebRTCEndpoint();
 
-test('Update existing endpoint metadata', () => {
-    // Given
-    mockRTCPeerConnection();
-    const webRTCEndpoint = new WebRTCEndpoint()
+  const connectedMediaEvent = createConnectedEventWithOneEndpoint(endpointId);
+  webRTCEndpoint.receiveMediaEvent(JSON.stringify(connectedMediaEvent));
 
-    const connectedMediaEvent = createConnectedEventWithOneEndpoint(endpointId);
-    webRTCEndpoint.receiveMediaEvent(JSON.stringify(connectedMediaEvent))
+  // When
+  const metadata = {
+    newField: "new field value",
+  };
 
-    // When
-    const metadata = {
-        newField: "new field value"
-    }
+  webRTCEndpoint.receiveMediaEvent(JSON.stringify(createEndpointUpdated(endpointId, metadata)));
 
-    webRTCEndpoint.receiveMediaEvent(JSON.stringify(createEndpointUpdated(endpointId, metadata)))
+  // Then
+  const endpoint = webRTCEndpoint.getRemoteEndpoints()[endpointId];
+  expect(endpoint.metadata).toMatchObject(metadata);
+});
 
+test("Update existing endpoint produce event", (done) => {
+  // Given
+  mockRTCPeerConnection();
+  const webRTCEndpoint = new WebRTCEndpoint();
+
+  const connectedMediaEvent = createConnectedEventWithOneEndpoint(endpointId);
+  webRTCEndpoint.receiveMediaEvent(JSON.stringify(connectedMediaEvent));
+
+  const metadata = {
+    newField: "new field value",
+  };
+
+  webRTCEndpoint.on("endpointUpdated", (endpoint) => {
     // Then
-    const endpoint = webRTCEndpoint.getRemoteEndpoints()[endpointId]
-    expect(endpoint.metadata).toMatchObject(metadata)
+    expect(endpoint.metadata).toMatchObject(metadata);
+    done();
+  });
+
+  // When
+  webRTCEndpoint.receiveMediaEvent(JSON.stringify(createEndpointUpdated(endpointId, metadata)));
 });
 
-test('Update existing endpoint produce event', (done) => {
-    // Given
-    mockRTCPeerConnection();
-    const webRTCEndpoint = new WebRTCEndpoint()
+test("Update existing endpoint with undefined metadata", () => {
+  // Given
+  mockRTCPeerConnection();
+  const webRTCEndpoint = new WebRTCEndpoint();
 
-    const connectedMediaEvent = createConnectedEventWithOneEndpoint(endpointId);
-    webRTCEndpoint.receiveMediaEvent(JSON.stringify(connectedMediaEvent))
+  const connectedMediaEvent = createConnectedEventWithOneEndpoint(endpointId);
+  webRTCEndpoint.receiveMediaEvent(JSON.stringify(connectedMediaEvent));
 
-    const metadata = {
-        newField: "new field value"
-    }
+  // When
+  const metadata = undefined;
+  webRTCEndpoint.receiveMediaEvent(JSON.stringify(createEndpointUpdated(endpointId, metadata)));
 
-    webRTCEndpoint.on("endpointUpdated", (endpoint) => {
-        // Then
-        expect(endpoint.metadata).toMatchObject(metadata)
-        done()
-    })
-
-    // When
-    webRTCEndpoint.receiveMediaEvent(JSON.stringify(createEndpointUpdated(endpointId, metadata)))
+  // Then
+  const endpoint = webRTCEndpoint.getRemoteEndpoints()[endpointId];
+  expect(endpoint.metadata).toBe(undefined);
 });
 
-test('Update existing endpoint with undefined metadata', () => {
-    // Given
-    mockRTCPeerConnection();
-    const webRTCEndpoint = new WebRTCEndpoint()
+test("Update endpoint that not exist", () => {
+  // Givenk
+  mockRTCPeerConnection();
+  const webRTCEndpoint = new WebRTCEndpoint();
 
-    const connectedMediaEvent = createConnectedEventWithOneEndpoint(endpointId);
-    webRTCEndpoint.receiveMediaEvent(JSON.stringify(connectedMediaEvent))
+  webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEvent()));
 
-    // When
-    const metadata = undefined
-    webRTCEndpoint.receiveMediaEvent(JSON.stringify(createEndpointUpdated(endpointId, metadata)))
+  // When
+  const metadata = {
+    newField: "new field value",
+  };
 
-    // Then
-    const endpoint = webRTCEndpoint.getRemoteEndpoints()[endpointId]
-    expect(endpoint.metadata).toBe(undefined)
-});
-
-test('Update endpoint that not exist', () => {
-    // Givenk
-    mockRTCPeerConnection();
-    const webRTCEndpoint = new WebRTCEndpoint()
-
-    webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEvent()))
-
-    // When
-    const metadata = {
-        newField: "new field value"
-    }
-
-    expect(() => {
-        webRTCEndpoint.receiveMediaEvent(JSON.stringify(createEndpointUpdated(notExistingEndpointId, metadata)))
-        // todo change this error in production code
-    }).toThrow("Cannot set properties of undefined (setting 'metadata')");
+  expect(() => {
+    webRTCEndpoint.receiveMediaEvent(JSON.stringify(createEndpointUpdated(notExistingEndpointId, metadata)));
+    // todo change this error in production code
+  }).toThrow("Cannot set properties of undefined (setting 'metadata')");
 });

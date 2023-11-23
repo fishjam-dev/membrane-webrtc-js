@@ -3,7 +3,7 @@
 ## Input events:
 
 tracksAdded - ⚠️
-trackRemoved - 
+trackRemoved -
 sdpAnswer - ⚠️
 candidate -
 endpointAdded - ✅

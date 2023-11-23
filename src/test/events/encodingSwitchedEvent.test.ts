@@ -6,13 +6,13 @@ import {
   notExistingTrackId,
   trackId,
 } from "../fixtures";
-import { setupRoomWith } from "../utils";
+import { setupRoom } from "../utils";
 
 test("Change existing track encoding", () => {
   // Given
   const webRTCEndpoint = new WebRTCEndpoint();
 
-  setupRoomWith(webRTCEndpoint, endpointId, trackId);
+  setupRoom(webRTCEndpoint, endpointId, trackId);
 
   const initialTrackEncoding = webRTCEndpoint.getRemoteTracks()[trackId].encoding;
   expect(initialTrackEncoding).toBe(undefined);
@@ -30,7 +30,7 @@ test("Changing track encoding when endpoint exist but track does not exist", () 
   // Given
   const webRTCEndpoint = new WebRTCEndpoint();
 
-  setupRoomWith(webRTCEndpoint, endpointId, trackId);
+  setupRoom(webRTCEndpoint, endpointId, trackId);
 
   const initialTrackEncoding = webRTCEndpoint.getRemoteTracks()[trackId].encoding;
   expect(initialTrackEncoding).toBe(undefined);
@@ -48,7 +48,7 @@ test("Changing track encoding when endpoint does not exist but track exist in ot
   // Given
   const webRTCEndpoint = new WebRTCEndpoint();
 
-  setupRoomWith(webRTCEndpoint, endpointId, trackId);
+  setupRoom(webRTCEndpoint, endpointId, trackId);
 
   const initialTrackEncoding = webRTCEndpoint.getRemoteTracks()[trackId].encoding;
   expect(initialTrackEncoding).toBe(undefined);
@@ -66,7 +66,7 @@ test("Change existing track encoding produces event", (done) => {
   // Given
   const webRTCEndpoint = new WebRTCEndpoint();
 
-  setupRoomWith(webRTCEndpoint, endpointId, trackId);
+  setupRoom(webRTCEndpoint, endpointId, trackId);
 
   const initialTrackEncoding = webRTCEndpoint.getRemoteTracks()[trackId].encoding;
   expect(initialTrackEncoding).toBe(undefined);

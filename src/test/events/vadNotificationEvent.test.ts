@@ -1,12 +1,12 @@
 import { WebRTCEndpoint } from "../../webRTCEndpoint";
 import { createCustomVadNotificationEvent, endpointId, trackId } from "../fixtures";
-import { setupRoomWith } from "../utils";
+import { setupRoom } from "../utils";
 
 test(`Changing VAD notification to "speech" on existing track id`, () => {
   // Given
   const webRTCEndpoint = new WebRTCEndpoint();
 
-  setupRoomWith(webRTCEndpoint, endpointId, trackId);
+  setupRoom(webRTCEndpoint, endpointId, trackId);
 
   // When
   const vadNotificationEvent = createCustomVadNotificationEvent(trackId, "speech");
@@ -21,7 +21,7 @@ test(`Changing VAD notification to "silence" on existing track id`, () => {
   // Given
   const webRTCEndpoint = new WebRTCEndpoint();
 
-  setupRoomWith(webRTCEndpoint, endpointId, trackId);
+  setupRoom(webRTCEndpoint, endpointId, trackId);
 
   // When
   const vadNotificationEvent = createCustomVadNotificationEvent(trackId, "silence");
@@ -36,7 +36,7 @@ test(`Changing VAD notification emits event`, (done) => {
   // Given
   const webRTCEndpoint = new WebRTCEndpoint();
 
-  setupRoomWith(webRTCEndpoint, endpointId, trackId);
+  setupRoom(webRTCEndpoint, endpointId, trackId);
 
   webRTCEndpoint.getRemoteTracks()[trackId].on("voiceActivityChanged", (context) => {
     expect(context.vadStatus).toBe(vadNotificationEvent.data.data.status);

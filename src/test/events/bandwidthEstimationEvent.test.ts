@@ -1,12 +1,12 @@
 import { WebRTCEndpoint } from "../../webRTCEndpoint";
 import { createBandwidthEstimationEvent, endpointId, trackId } from "../fixtures";
-import { setupRoomWith } from "../utils";
+import { setupRoom } from "../utils";
 
 test("Change existing track bandwidth estimation", (done) => {
   // Given
   const webRTCEndpoint = new WebRTCEndpoint();
 
-  setupRoomWith(webRTCEndpoint, endpointId, trackId);
+  setupRoom(webRTCEndpoint, endpointId, trackId);
   const bandwidthEstimationEvent = createBandwidthEstimationEvent();
 
   webRTCEndpoint.on("bandwidthEstimationChanged", (estimation) => {

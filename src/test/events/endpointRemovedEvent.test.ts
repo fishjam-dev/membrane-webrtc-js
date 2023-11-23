@@ -6,7 +6,7 @@ import {
   createEndpointAdded, createEndpointRemoved,
   endpointId, notExistingEndpointId, trackId,
 } from "../fixtures";
-import { setupRoomWith } from "../utils";
+import { setupRoom } from "../utils";
 
 test("Remove endpoint that not exists", () => {
   // Given
@@ -43,7 +43,7 @@ test("Remove existing endpoint should remove all tracks", () => {
   mockRTCPeerConnection();
   const webRTCEndpoint = new WebRTCEndpoint();
 
-  setupRoomWith(webRTCEndpoint, endpointId, trackId);
+  setupRoom(webRTCEndpoint, endpointId, trackId);
 
   const addEndpointEvent = createEndpointRemoved(endpointId);
 
@@ -60,7 +60,7 @@ test("Remove existing endpoint should emit trackRemoved event", (done) => {
   mockRTCPeerConnection();
   const webRTCEndpoint = new WebRTCEndpoint();
 
-  setupRoomWith(webRTCEndpoint, endpointId, trackId);
+  setupRoom(webRTCEndpoint, endpointId, trackId);
 
   webRTCEndpoint.on("trackRemoved", (trackContext) => {
     // Then

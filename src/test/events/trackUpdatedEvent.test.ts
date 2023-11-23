@@ -5,13 +5,13 @@ import {
   notExistingEndpointId,
   trackId,
 } from "../fixtures";
-import { setupRoomWith } from "../utils";
+import { setupRoom } from "../utils";
 
 test(`Updating existing track emits events`, (done) => {
   // Given
   const webRTCEndpoint = new WebRTCEndpoint();
 
-  setupRoomWith(webRTCEndpoint, endpointId, trackId);
+  setupRoom(webRTCEndpoint, endpointId, trackId);
 
   webRTCEndpoint.on("trackUpdated", (context) => {
     // Then
@@ -32,7 +32,7 @@ test(`Updating existing track changes track metadata`, () => {
   // Given
   const webRTCEndpoint = new WebRTCEndpoint();
 
-  setupRoomWith(webRTCEndpoint, endpointId, trackId);
+  setupRoom(webRTCEndpoint, endpointId, trackId);
 
   const metadata = {
     name: "New name",
@@ -51,7 +51,7 @@ test(`Webrtc endpoint skips updating local endpoint metadata`, () => {
   // Given
   const webRTCEndpoint = new WebRTCEndpoint();
 
-  setupRoomWith(webRTCEndpoint, endpointId, trackId);
+  setupRoom(webRTCEndpoint, endpointId, trackId);
 
   const metadata = {
     name: "New name",
@@ -75,7 +75,7 @@ test(`Updating track with invalid endpoint id throws error`, () => {
   // Given
   const webRTCEndpoint = new WebRTCEndpoint();
 
-  setupRoomWith(webRTCEndpoint, endpointId, trackId);
+  setupRoom(webRTCEndpoint, endpointId, trackId);
 
   const metadata = {
     name: "New name",

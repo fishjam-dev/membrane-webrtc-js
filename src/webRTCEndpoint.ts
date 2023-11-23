@@ -363,13 +363,10 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
         const endpoints: any[] = deserializedMediaEvent.data.otherEndpoints;
 
         const otherEndpoints: Endpoint[] = endpoints.map((endpoint) => {
-          const endpointTracks: [string, any][] = Object.entries(endpoint.tracks || {});
-          const tracks = this.mapMediaEventTracksToTrackContextImpl(endpointTracks, endpoint);
-          return { ...endpoint, tracks };
-        });
+          endpoint.tracks = this.mapMediaEventTracksToTrackContextImpl(Array.from(endpoint.tracks), endpoint);
 
-        otherEndpoints.forEach((endpoint) => {
           this.addEndpoint(endpoint);
+          return endpoint;
         });
 
         otherEndpoints.forEach((endpoint) => {
@@ -490,7 +487,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
       case "endpointAdded":
         endpoint = deserializedMediaEvent.data;
         if (endpoint.id === this.getEndpointId()) return;
-        this.addEndpoint({ ...endpoint, tracks: new Map() });
+        this.addEndpoint(endpoint);
 
         this.emit("endpointAdded", endpoint);
         break;
@@ -1413,6 +1410,11 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
   };
 
   private addEndpoint = (endpoint: Endpoint): void => {
+    // #TODO remove this line after fixing deserialization
+    if (Object.prototype.hasOwnProperty.call(endpoint, "trackIdToMetadata"))
+      endpoint.tracks = new Map(Object.entries(endpoint.tracks));
+    else endpoint.tracks = new Map();
+
     this.idToEndpoint.set(endpoint.id, endpoint);
   };
 

@@ -17,8 +17,8 @@ test("Connect to room with one endpoint then addTrack produce event", (done) => 
   webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEventWithOneEndpoint()));
 
   const trackAddedEvent: TracksAddedMediaEvent = createAddTrackMediaEvent(
-    trackId,
     createConnectedEventWithOneEndpoint().data.otherEndpoints[0].id,
+    trackId,
   );
 
   webRTCEndpoint.on("trackAdded", (ctx) => {
@@ -47,8 +47,8 @@ test("tracksAdded -> handle offerData with one video track from server", (done) 
   webRTCEndpoint.receiveMediaEvent(JSON.stringify(connectedEvent));
 
   const trackAddedEvent: TracksAddedMediaEvent = createAddTrackMediaEvent(
-    trackId,
     connectedEvent.data.otherEndpoints[0].id,
+    trackId,
   );
 
   webRTCEndpoint.receiveMediaEvent(JSON.stringify(trackAddedEvent));
@@ -91,7 +91,7 @@ test("tracksAdded -> offerData with one track -> handle sdpAnswer data with one 
 
   webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEventWithOneEndpoint()));
   webRTCEndpoint.receiveMediaEvent(
-    JSON.stringify(createAddTrackMediaEvent(trackId, createConnectedEventWithOneEndpoint().data.otherEndpoints[0].id)),
+    JSON.stringify(createAddTrackMediaEvent(createConnectedEventWithOneEndpoint().data.otherEndpoints[0].id, trackId)),
   );
   webRTCEndpoint.receiveMediaEvent(JSON.stringify(createCustomOfferDataEventWithOneVideoTrack()));
 

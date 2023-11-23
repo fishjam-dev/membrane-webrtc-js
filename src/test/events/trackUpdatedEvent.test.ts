@@ -1,19 +1,17 @@
 import { WebRTCEndpoint } from "../../webRTCEndpoint";
 import {
-  createConnectedEventWithOneEndpointWithOneTrack,
   createTrackUpdatedEvent,
   endpointId,
   notExistingEndpointId,
   trackId,
 } from "../fixtures";
+import { setupRoomWith } from "../utils";
 
 test(`Updating existing track emits events`, (done) => {
   // Given
   const webRTCEndpoint = new WebRTCEndpoint();
 
-  webRTCEndpoint.receiveMediaEvent(
-    JSON.stringify(createConnectedEventWithOneEndpointWithOneTrack(endpointId, trackId)),
-  );
+  setupRoomWith(webRTCEndpoint, endpointId, trackId);
 
   webRTCEndpoint.on("trackUpdated", (context) => {
     // Then
@@ -34,9 +32,7 @@ test(`Updating existing track changes track metadata`, () => {
   // Given
   const webRTCEndpoint = new WebRTCEndpoint();
 
-  webRTCEndpoint.receiveMediaEvent(
-    JSON.stringify(createConnectedEventWithOneEndpointWithOneTrack(endpointId, trackId)),
-  );
+  setupRoomWith(webRTCEndpoint, endpointId, trackId);
 
   const metadata = {
     name: "New name",
@@ -55,17 +51,14 @@ test(`Webrtc endpoint skips updating local endpoint metadata`, () => {
   // Given
   const webRTCEndpoint = new WebRTCEndpoint();
 
-  const localEndpointId = "localEndpointId";
-
-  const value = createConnectedEventWithOneEndpointWithOneTrack(endpointId, trackId, localEndpointId);
-  webRTCEndpoint.receiveMediaEvent(JSON.stringify(value));
+  setupRoomWith(webRTCEndpoint, endpointId, trackId);
 
   const metadata = {
     name: "New name",
   };
 
   // When
-  const trackUpdated = createTrackUpdatedEvent(trackId, localEndpointId, metadata);
+  const trackUpdated = createTrackUpdatedEvent(trackId, endpointId, metadata);
   webRTCEndpoint.receiveMediaEvent(JSON.stringify(trackUpdated));
 
   // Then
@@ -82,9 +75,7 @@ test(`Updating track with invalid endpoint id throws error`, () => {
   // Given
   const webRTCEndpoint = new WebRTCEndpoint();
 
-  webRTCEndpoint.receiveMediaEvent(
-    JSON.stringify(createConnectedEventWithOneEndpointWithOneTrack(endpointId, trackId)),
-  );
+  setupRoomWith(webRTCEndpoint, endpointId, trackId);
 
   const metadata = {
     name: "New name",

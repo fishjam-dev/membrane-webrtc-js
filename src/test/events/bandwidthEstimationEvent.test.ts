@@ -1,18 +1,12 @@
 import { WebRTCEndpoint } from "../../webRTCEndpoint";
-import {
-  createBandwidthEstimationEvent,
-  createConnectedEventWithOneEndpointWithOneTrack,
-  endpointId,
-  trackId,
-} from "../fixtures";
+import { createBandwidthEstimationEvent, endpointId, trackId } from "../fixtures";
+import { setupRoomWith } from "../utils";
 
 test("Change existing track bandwidth estimation", (done) => {
   // Given
   const webRTCEndpoint = new WebRTCEndpoint();
 
-  webRTCEndpoint.receiveMediaEvent(
-    JSON.stringify(createConnectedEventWithOneEndpointWithOneTrack(endpointId, trackId)),
-  );
+  setupRoomWith(webRTCEndpoint, endpointId, trackId);
   const bandwidthEstimationEvent = createBandwidthEstimationEvent();
 
   webRTCEndpoint.on("bandwidthEstimationChanged", (estimation) => {

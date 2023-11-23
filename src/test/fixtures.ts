@@ -148,7 +148,7 @@ export const createConnectedEventWithOneEndpointWithOneTrack = (
   return ConnectedMediaEventSchema.parse(connectedEvent);
 };
 
-export const createAddTrackMediaEvent = (trackId: string, endpointId: string): TracksAddedMediaEvent =>
+export const createAddTrackMediaEvent = (endpointId: string, trackId: string): TracksAddedMediaEvent =>
   TracksAddedMediaEventSchema.parse({
     type: "tracksAdded",
     data: {

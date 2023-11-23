@@ -1,27 +1,27 @@
 import {
-  ConnectedMediaEvent,
-  ConnectedMediaEventSchema,
-  CustomEncodingUpdatedEvent,
-  CustomEncodingSwitchedEventSchema,
-  CustomOfferDataEvent,
-  CustomOfferDataEventSchema,
-  CustomSdpAnswerDataEvent,
-  CustomSdpAnswerDataEventSchema,
-  Endpoint,
-  EndpointSchema,
-  EndpointUpdatedWebrtcEvent,
-  EndpointUpdatedWebrtcEventSchema,
-  Track,
-  TracksAddedMediaEvent,
-  TracksAddedMediaEventSchema,
-  CustomBandwidthEstimationEventSchema,
-  CustomBandwidthEstimationEvent,
-  CustomVadNotificationEvent,
-  CustomVadNotificationEventSchema,
-  TrackUpdatedEvent,
-  TrackUpdatedEventSchema,
-  EndpointAddedWebrtcEvent,
-  EndpointAddedWebrtcEventSchema,
+    ConnectedMediaEvent,
+    ConnectedMediaEventSchema,
+    CustomEncodingUpdatedEvent,
+    CustomEncodingSwitchedEventSchema,
+    CustomOfferDataEvent,
+    CustomOfferDataEventSchema,
+    CustomSdpAnswerDataEvent,
+    CustomSdpAnswerDataEventSchema,
+    Endpoint,
+    EndpointSchema,
+    EndpointUpdatedWebrtcEvent,
+    EndpointUpdatedWebrtcEventSchema,
+    Track,
+    TracksAddedMediaEvent,
+    TracksAddedMediaEventSchema,
+    CustomBandwidthEstimationEventSchema,
+    CustomBandwidthEstimationEvent,
+    CustomVadNotificationEvent,
+    CustomVadNotificationEventSchema,
+    TrackUpdatedEvent,
+    TrackUpdatedEventSchema,
+    EndpointAddedWebrtcEvent,
+    EndpointAddedWebrtcEventSchema, EndpointRemovedEventSchema, EndpointRemovedEvent,
 } from "./schema";
 import { TrackEncoding, VadStatus } from "../webRTCEndpoint";
 import { FakeMediaStreamTrack } from "fake-mediastreamtrack";
@@ -125,6 +125,14 @@ export const createEndpointAdded = (endpointId: string): EndpointAddedWebrtcEven
     },
     type: "endpointAdded",
   });
+
+export const createEndpointRemoved = (endpointId: string): EndpointRemovedEvent =>
+    EndpointRemovedEventSchema.parse({
+        data: {
+            id: endpointId,
+        },
+        type: "endpointRemoved",
+    });
 
 export const createConnectedEventWithOneEndpoint = (endpointId?: string): ConnectedMediaEvent => {
   const connectedEvent = createConnectedEvent();

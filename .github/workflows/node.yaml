@@ -1,0 +1,36 @@
+name: Check Pull Request
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  check_and_build:
+    name: Check formatting and run linter
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }} 🛎️
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+
+      - name: Install dependencies ⬇️
+        run: npm ci
+
+      - name: Check formatting 🎨
+        run: npm run format:check
+
+      - name: Run linter
+        run: npm run lint:check
+
+      - name: Build 📦
+        run: npm run build

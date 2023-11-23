@@ -6,20 +6,16 @@ export interface MediaEvent {
   data?: any;
 }
 
-export function serializeMediaEvent(
-  mediaEvent: MediaEvent
-): SerializedMediaEvent {
+export function serializeMediaEvent(mediaEvent: MediaEvent): SerializedMediaEvent {
   return JSON.stringify(mediaEvent);
 }
 
-export function deserializeMediaEvent(
-  serializedMediaEvent: SerializedMediaEvent
-): MediaEvent {
+export function deserializeMediaEvent(serializedMediaEvent: SerializedMediaEvent): MediaEvent {
   return JSON.parse(serializedMediaEvent) as MediaEvent;
 }
 
 export function generateMediaEvent(type: string, data?: any): MediaEvent {
-  var event: MediaEvent = { type };
+  let event: MediaEvent = { type };
   if (data) {
     event = { ...event, data };
   }

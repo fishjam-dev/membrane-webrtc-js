@@ -1,15 +1,15 @@
 import {
+  deserializeMediaEvent,
+  generateCustomEvent,
+  generateMediaEvent,
   MediaEvent,
   SerializedMediaEvent,
-  deserializeMediaEvent,
-  generateMediaEvent,
-  generateCustomEvent,
   serializeMediaEvent,
 } from "./mediaEvent";
 import { v4 as uuidv4 } from "uuid";
 import TypedEmitter from "typed-emitter";
 import { EventEmitter } from "events";
-import { simulcastTransceiverConfig, defaultBitrates, defaultSimulcastBitrates } from "./const";
+import { defaultBitrates, defaultSimulcastBitrates, simulcastTransceiverConfig } from "./const";
 
 /**
  * Interface describing Endpoint.
@@ -361,16 +361,15 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
         this.emit("connected", deserializedMediaEvent.data.id, deserializedMediaEvent.data.otherEndpoints);
 
         const endpoints: any[] = deserializedMediaEvent.data.otherEndpoints;
-        const otherEndpoints: Endpoint[] = endpoints.map((endpoint) => {
-          // The server's tracks are `Record`, and the tracks here are `Map`.
-          const endpointTracks: [string, any][] = Object.entries(endpoint.tracks || {});
-          // Map<string, TrackContextImpl>
-          const tracks = this.mapMediaEventTracksToTrackContextImpl(endpointTracks, endpoint);
-          endpoint.tracks = tracks;
 
-          // endpoint ma tutaj takie pola jakie mieć powienie, tracks jest jako Map
+        const otherEndpoints: Endpoint[] = endpoints.map((endpoint) => {
+          const endpointTracks: [string, any][] = Object.entries(endpoint.tracks || {});
+          const tracks = this.mapMediaEventTracksToTrackContextImpl(endpointTracks, endpoint);
+          return { ...endpoint, tracks };
+        });
+
+        otherEndpoints.forEach((endpoint) => {
           this.addEndpoint(endpoint);
-          return endpoint;
         });
 
         otherEndpoints.forEach((endpoint) => {
@@ -491,7 +490,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
       case "endpointAdded":
         endpoint = deserializedMediaEvent.data;
         if (endpoint.id === this.getEndpointId()) return;
-        this.addEndpoint(endpoint);
+        this.addEndpoint({ ...endpoint, tracks: new Map() });
 
         this.emit("endpointAdded", endpoint);
         break;
@@ -649,6 +648,12 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     simulcastConfig: SimulcastConfig = { enabled: false, activeEncodings: [] },
     maxBandwidth: TrackBandwidthLimit = 0, // unlimited bandwidth
   ): string {
+    const isUsedTrack = this.connection?.getSenders().some((val) => val.track === track);
+
+    if (isUsedTrack) {
+      throw "This track was already added to peerConnection, it can't be added again!";
+    }
+
     if (!simulcastConfig.enabled && !(typeof maxBandwidth === "number"))
       throw "Invalid type of `maxBandwidth` argument for a non-simulcast track, expected: number";
     if (this.getEndpointId() === "") throw "Cannot add tracks before being accepted by the server";
@@ -1408,13 +1413,6 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
   };
 
   private addEndpoint = (endpoint: Endpoint): void => {
-    // #TODO remove this line after fixing deserialization
-    // if (endpoint.hasOwnProperty("trackIdToMetadata"))
-    //   endpoint.tracks = new Map(
-    //     Object.entries(endpoint.tracks)
-    //   );
-    // else endpoint.tracks = new Map();
-
     this.idToEndpoint.set(endpoint.id, endpoint);
   };
 

@@ -7,7 +7,7 @@ import {
 } from "../fixtures";
 import { setupRoom } from "../utils";
 
-test("Remove endpoint that not exists", () => {
+test("Remove the endpoint that does not exist", () => {
   // Given
   mockRTCPeerConnection();
   const webRTCEndpoint = new WebRTCEndpoint();
@@ -20,6 +20,23 @@ test("Remove endpoint that not exists", () => {
   // Then
   const endpoints = webRTCEndpoint.getRemoteEndpoints();
   expect(Object.values(endpoints).length).toBe(1);
+});
+
+test("Remove current peer", (done) => {
+  // Given
+  mockRTCPeerConnection();
+  const webRTCEndpoint = new WebRTCEndpoint();
+  const currentPeerId = "currentPeerId"
+
+  webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEventWithOneEndpoint(endpointId, currentPeerId)));
+
+  webRTCEndpoint.on("disconnected", () => {
+    // Then
+    done()
+  })
+
+  // When
+  webRTCEndpoint.receiveMediaEvent(JSON.stringify(createEndpointRemoved(currentPeerId)));
 });
 
 test("Remove existing endpoint should remove it from remote endpoints", () => {

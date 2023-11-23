@@ -23,8 +23,8 @@ import {
     EndpointAddedWebrtcEvent,
     EndpointAddedWebrtcEventSchema, EndpointRemovedEventSchema, EndpointRemovedEvent,
 } from "./schema";
-import { TrackEncoding, VadStatus } from "../webRTCEndpoint";
 import { FakeMediaStreamTrack } from "fake-mediastreamtrack";
+import { TrackEncoding, VadStatus } from "../src";
 
 export const endpointId = "exampleEndpointId";
 export const notExistingEndpointId = "notExistingEndpointId";
@@ -134,8 +134,8 @@ export const createEndpointRemoved = (endpointId: string): EndpointRemovedEvent 
         type: "endpointRemoved",
     });
 
-export const createConnectedEventWithOneEndpoint = (endpointId?: string): ConnectedMediaEvent => {
-  const connectedEvent = createConnectedEvent();
+export const createConnectedEventWithOneEndpoint = (endpointId?: string, localEndpointId?: string): ConnectedMediaEvent => {
+  const connectedEvent = createConnectedEvent(localEndpointId);
   connectedEvent.data.otherEndpoints = [createEmptyEndpoint(endpointId)];
   return ConnectedMediaEventSchema.parse(connectedEvent);
 };

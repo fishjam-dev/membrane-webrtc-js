@@ -25,6 +25,8 @@ export const setupRoomWith = (webRTCEndpoint: WebRTCEndpoint, endpointId: string
 // otherEndpoints.forEach((endpoint) => {
 //   this.addEndpoint(endpoint);
 // });
+// otherEndpoints.forEach((endpoint) => {
+//           endpoint.tracks.forEach((ctx, trackId) => {
 //
 // "endpointAdded"
 // this.addEndpoint({ ...endpoint, tracks: new Map() });

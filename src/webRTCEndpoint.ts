@@ -370,7 +370,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
         });
 
         otherEndpoints.forEach((endpoint) => {
-          endpoint.tracks.forEach((ctx, trackId) => {
+          Array.from(endpoint.tracks.entries()).forEach(([trackId, ctx]) => {
             this.trackIdToTrack.set(trackId, ctx);
 
             this.emit("trackAdded", ctx);

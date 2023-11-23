@@ -1,4 +1,4 @@
-import { WebRTCEndpoint } from "../../webRTCEndpoint";
+import { WebRTCEndpoint } from "../../src";
 import { createBandwidthEstimationEvent, endpointId, trackId } from "../fixtures";
 import { setupRoom } from "../utils";
 

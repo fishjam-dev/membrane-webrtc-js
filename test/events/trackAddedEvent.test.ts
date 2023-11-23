@@ -1,4 +1,4 @@
-import { WebRTCEndpoint } from "../../webRTCEndpoint";
+import { WebRTCEndpoint } from "../../src";
 import {
   createAddTrackMediaEvent,
   createAnswerData,
@@ -7,8 +7,8 @@ import {
   trackId,
 } from "../fixtures";
 import { CustomOfferDataEvent, TracksAddedMediaEvent } from "../schema";
-import { deserializeMediaEvent } from "../../mediaEvent";
 import { mockRTCPeerConnection } from "../mocks";
+import { deserializeMediaEvent } from "../../src/mediaEvent";
 
 test("Connect to room with one endpoint then addTrack produce event", (done) => {
   // Given

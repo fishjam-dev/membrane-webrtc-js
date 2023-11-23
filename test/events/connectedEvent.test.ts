@@ -1,5 +1,5 @@
-import { Endpoint, WebRTCEndpoint } from "../../webRTCEndpoint";
 import { createConnectedEvent, createEmptyEndpoint, createSimulcastTrack, trackId } from "../fixtures";
+import { Endpoint, WebRTCEndpoint } from "../../src";
 
 test("Connecting to empty room produce event", (done) => {
   const webRTCEndpoint = new WebRTCEndpoint();

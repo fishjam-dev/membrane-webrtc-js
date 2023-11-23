@@ -1,4 +1,4 @@
-import { WebRTCEndpoint } from "../../webRTCEndpoint";
+import { WebRTCEndpoint } from "../../src";
 import { createCustomVadNotificationEvent, endpointId, trackId } from "../fixtures";
 import { setupRoom } from "../utils";
 

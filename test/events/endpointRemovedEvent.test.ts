@@ -1,9 +1,8 @@
 import { mockRTCPeerConnection } from "../mocks";
-import { WebRTCEndpoint } from "../../webRTCEndpoint";
+import { WebRTCEndpoint } from "../../src";
 import {
-  createConnectedEvent,
   createConnectedEventWithOneEndpoint,
-  createEndpointAdded, createEndpointRemoved,
+  createEndpointRemoved,
   endpointId, notExistingEndpointId, trackId,
 } from "../fixtures";
 import { setupRoom } from "../utils";

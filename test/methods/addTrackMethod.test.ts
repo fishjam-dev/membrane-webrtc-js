@@ -1,7 +1,7 @@
-import { WebRTCEndpoint } from "../../webRTCEndpoint";
+import { WebRTCEndpoint } from "../../src";
 import { createConnectedEventWithOneEndpoint, stream, track } from "../fixtures";
-import { deserializeMediaEvent } from "../../mediaEvent";
 import { mockRTCPeerConnection } from "../mocks";
+import { deserializeMediaEvent } from "../../src/mediaEvent";
 
 test("Adding track invokes renegotiation", (done) => {
   // Given

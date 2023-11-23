@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1700763917257" clover="3.2.0">
-  <project timestamp="1700763917257" name="All files">
-    <metrics statements="547" coveredstatements="309" conditionals="158" coveredconditionals="52" methods="135" coveredmethods="61" elements="840" coveredelements="422" complexity="0" loc="547" ncloc="547" packages="2" files="7" classes="7"/>
+<coverage generated="1700764267323" clover="3.2.0">
+  <project timestamp="1700764267323" name="All files">
+    <metrics statements="547" coveredstatements="309" conditionals="158" coveredconditionals="52" methods="135" coveredmethods="61" elements="840" coveredelements="422" complexity="0" loc="547" ncloc="547" packages="2" files="8" classes="8"/>
     <package name="src">
       <metrics statements="463" coveredstatements="229" conditionals="150" coveredconditionals="46" methods="106" coveredmethods="36"/>
       <file name="const.ts" path="/Users/kamilstasiak/IdeaProjects/membrane-webrtc-js/src/const.ts">
@@ -9,6 +9,9 @@
         <line num="4" count="10" type="stmt"/>
         <line num="31" count="10" type="stmt"/>
         <line num="35" count="10" type="stmt"/>
+      </file>
+      <file name="index.ts" path="/Users/kamilstasiak/IdeaProjects/membrane-webrtc-js/src/index.ts">
+        <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
       </file>
       <file name="mediaEvent.ts" path="/Users/kamilstasiak/IdeaProjects/membrane-webrtc-js/src/mediaEvent.ts">
         <metrics statements="7" coveredstatements="7" conditionals="2" coveredconditionals="1" methods="4" coveredmethods="4"/>
@@ -477,9 +480,9 @@
         <line num="1450" count="48" type="stmt"/>
       </file>
     </package>
-    <package name="src.test">
+    <package name="test">
       <metrics statements="84" coveredstatements="80" conditionals="8" coveredconditionals="6" methods="29" coveredmethods="25"/>
-      <file name="fixtures.ts" path="/Users/kamilstasiak/IdeaProjects/membrane-webrtc-js/src/test/fixtures.ts">
+      <file name="fixtures.ts" path="/Users/kamilstasiak/IdeaProjects/membrane-webrtc-js/test/fixtures.ts">
         <metrics statements="44" coveredstatements="44" conditionals="4" coveredconditionals="4" methods="16" coveredmethods="16"/>
         <line num="29" count="10" type="stmt"/>
         <line num="30" count="10" type="stmt"/>
@@ -526,7 +529,7 @@
         <line num="243" count="10" type="stmt"/>
         <line num="244" count="4" type="stmt"/>
       </file>
-      <file name="mocks.ts" path="/Users/kamilstasiak/IdeaProjects/membrane-webrtc-js/src/test/mocks.ts">
+      <file name="mocks.ts" path="/Users/kamilstasiak/IdeaProjects/membrane-webrtc-js/test/mocks.ts">
         <metrics statements="21" coveredstatements="17" conditionals="4" coveredconditionals="2" methods="12" coveredmethods="8"/>
         <line num="1" count="5" type="stmt"/>
         <line num="4" count="19" type="stmt"/>
@@ -550,7 +553,7 @@
         <line num="52" count="0" type="stmt"/>
         <line num="56" count="19" type="stmt"/>
       </file>
-      <file name="schema.ts" path="/Users/kamilstasiak/IdeaProjects/membrane-webrtc-js/src/test/schema.ts">
+      <file name="schema.ts" path="/Users/kamilstasiak/IdeaProjects/membrane-webrtc-js/test/schema.ts">
         <metrics statements="14" coveredstatements="14" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
         <line num="3" count="10" type="stmt"/>
         <line num="7" count="10" type="stmt"/>
@@ -567,7 +570,7 @@
         <line num="143" count="10" type="stmt"/>
         <line num="156" count="10" type="stmt"/>
       </file>
-      <file name="utils.ts" path="/Users/kamilstasiak/IdeaProjects/membrane-webrtc-js/src/test/utils.ts">
+      <file name="utils.ts" path="/Users/kamilstasiak/IdeaProjects/membrane-webrtc-js/test/utils.ts">
         <metrics statements="5" coveredstatements="5" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
         <line num="4" count="5" type="stmt"/>
         <line num="5" count="14" type="stmt"/>

@@ -1,4 +1,4 @@
-import { WebRTCEndpoint } from "../../webRTCEndpoint";
+import { WebRTCEndpoint } from "../../src";
 import {
   createEncodingSwitchedEvent,
   endpointId,

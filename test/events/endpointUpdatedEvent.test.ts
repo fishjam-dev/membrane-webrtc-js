@@ -1,5 +1,5 @@
 import { mockRTCPeerConnection } from "../mocks";
-import { WebRTCEndpoint } from "../../webRTCEndpoint";
+import { WebRTCEndpoint } from "../../src";
 import {
   createConnectedEvent,
   createConnectedEventWithOneEndpoint,

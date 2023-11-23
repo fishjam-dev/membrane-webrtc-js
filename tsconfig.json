@@ -5,12 +5,15 @@
     "declarationMap": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+    "jsx": "react-jsx",
     "module": "commonjs",
     "moduleResolution": "node",
     "outDir": "dist/",
+    "skipLibCheck": true,
     "strict": true,
     "target": "es2018",
-    "lib": ["DOM", "ES2019"]
+    "lib": ["DOM", "DOM.Iterable", "ES2019"]
   },
-  "include": ["src/**/*"]
+  "include": ["./src/**/*", "./tests/**/*"],
+  "exclude": ["tests/app/**/*"]
 }

@@ -4,10 +4,10 @@
   "description": "JS/TS client library for Membrane RTC Engine.",
   "license": "Apache-2.0",
   "author": "Membrane Team",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
   "files": [
-    "dist"
+    "dist/src"
   ],
   "bugs": {
     "url": "https://github.com/jellyfish-dev/membrane-webrtc-js/issues"

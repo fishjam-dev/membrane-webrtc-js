@@ -46,6 +46,8 @@ export const mockRTCPeerConnection = (): {
       },
       // @ts-ignore
       createOffer: (options?: RTCOfferOptions): Promise<RTCSessionDescriptionInit> => {
+        // const sleep = async (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
         return new Promise<RTCSessionDescriptionInit>((resolve, reject) => {
           resolve({ sdp: "", type: "offer" });
         });

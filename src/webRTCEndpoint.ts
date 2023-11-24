@@ -1237,6 +1237,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     if (!this.connection) return;
     try {
       const offer = await this.connection.createOffer();
+      // const offer = await this.connection.createOffer();
       await this.connection.setLocalDescription(offer);
 
       const mediaEvent = generateCustomEvent({

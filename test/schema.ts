@@ -45,6 +45,16 @@ export const TracksAddedMediaEventSchema = z.object({
 
 export type TracksAddedMediaEvent = z.infer<typeof TracksAddedMediaEventSchema>;
 
+export const TracksRemovedEventSchema = z.object({
+  data: z.object({
+    endpointId: z.string().min(1),
+    trackIds: z.array(z.string().min(1)),
+  }),
+  type: z.literal("tracksRemoved"),
+});
+
+export type TracksRemovedEvent = z.infer<typeof TracksRemovedEventSchema>;
+
 export const CustomOfferDataEventSchema = z.object({
   data: z.object({
     data: z.object({

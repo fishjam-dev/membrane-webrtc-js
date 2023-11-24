@@ -1,5 +1,8 @@
+import { undefined } from "zod";
+
 export const mockRTCPeerConnection = (): {
   addTransceiverCallback: jest.Mock<null, any[], any>;
+  runOnTrack: (ev: RTCTrackEvent) => void;
 } => {
   const addTransceiverCallback: jest.Mock<null, any[], any> = jest.fn((_trackOrKind, _init) => null);
 
@@ -7,7 +10,7 @@ export const mockRTCPeerConnection = (): {
     const transceivers: RTCRtpTransceiver[] = [];
     const senders: RTCRtpSender[] = [];
 
-    return {
+    const newVar: RTCPeerConnection = {
       getTransceivers: () => {
         return transceivers;
       },
@@ -16,6 +19,7 @@ export const mockRTCPeerConnection = (): {
 
         const sender: any = {};
         sender.getParameters = () => {
+          // @ts-ignore
           const encodings: RTCRtpEncodingParameters[] = [{}];
           return { encodings: encodings } as RTCRtpSendParameters;
         };
@@ -40,11 +44,11 @@ export const mockRTCPeerConnection = (): {
 
         return transceiver;
       },
-      createOffer: async (_options?: RTCOfferOptions): Promise<RTCSessionDescriptionInit> => {
-        return {
-          sdp: "",
-          type: "offer",
-        };
+      // @ts-ignore
+      createOffer: (options?: RTCOfferOptions): Promise<RTCSessionDescriptionInit> => {
+        return new Promise<RTCSessionDescriptionInit>((resolve, reject) => {
+          resolve({ sdp: "", type: "offer" });
+        });
       },
       setLocalDescription: async (_description?: RTCLocalSessionDescriptionInit): Promise<void> => {},
       setRemoteDescription: async (_description: RTCSessionDescriptionInit): Promise<void> => {},
@@ -52,6 +56,28 @@ export const mockRTCPeerConnection = (): {
         return senders;
       },
     };
+    return newVar;
   });
-  return { addTransceiverCallback };
+
+  (global as any).RTCRtpTransceiver = jest.fn().mockImplementation(() => {
+    const newVar: RTCRtpTransceiver = {
+      currentDirection: null,
+      direction: "stopped",
+      mid: "0",
+      // @ts-ignore
+      receiver: undefined,
+      // @ts-ignore
+      sender: undefined,
+      setCodecPreferences(codecs: RTCRtpCodecCapability[]): void {},
+      stop(): void {},
+    };
+
+    return newVar;
+  });
+
+  const runOnTrack = (ev: RTCTrackEvent) => {
+    (global as any).RTCPeerConnection.ontrack(ev);
+  };
+
+  return { addTransceiverCallback, runOnTrack };
 };

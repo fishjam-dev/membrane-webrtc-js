@@ -1,5 +1,5 @@
 import { WebRTCEndpoint } from "../../src";
-import { createConnectedEventWithOneEndpoint, stream, track } from "../fixtures";
+import { createConnectedEventWithOneEndpoint, stream, mockTrack } from "../fixtures";
 import { mockRTCPeerConnection } from "../mocks";
 import { deserializeMediaEvent } from "../../src/mediaEvent";
 
@@ -23,7 +23,7 @@ test("Adding track invokes renegotiation", (done) => {
   });
 
   // When
-  webRTCEndpoint.addTrack(track, stream);
+  webRTCEndpoint.addTrack(mockTrack, stream);
 });
 
 test("Adding track updates internal state", () => {
@@ -34,7 +34,7 @@ test("Adding track updates internal state", () => {
   webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEventWithOneEndpoint()));
 
   // When
-  webRTCEndpoint.addTrack(track, stream);
+  webRTCEndpoint.addTrack(mockTrack, stream);
 
   // Then
   const localTrackIdToTrack = webRTCEndpoint["localTrackIdToTrack"];
@@ -51,7 +51,7 @@ test("Adding track before being accepted by the server throws error", () => {
 
   // When
   expect(() => {
-    webRTCEndpoint.addTrack(track, stream);
+    webRTCEndpoint.addTrack(mockTrack, stream);
   }).toThrow("Cannot add tracks before being accepted by the server");
 });
 
@@ -63,12 +63,12 @@ test("Adding track updates internal state", () => {
   webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEventWithOneEndpoint()));
 
   // When
-  const trackId = webRTCEndpoint.addTrack(track, stream);
+  const trackId = webRTCEndpoint.addTrack(mockTrack, stream);
 
   // Then
   const trackContext = webRTCEndpoint["localTrackIdToTrack"].get(trackId);
   expect(trackContext?.trackId).toBe(trackId);
-  expect(trackContext?.track).toBe(track);
+  expect(trackContext?.track).toBe(mockTrack);
 });
 
 test("Adding track sets default simulcast value in internal state", () => {
@@ -79,7 +79,7 @@ test("Adding track sets default simulcast value in internal state", () => {
   webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEventWithOneEndpoint()));
 
   // When
-  const trackId = webRTCEndpoint.addTrack(track, stream);
+  const trackId = webRTCEndpoint.addTrack(mockTrack, stream);
 
   // Then
   const trackContext = webRTCEndpoint["localTrackIdToTrack"].get(trackId);
@@ -95,7 +95,7 @@ test("Adding track sets default encoding value in internal state", () => {
   webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEventWithOneEndpoint()));
 
   // When
-  const trackId = webRTCEndpoint.addTrack(track, stream);
+  const trackId = webRTCEndpoint.addTrack(mockTrack, stream);
 
   // Then
   const trackContext = webRTCEndpoint["localTrackIdToTrack"].get(trackId);
@@ -114,7 +114,7 @@ test("Adding track updates internal metadata state", () => {
   };
 
   // When
-  const trackId = webRTCEndpoint.addTrack(track, stream, metadata);
+  const trackId = webRTCEndpoint.addTrack(mockTrack, stream, metadata);
 
   // Then
   const localTrackIdToTrack = webRTCEndpoint["localTrackIdToTrack"].get(trackId);

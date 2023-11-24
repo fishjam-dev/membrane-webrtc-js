@@ -1,5 +1,5 @@
-import { WebRTCEndpoint } from "../webRTCEndpoint";
 import { createAddTrackMediaEvent, createConnectedEventWithOneEndpointWithOneTrack } from "./fixtures";
+import { WebRTCEndpoint } from "../src";
 
 export const setupRoom = (webRTCEndpoint: WebRTCEndpoint, endpointId: string, trackId: string): void => {
   const connectedEvent = createConnectedEventWithOneEndpointWithOneTrack(endpointId, trackId);

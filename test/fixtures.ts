@@ -1,27 +1,31 @@
 import {
-    ConnectedMediaEvent,
-    ConnectedMediaEventSchema,
-    CustomEncodingUpdatedEvent,
-    CustomEncodingSwitchedEventSchema,
-    CustomOfferDataEvent,
-    CustomOfferDataEventSchema,
-    CustomSdpAnswerDataEvent,
-    CustomSdpAnswerDataEventSchema,
-    Endpoint,
-    EndpointSchema,
-    EndpointUpdatedWebrtcEvent,
-    EndpointUpdatedWebrtcEventSchema,
-    Track,
-    TracksAddedMediaEvent,
-    TracksAddedMediaEventSchema,
-    CustomBandwidthEstimationEventSchema,
-    CustomBandwidthEstimationEvent,
-    CustomVadNotificationEvent,
-    CustomVadNotificationEventSchema,
-    TrackUpdatedEvent,
-    TrackUpdatedEventSchema,
-    EndpointAddedWebrtcEvent,
-    EndpointAddedWebrtcEventSchema, EndpointRemovedEventSchema, EndpointRemovedEvent,
+  ConnectedMediaEvent,
+  ConnectedMediaEventSchema,
+  CustomEncodingUpdatedEvent,
+  CustomEncodingSwitchedEventSchema,
+  CustomOfferDataEvent,
+  CustomOfferDataEventSchema,
+  CustomSdpAnswerDataEvent,
+  CustomSdpAnswerDataEventSchema,
+  Endpoint,
+  EndpointSchema,
+  EndpointUpdatedWebrtcEvent,
+  EndpointUpdatedWebrtcEventSchema,
+  Track,
+  TracksAddedMediaEvent,
+  TracksAddedMediaEventSchema,
+  CustomBandwidthEstimationEventSchema,
+  CustomBandwidthEstimationEvent,
+  CustomVadNotificationEvent,
+  CustomVadNotificationEventSchema,
+  TrackUpdatedEvent,
+  TrackUpdatedEventSchema,
+  EndpointAddedWebrtcEvent,
+  EndpointAddedWebrtcEventSchema,
+  EndpointRemovedEventSchema,
+  EndpointRemovedEvent,
+  TracksRemovedEvent,
+  TracksRemovedEventSchema,
 } from "./schema";
 import { FakeMediaStreamTrack } from "fake-mediastreamtrack";
 import { TrackEncoding, VadStatus } from "../src";
@@ -32,7 +36,7 @@ export const notExistingEndpointId = "notExistingEndpointId";
 export const trackId = "exampleTrackId";
 export const notExistingTrackId = "notExistingTrackId";
 
-export const track = new FakeMediaStreamTrack({ kind: "video" });
+export const mockTrack = new FakeMediaStreamTrack({ kind: "video" });
 const MediaStreamMock = jest.fn().mockImplementation(() => {});
 export const stream = new MediaStreamMock();
 
@@ -127,14 +131,17 @@ export const createEndpointAdded = (endpointId: string): EndpointAddedWebrtcEven
   });
 
 export const createEndpointRemoved = (endpointId: string): EndpointRemovedEvent =>
-    EndpointRemovedEventSchema.parse({
-        data: {
-            id: endpointId,
-        },
-        type: "endpointRemoved",
-    });
+  EndpointRemovedEventSchema.parse({
+    data: {
+      id: endpointId,
+    },
+    type: "endpointRemoved",
+  });
 
-export const createConnectedEventWithOneEndpoint = (endpointId?: string, localEndpointId?: string): ConnectedMediaEvent => {
+export const createConnectedEventWithOneEndpoint = (
+  endpointId?: string,
+  localEndpointId?: string,
+): ConnectedMediaEvent => {
   const connectedEvent = createConnectedEvent(localEndpointId);
   connectedEvent.data.otherEndpoints = [createEmptyEndpoint(endpointId)];
   return ConnectedMediaEventSchema.parse(connectedEvent);
@@ -170,6 +177,15 @@ export const createAddTrackMediaEvent = (endpointId: string, trackId: string): T
     },
   });
 
+export const createTracksRemovedEvent = (endpointId: string, trackIds: string[]): TracksRemovedEvent =>
+  TracksRemovedEventSchema.parse({
+    type: "tracksRemoved",
+    data: {
+      endpointId: endpointId,
+      trackIds,
+    },
+  });
+
 export const createCustomOfferDataEventWithOneVideoTrack = (): CustomOfferDataEvent =>
   CustomOfferDataEventSchema.parse({
     data: {
@@ -186,6 +202,29 @@ export const createCustomOfferDataEventWithOneVideoTrack = (): CustomOfferDataEv
         tracksTypes: {
           audio: 0,
           video: 1,
+        },
+      },
+      type: "offerData",
+    },
+    type: "custom",
+  });
+
+export const createAddLocalTrackSDPOffer = (): CustomOfferDataEvent =>
+  CustomOfferDataEventSchema.parse({
+    data: {
+      data: {
+        integratedTurnServers: [
+          {
+            password: "LowwCOr4yR6KhD9LanOMfNbl1J4=",
+            serverAddr: "192.168.1.100",
+            serverPort: 50011,
+            transport: "udp",
+            username: "1700768416:1423714f-5a75-4dce-9c99-8ec0dbf940ed",
+          },
+        ],
+        tracksTypes: {
+          audio: 0,
+          video: 0,
         },
       },
       type: "offerData",
@@ -232,6 +271,52 @@ a=rtcp-fb:102 nack\r
 a=rtcp-fb:102 nack pli\r
 a=rtcp-rsize\r
 a=ssrc:663086196 cname:${trackId}-video-60ff1fb2-6868-42be-8c92-311733034415\r
+`,
+        type: "answer",
+      },
+      type: "sdpAnswer",
+    },
+    type: "custom",
+  });
+
+export const createAddLocalTrackAnswerData = (trackId: string): CustomSdpAnswerDataEvent =>
+  CustomSdpAnswerDataEventSchema.parse({
+    data: {
+      data: {
+        midToTrackId: {
+          "0": trackId,
+        },
+        sdp: `v=0\r
+o=- 63903156084304368 0 IN IP4 127.0.0.1\r
+s=-\r
+t=0 0\r
+a=group:BUNDLE 0\r
+a=extmap-allow-mixed\r
+a=ice-lite\r
+m=video 9 UDP/TLS/RTP/SAVPF 106 107\r
+c=IN IP4 0.0.0.0\r
+a=recvonly\r
+a=ice-ufrag:dHiY\r
+a=ice-pwd:IAPCE68QAQ8AxSF0OQIEZp\r
+a=ice-options:trickle\r
+a=fingerprint:sha-256 C1:50:4C:EC:98:1D:62:C8:DA:AE:F8:5B:44:4F:76:BB:4E:FF:5E:51:3E:A7:62:9B:58:38:A5:13:D0:B1:50:67\r
+a=setup:passive\r
+a=mid:0\r
+a=msid:7bf8bef4-be67-456c-8635-ba58339c29e9 ad3deb09-60a6-4bfc-aa14-482ed4f60667\r
+a=rtcp-mux\r
+a=rtpmap:106 H264/90000\r
+a=fmtp:106 profile-level-id=42e01f;level-asymmetry-allowed=1;packetization-mode=1\r
+a=rtpmap:107 rtx/90000\r
+a=fmtp:107 apt=106\r
+a=extmap:4 http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01\r
+a=rtcp-fb:106 transport-cc\r
+a=extmap:9 urn:ietf:params:rtp-hdrext:sdes:mid\r
+a=extmap:10 urn:ietf:params:rtp-hdrext:sdes:rtp-stream-id\r
+a=extmap:11 urn:ietf:params:rtp-hdrext:sdes:repaired-rtp-stream-id\r
+a=rtcp-fb:106 ccm fir\r
+a=rtcp-fb:106 nack\r
+a=rtcp-fb:106 nack pli\r
+a=rtcp-rsize\r
 `,
         type: "answer",
       },

@@ -25,6 +25,23 @@ test("connects to Jellyfish Server", async ({ page: firstPage, context }) => {
   await Promise.all([assertThatOtherVideoIsPlaying(firstPage), assertThatOtherVideoIsPlaying(secondPage)]);
 });
 
+test("doesn't disconnect when trying to set incorrect track encoding", async ({ page: firstPage, context }) => {
+  const secondPage = await context.newPage();
+  await firstPage.goto("/");
+  await secondPage.goto("/");
+
+  const roomRequest = await firstPage.request.post("http://localhost:5002/room");
+  const roomId = (await roomRequest.json()).data.room.id as string;
+
+  await joinRoomAndAddTrack(firstPage, roomId);
+  const secondClientId = await joinRoomAndAddTrack(secondPage, roomId);
+
+  await assertThatOtherIsSeen(firstPage, secondClientId);
+  await assertThatOtherVideoIsPlaying(firstPage);
+  await firstPage.getByRole("button", { name: "l", exact: true }).click();
+  await assertThatOtherVideoIsPlaying(firstPage);
+});
+
 async function joinRoomAndAddTrack(page: Page, roomId: string): Promise<string> {
   const peerRequest = await page.request.post("http://localhost:5002/room/" + roomId + "/peer", {
     data: {

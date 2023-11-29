@@ -5,11 +5,14 @@ import {
   generateMediaEvent,
   generateCustomEvent,
   serializeMediaEvent,
-} from "./mediaEvent";
+} from "./mediaEvent.js";
 import { v4 as uuidv4 } from "uuid";
-import TypedEmitter from "typed-emitter";
-import { EventEmitter } from "events";
-import { simulcastTransceiverConfig, defaultBitrates, defaultSimulcastBitrates } from "./const";
+import EventEmitter from "events";
+import { simulcastTransceiverConfig, defaultBitrates, defaultSimulcastBitrates } from "./const.js";
+
+// https://github.com/andywer/typed-emitter/issues/39#issuecomment-1607364367
+import TypedEventEmitter, { EventMap } from "typed-emitter";
+type TypedEmitter<T extends EventMap> = TypedEventEmitter.default<T>;
 
 /**
  * Interface describing Endpoint.

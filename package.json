@@ -1,10 +1,11 @@
 {
   "name": "@jellyfish-dev/membrane-webrtc-js",
-  "version": "0.5.3",
+  "version": "0.6.0",
   "description": "JS/TS client library for Membrane RTC Engine.",
   "license": "Apache-2.0",
   "author": "Membrane Team",
-  "main": "./dist/src/index.js",
+  "type": "module",
+  "exports": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
   "files": [
     "dist/src"

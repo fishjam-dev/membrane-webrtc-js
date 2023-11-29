@@ -1,4 +1,4 @@
-import type { BandwidthLimit, TrackEncoding } from "./webRTCEndpoint";
+import type { BandwidthLimit, TrackEncoding } from "./webRTCEndpoint.js";
 // const TEMPORAL_LAYERS_COUNT = 2;
 
 export const simulcastTransceiverConfig: RTCRtpTransceiverInit = {

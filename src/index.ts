@@ -11,6 +11,6 @@ export {
   TrackEncoding,
   VadStatus,
   EncodingReason,
-} from "./webRTCEndpoint";
+} from "./webRTCEndpoint.js";
 
-export { SerializedMediaEvent, MediaEvent } from "./mediaEvent";
+export { SerializedMediaEvent, MediaEvent } from "./mediaEvent.js";

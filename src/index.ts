@@ -1,8 +1,7 @@
-export {
+export type {
   TrackBandwidthLimit,
   SimulcastBandwidthLimit,
   BandwidthLimit,
-  WebRTCEndpoint,
   WebRTCEndpointEvents,
   TrackContextEvents,
   Endpoint,
@@ -11,6 +10,9 @@ export {
   TrackEncoding,
   VadStatus,
   EncodingReason,
-} from "./webRTCEndpoint.js";
+} from "./webRTCEndpoint";
 
-export { SerializedMediaEvent, MediaEvent } from "./mediaEvent.js";
+export { 
+  WebRTCEndpoint } from "./webRTCEndpoint"
+
+export type { SerializedMediaEvent, MediaEvent } from "./mediaEvent";

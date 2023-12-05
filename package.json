@@ -5,8 +5,13 @@
   "license": "Apache-2.0",
   "author": "Membrane Team",
   "type": "module",
-  "exports": "./dist/src/index.js",
-  "types": "./dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/membrane-webrtc-js.js",
+      "require": "./dist/membrane-webrtc-js.umd.cjs"
+    }
+  },
+  "types": "./dist/membrane-webrtc-js.d.ts",
   "files": [
     "dist/src"
   ],
@@ -23,7 +28,7 @@
     "url": "git://github.com/jellyfish-dev/membrane-webrtc-js.git"
   },
   "scripts": {
-    "build": "rimraf dist && tsc",
+    "build": "tsc && vite build",
     "e2e": "NODE_OPTIONS=--dns-result-order=ipv4first playwright test",
     "docs": "typedoc src/index.ts",
     "format:fix": "prettier --write . --ignore-path ./.eslintignore",
@@ -44,8 +49,10 @@
     "prettier": "3.0.3",
     "rimraf": "^3.0.2",
     "testcontainers": "^10.2.2",
-    "typedoc": "^0.23.0",
-    "typescript": "^4.9.4"
+    "typedoc": "^0.25.4",
+    "typescript": "^5.3.2",
+    "vite": "^5.0.4",
+    "vite-plugin-dts": "^3.6.4"
   },
   "dependencies": {
     "events": "^3.3.0",

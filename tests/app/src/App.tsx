@@ -1,4 +1,4 @@
-import { SerializedMediaEvent, TrackContext, WebRTCEndpoint } from "@jellyfish-dev/membrane-webrtc-js";
+import { SerializedMediaEvent, TrackContext, TrackEncoding, WebRTCEndpoint } from "@jellyfish-dev/membrane-webrtc-js";
 import { PeerMessage } from "./protos/jellyfish/peer_notifications";
 import { useState, useSyncExternalStore } from "react";
 
@@ -86,6 +86,10 @@ export function App() {
     () => remoteTracksStore.snapshot(),
   );
 
+  const setEncoding = (trackId: string, encoding: TrackEncoding) => {
+    webrtc.setTargetTrackEncoding(trackId, encoding);
+  };
+
   return (
     <>
       <div>
@@ -94,15 +98,19 @@ export function App() {
         <button onClick={handleStartScreenshare}>Start screenshare</button>
       </div>
       <div>
-        {Object.values(remoteTracks).map(({ stream }) => (
-          <video
-            key={stream?.id}
-            ref={(video) => {
-              video!.srcObject = stream;
-            }}
-            autoPlay
-            muted
-          />
+        {Object.values(remoteTracks).map((trackContext) => (
+          <div key={trackContext.trackId}>
+            <video
+              ref={(video) => {
+                video!.srcObject = trackContext.stream;
+              }}
+              autoPlay
+              muted
+            />
+            <button onClick={() => setEncoding(trackContext.trackId, "l")}>l</button>
+            <button onClick={() => setEncoding(trackContext.trackId, "m")}>m</button>
+            <button onClick={() => setEncoding(trackContext.trackId, "h")}>h</button>
+          </div>
         ))}
       </div>
     </>

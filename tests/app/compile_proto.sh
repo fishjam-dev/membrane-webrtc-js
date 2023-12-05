@@ -14,3 +14,7 @@ file="./protos/jellyfish/peer_notifications.proto"
 printf "Compiling: file %s\n" "$file"
 protoc --plugin=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=./src/ $file
 printf "DONE\n"
+
+cd ../..
+npm run format:fix
+npm run lint:fix

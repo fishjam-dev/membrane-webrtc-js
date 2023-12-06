@@ -7,8 +7,8 @@ import {
   serializeMediaEvent,
 } from "./mediaEvent";
 import { v4 as uuidv4 } from "uuid";
+import EventEmitter from "events";
 import TypedEmitter from "typed-emitter";
-import { EventEmitter } from "events";
 import { simulcastTransceiverConfig, defaultBitrates, defaultSimulcastBitrates } from "./const";
 
 /**

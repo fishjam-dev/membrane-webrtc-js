@@ -1,5 +1,5 @@
 import { Wait, DockerComposeEnvironment } from "testcontainers";
-import { setupState } from "./globalSetupState.js";
+import { setupState } from "./globalSetupState";
 import { type NetworkInterfaceInfo, networkInterfaces } from "os";
 
 export default async function setupJellyfish() {

@@ -7,8 +7,8 @@ import {
   serializeMediaEvent,
 } from "./mediaEvent";
 import { v4 as uuidv4 } from "uuid";
+import EventEmitter from "events";
 import TypedEmitter from "typed-emitter";
-import { EventEmitter } from "events";
 import { simulcastTransceiverConfig, defaultBitrates, defaultSimulcastBitrates } from "./const";
 
 /**
@@ -1033,6 +1033,11 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
    * ```
    */
   public setTargetTrackEncoding(trackId: string, encoding: TrackEncoding) {
+    const trackContext = this.trackIdToTrack.get(trackId);
+    if (!trackContext?.simulcastConfig?.enabled || !trackContext.simulcastConfig.activeEncodings.includes(encoding)) {
+      console.warn("The track does not support changing its target encoding");
+      return;
+    }
     const mediaEvent = generateCustomEvent({
       type: "setTargetTrackVariant",
       data: {

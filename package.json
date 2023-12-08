@@ -1,11 +1,17 @@
 {
   "name": "@jellyfish-dev/membrane-webrtc-js",
-  "version": "0.5.3",
+  "version": "0.6.0",
   "description": "JS/TS client library for Membrane RTC Engine.",
   "license": "Apache-2.0",
   "author": "Membrane Team",
-  "main": "./dist/src/index.js",
-  "types": "./dist/src/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/membrane-webrtc-js.js",
+      "require": "./dist/membrane-webrtc-js.umd.cjs"
+    }
+  },
+  "types": "./dist/membrane-webrtc-js.d.ts",
   "files": [
     "dist/src"
   ],
@@ -22,20 +28,21 @@
     "url": "git://github.com/jellyfish-dev/membrane-webrtc-js.git"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && vite build",
     "e2e": "NODE_OPTIONS=--dns-result-order=ipv4first playwright test",
     "docs": "typedoc src/index.ts",
     "format:fix": "prettier --write . --ignore-path ./.eslintignore",
     "format:check": "prettier --check . --ignore-path ./.eslintignore",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "lint:check": "eslint . --ext .ts,.tsx",
-    "prepare": "tsc"
+    "prepare": "tsc && vite build"
   },
   "devDependencies": {
     "@playwright/test": "^1.40.1",
     "@types/events": "^3.0.3",
     "@types/uuid": "^9.0.7",
     "@typescript-eslint/eslint-plugin": "^6.13.2",
+    "@typescript-eslint/parser": "^6.13.2",
     "eslint": "^8.55.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-react-hooks": "^4.6.0",
@@ -43,7 +50,9 @@
     "prettier": "3.1.0",
     "testcontainers": "^10.3.2",
     "typedoc": "^0.25.4",
-    "typescript": "^5.3.2"
+    "typescript": "^5.3.2",
+    "vite": "^5.0.4",
+    "vite-plugin-dts": "^3.6.4"
   },
   "dependencies": {
     "events": "^3.3.0",

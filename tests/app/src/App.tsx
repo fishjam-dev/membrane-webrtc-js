@@ -1,6 +1,7 @@
 import { SerializedMediaEvent, TrackContext, TrackEncoding, WebRTCEndpoint } from "@jellyfish-dev/membrane-webrtc-js";
 import { PeerMessage } from "./protos/jellyfish/peer_notifications";
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import { MockComponent } from "./MockComponent.tsx";
 
 class RemoteTracksStore {
   cache: Record<string, Record<string, TrackContext>> = {};
@@ -41,6 +42,8 @@ function connect(token: string) {
   websocket.addEventListener("open", socketOpenHandler);
 
   webrtc.on("sendMediaEvent", (mediaEvent: SerializedMediaEvent) => {
+    console.log("%cSend:", "color:blue");
+    console.log({ event: JSON.parse(mediaEvent) });
     const message = PeerMessage.encode({ mediaEvent: { data: mediaEvent } }).finish();
     websocket.send(message);
   });
@@ -49,6 +52,14 @@ function connect(token: string) {
     const uint8Array = new Uint8Array(event.data);
     try {
       const data = PeerMessage.decode(uint8Array);
+      console.log("%cReceived:", "color:green");
+      if (data?.mediaEvent) {
+        // @ts-ignore
+        const mediaEvent = JSON.parse(data?.mediaEvent?.data);
+        console.log({ mediaEvent });
+      } else {
+        console.log({ data });
+      }
       if (data.authenticated !== undefined) {
         webrtc.connect({});
       } else if (data.authRequest !== undefined) {
@@ -62,6 +73,18 @@ function connect(token: string) {
   };
 
   websocket.addEventListener("message", messageHandler);
+
+  const closeHandler = (event: any) => {
+    console.log({ name: "Close handler!", event });
+  };
+
+  websocket.addEventListener("close", closeHandler);
+
+  const errorHandler = (event: any) => {
+    console.log({ name: "Error handler!", event });
+  };
+
+  websocket.addEventListener("error", errorHandler);
 }
 
 async function addScreenshareTrack(): Promise<string> {
@@ -76,7 +99,37 @@ async function addScreenshareTrack(): Promise<string> {
 }
 
 export function App() {
-  const [tokenInput, setTokenInput] = useState("");
+  const [tokenInput, setTokenInput] = useState(localStorage.getItem("token") ?? "");
+  useEffect(() => {
+    localStorage.setItem("token", tokenInput);
+  }, [tokenInput]);
+
+  const [status, setStatus] = useState("");
+
+  useEffect(() => {
+    // this code doesn't work, why?
+    console.log("Start");
+    const onConnected = () => {
+      console.log("OK!");
+      setStatus("connected!");
+    };
+
+    const onDisconnected = () => {
+      console.log("Bad!");
+
+      setStatus("");
+    };
+
+    webrtc.on("connected", () => onConnected);
+    webrtc.on("disconnected", () => onDisconnected);
+
+    return () => {
+      console.log("Stop");
+
+      webrtc.removeListener("connected", onConnected);
+      webrtc.removeListener("connected", onDisconnected);
+    };
+  }, []);
 
   const handleConnect = () => connect(tokenInput);
   const handleStartScreenshare = () => addScreenshareTrack();
@@ -96,7 +149,9 @@ export function App() {
         <input value={tokenInput} onChange={(e) => setTokenInput(e.target.value)} placeholder="token" />
         <button onClick={handleConnect}>Connect</button>
         <button onClick={handleStartScreenshare}>Start screenshare</button>
+        <span>{status}</span>
       </div>
+      <MockComponent webrtc={webrtc} />
       <div>
         {Object.values(remoteTracks).map((trackContext) => (
           <div key={trackContext.trackId}>

@@ -289,6 +289,15 @@ export interface WebRTCEndpointEvents {
   bandwidthEstimationChanged: (estimation: bigint) => void;
 }
 
+type TrackInQueue = {
+  track: MediaStreamTrack;
+  stream: MediaStream;
+  trackMetadata: any;
+  simulcastConfig: SimulcastConfig;
+  maxBandwidth: TrackBandwidthLimit; // unlimited bandwidth
+  trackId: string;
+};
+
 /**
  * Main class that is responsible for connecting to the RTC Engine, sending and receiving media.
  */
@@ -314,6 +323,8 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     iceServers: [],
     iceTransportPolicy: "relay",
   };
+
+  private processing: boolean = false;
 
   constructor() {
     super();
@@ -585,6 +596,35 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     }
   };
 
+  private tracksQueue: TrackInQueue[] = [];
+
+  private makeChecks(
+    trackId: string,
+    track: MediaStreamTrack,
+    stream: MediaStream,
+    trackMetadata: any = new Map(),
+    simulcastConfig: SimulcastConfig = { enabled: false, activeEncodings: [] },
+    maxBandwidth: TrackBandwidthLimit = 0, // unlimited bandwidth
+  ) {
+    console.log("Checks!");
+    const senders = this.connection?.getSenders();
+    console.log({ senders });
+    const isUsedTrack = senders?.some((val) => val?.track?.id === track.id);
+    const trackkkk = senders?.find((val) => val?.track?.id === track.id);
+
+    if (isUsedTrack) {
+      console.log("%cStart", "color:green");
+      console.log({ track, stream, trackMetadata, simulcastConfig, maxBandwidth, trackId, senders, trackkkk });
+      console.log("%cEnd", "color:yellow");
+      throw "This track was already added to peerConnection, it can't be added again!";
+    }
+
+    if (!simulcastConfig.enabled && !(typeof maxBandwidth === "number"))
+      throw "Invalid type of `maxBandwidth` argument for a non-simulcast track, expected: number";
+
+    if (this.getEndpointId() === "") throw "Cannot add tracks before being accepted by the server";
+  }
+
   /**
    * Adds track that will be sent to the RTC Engine.
    * @param track - Audio or video track e.g. from your microphone or camera.
@@ -636,16 +676,87 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     simulcastConfig: SimulcastConfig = { enabled: false, activeEncodings: [] },
     maxBandwidth: TrackBandwidthLimit = 0, // unlimited bandwidth
   ): string {
-    const isUsedTrack = this.connection?.getSenders().some((val) => val.track === track);
+    console.log({track,
+      stream,
+      trackMetadata,
+      simulcastConfig,
+      maxBandwidth,
+      name: "Add track outer!"
+    })
 
-    if (isUsedTrack) {
-      throw "This track was already added to peerConnection, it can't be added again!";
-    }
+    // flow gdy ja dodaję track
+    //
+    // ja: "renegotiateTracks"
+    // server: "offerData"
+    // ja: "sdpOffer" - moje tracki wysyłam
+    // server: "spdAnswer"
+    // server: candidate
+    // ja: candidate
 
-    if (!simulcastConfig.enabled && !(typeof maxBandwidth === "number"))
-      throw "Invalid type of `maxBandwidth` argument for a non-simulcast track, expected: number";
-    if (this.getEndpointId() === "") throw "Cannot add tracks before being accepted by the server";
+    // flow gdy server dodaje track
+    //
+    // server: tracksAdded
+    // server: offerData
+    // ja: sdpOffer
+    // server: sdpAnswer
+    // server: candidate
+    // ja: candidate
+
     const trackId = this.getTrackId(uuidv4());
+
+    if (this.processing) {
+      console.log({track,
+        stream,
+        trackMetadata,
+        simulcastConfig,
+        maxBandwidth,
+        trackId,
+        name: "Pushing track to queue"
+      })
+      this.tracksQueue.push({
+        track,
+        stream,
+        trackMetadata,
+        simulcastConfig,
+        maxBandwidth,
+        trackId,
+      });
+    } else {
+      this.processing = true;
+      console.log({track,
+        stream,
+        trackMetadata,
+        simulcastConfig,
+        maxBandwidth,
+        trackId,
+        name: "Staring process"
+      })
+      this.addTrackInner(trackId, track, stream, trackMetadata, simulcastConfig, maxBandwidth);
+    }
+    return trackId;
+  }
+
+  private addTrackInner(
+    trackId: string,
+    track: MediaStreamTrack,
+    stream: MediaStream,
+    trackMetadata: any = new Map(),
+    simulcastConfig: SimulcastConfig = { enabled: false, activeEncodings: [] },
+    maxBandwidth: TrackBandwidthLimit = 0, // unlimited bandwidth
+  ): string {
+    console.log({name: "Inner track started"})
+    this.makeChecks(trackId, track, stream, trackMetadata, simulcastConfig, maxBandwidth);
+
+    this.processing = true;
+
+    // przygotuj dane tracka które chcesz dodać
+    // sprawdź czy proces trwa
+    // jeśli tak, to wrzuć je na kolejnkę
+    // jeśli nie to rozpocznij proces
+
+    // po zakonczonym procesie sprawdz, czy coś jest na kolejce?
+    // jeśli tak to weź to z kolejki
+    // jeśli nie to zakończ proces
     this.localTracksWithStreams.push({ track, stream });
 
     const trackContext = new TrackContextImpl(this.localEndpoint, trackId, trackMetadata, simulcastConfig);
@@ -670,6 +781,23 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     }
 
     const mediaEvent = generateCustomEvent({ type: "renegotiateTracks" });
+    // flow gdy ja dodaję track
+    //
+    // ja: "renegotiateTracks"
+    // server: "offerData"
+    // ja: "sdpOffer" - moje tracki wysyłam
+    // server: "spdAnswer"
+    // server: candidate
+    // ja: candidate
+
+    // flow gdy server dodaje track
+    //
+    // server: tracksAdded
+    // server: offerData
+    // ja: sdpOffer
+    // server: sdpAnswer
+    // server: candidate
+    // ja: candidate
     this.sendMediaEvent(mediaEvent);
     return trackId;
   }
@@ -1342,6 +1470,15 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
           },
         });
         this.sendMediaEvent(mediaEvent);
+        this.processing = false;
+        if (this.tracksQueue.length > 0) {
+          console.log("Queue length > 0");
+          // take first element
+          const [first, ...rest] = this.tracksQueue;
+          this.tracksQueue = rest;
+          const { trackId, track, stream, trackMetadata, simulcastConfig, maxBandwidth } = first;
+          this.addTrackInner(trackId, track, stream, trackMetadata, simulcastConfig, maxBandwidth);
+        }
       }
     };
   };

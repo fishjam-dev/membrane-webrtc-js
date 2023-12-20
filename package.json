@@ -51,12 +51,12 @@
     "testcontainers": "^10.3.2",
     "typedoc": "^0.25.4",
     "typescript": "^5.3.3",
+    "uuid": "^9.0.1",
     "vite": "^5.0.7",
     "vite-plugin-dts": "^3.6.4"
   },
   "dependencies": {
     "events": "^3.3.0",
-    "typed-emitter": "^2.1.0",
-    "uuid": "^9.0.1"
+    "typed-emitter": "^2.1.0"
   }
 }

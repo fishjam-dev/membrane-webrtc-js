@@ -94,7 +94,9 @@ export function App() {
   useEffect(() => {
     const callback = () => setConnected(true);
     webrtc.on("connected", callback);
-    return () => { webrtc.removeListener("connected", callback) };
+    return () => {
+      webrtc.removeListener("connected", callback);
+    };
   }, []);
 
   return (
@@ -104,10 +106,8 @@ export function App() {
         <button onClick={handleConnect}>Connect</button>
         <button onClick={handleStartScreenshare}>Start screenshare</button>
       </div>
-      <div id="connection-status">
-        {connnected ? "true" : "false"}
-      </div>
-      <div style={{width: "100%"}}>
+      <div id="connection-status">{connnected ? "true" : "false"}</div>
+      <div style={{ width: "100%" }}>
         {Object.values(remoteTracks).map(({ stream, trackId, endpoint }) => (
           <div key={trackId}>
             <video
@@ -118,7 +118,7 @@ export function App() {
               style={{
                 aspectRatio: "16 / 9",
                 maxHeight: "300px",
-                width: "auto"
+                width: "auto",
               }}
               autoPlay
               muted

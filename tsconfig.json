@@ -17,6 +17,6 @@
     "noEmit": true,
     "lib": ["DOM", "DOM.Iterable", "ES2019"]
   },
-  "include": ["./src/**/*", "./tests/**/*"],
-  "exclude": ["tests/app/**/*"]
+  "include": ["./src/**/*", "./e2e/**/*"],
+  "exclude": ["e2e/app/**/*"]
 }

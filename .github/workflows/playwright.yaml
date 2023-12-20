@@ -19,7 +19,7 @@ jobs:
         run: npm run build
       - name: Install test app dependencies
         run: npm ci
-        working-directory: tests/app
+        working-directory: e2e/app
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Run Playwright tests

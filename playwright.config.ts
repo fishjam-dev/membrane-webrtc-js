@@ -18,7 +18,7 @@ export default defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? undefined : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: "html",
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -40,7 +40,11 @@ export default defineConfig({
       name: "chromium",
       use: {
         ...devices["Desktop Chrome"],
-        launchOptions: { args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"] },
+        launchOptions: {
+          args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"],
+          // default Google Chrome path on MacOS
+          // executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+        },
       },
     },
 
@@ -83,6 +87,6 @@ export default defineConfig({
     cwd: "tests/app",
   },
 
-  globalSetup: "./tests/setupJellyfish",
-  globalTeardown: "./tests/teardownJellyfish",
+  globalSetup: "./tests/setup/setupJellyfish",
+  globalTeardown: "./tests/setup/teardownJellyfish",
 });

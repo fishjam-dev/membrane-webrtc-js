@@ -1,6 +1,6 @@
 import { SerializedMediaEvent, TrackContext, TrackEncoding, WebRTCEndpoint } from "@jellyfish-dev/membrane-webrtc-js";
 import { PeerMessage } from "./protos/jellyfish/peer_notifications";
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
 class RemoteTracksStore {
   cache: Record<string, Record<string, TrackContext>> = {};
@@ -90,6 +90,15 @@ export function App() {
     webrtc.setTargetTrackEncoding(trackId, encoding);
   };
 
+  const [connnected, setConnected] = useState(false);
+  useEffect(() => {
+    const callback = () => setConnected(true);
+    webrtc.on("connected", callback);
+    return () => {
+      webrtc.removeListener("connected", callback);
+    };
+  }, []);
+
   return (
     <>
       <div>
@@ -97,19 +106,26 @@ export function App() {
         <button onClick={handleConnect}>Connect</button>
         <button onClick={handleStartScreenshare}>Start screenshare</button>
       </div>
-      <div>
-        {Object.values(remoteTracks).map((trackContext) => (
-          <div key={trackContext.trackId}>
+      <div id="connection-status">{connnected ? "true" : "false"}</div>
+      <div style={{ width: "100%" }}>
+        {Object.values(remoteTracks).map(({ stream, trackId, endpoint }) => (
+          <div key={trackId}>
             <video
               ref={(video) => {
-                video!.srcObject = trackContext.stream;
+                video!.srcObject = stream;
+              }}
+              data-peer-id={endpoint.id}
+              style={{
+                aspectRatio: "16 / 9",
+                maxHeight: "300px",
+                width: "auto",
               }}
               autoPlay
               muted
             />
-            <button onClick={() => setEncoding(trackContext.trackId, "l")}>l</button>
-            <button onClick={() => setEncoding(trackContext.trackId, "m")}>m</button>
-            <button onClick={() => setEncoding(trackContext.trackId, "h")}>h</button>
+            <button onClick={() => setEncoding(trackId, "l")}>l</button>
+            <button onClick={() => setEncoding(trackId, "m")}>m</button>
+            <button onClick={() => setEncoding(trackId, "h")}>h</button>
           </div>
         ))}
       </div>

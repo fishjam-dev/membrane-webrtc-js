@@ -1,8 +1,9 @@
 import { WebRTCEndpoint } from "../../src";
 import { createCustomVadNotificationEvent, endpointId, trackId } from "../fixtures";
 import { setupRoom } from "../utils";
+import { expect, it } from "vitest";
 
-test(`Changing VAD notification to "speech" on existing track id`, () => {
+it(`Changing VAD notification to "speech" on existing track id`, () => {
   // Given
   const webRTCEndpoint = new WebRTCEndpoint();
 
@@ -17,7 +18,7 @@ test(`Changing VAD notification to "speech" on existing track id`, () => {
   expect(track.vadStatus).toBe(vadNotificationEvent.data.data.status);
 });
 
-test(`Changing VAD notification to "silence" on existing track id`, () => {
+it(`Changing VAD notification to "silence" on existing track id`, () => {
   // Given
   const webRTCEndpoint = new WebRTCEndpoint();
 
@@ -32,18 +33,19 @@ test(`Changing VAD notification to "silence" on existing track id`, () => {
   expect(track.vadStatus).toBe(vadNotificationEvent.data.data.status);
 });
 
-test(`Changing VAD notification emits event`, (done) => {
-  // Given
-  const webRTCEndpoint = new WebRTCEndpoint();
+it(`Changing VAD notification emits event`, () =>
+  new Promise((done) => {
+    // Given
+    const webRTCEndpoint = new WebRTCEndpoint();
 
-  setupRoom(webRTCEndpoint, endpointId, trackId);
+    setupRoom(webRTCEndpoint, endpointId, trackId);
 
-  webRTCEndpoint.getRemoteTracks()[trackId].on("voiceActivityChanged", (context) => {
-    expect(context.vadStatus).toBe(vadNotificationEvent.data.data.status);
-    done();
-  });
+    webRTCEndpoint.getRemoteTracks()[trackId].on("voiceActivityChanged", (context) => {
+      expect(context.vadStatus).toBe(vadNotificationEvent.data.data.status);
+      done("");
+    });
 
-  // When
-  const vadNotificationEvent = createCustomVadNotificationEvent(trackId, "silence");
-  webRTCEndpoint.receiveMediaEvent(JSON.stringify(vadNotificationEvent));
-});
+    // When
+    const vadNotificationEvent = createCustomVadNotificationEvent(trackId, "silence");
+    webRTCEndpoint.receiveMediaEvent(JSON.stringify(vadNotificationEvent));
+  }));

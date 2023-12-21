@@ -1,12 +1,14 @@
 import { undefined } from "zod";
+import { expect, vi, it, Mock } from "vitest";
+
 
 export const mockRTCPeerConnection = (): {
-  addTransceiverCallback: jest.Mock<null, any[], any>;
+  addTransceiverCallback: any;
   runOnTrack: (ev: RTCTrackEvent) => void;
 } => {
-  const addTransceiverCallback: jest.Mock<null, any[], any> = jest.fn((_trackOrKind, _init) => null);
+  const addTransceiverCallback  = vi.fn((_trackOrKind, _init) => null);
 
-  (global as any).RTCPeerConnection = jest.fn().mockImplementation(() => {
+  (global as any).RTCPeerConnection = vi.fn().mockImplementation(() => {
     const transceivers: RTCRtpTransceiver[] = [];
     const senders: RTCRtpSender[] = [];
 
@@ -61,7 +63,7 @@ export const mockRTCPeerConnection = (): {
     return newVar;
   });
 
-  (global as any).RTCRtpTransceiver = jest.fn().mockImplementation(() => {
+  (global as any).RTCRtpTransceiver = vi.fn().mockImplementation(() => {
     const newVar: RTCRtpTransceiver = {
       currentDirection: null,
       direction: "stopped",

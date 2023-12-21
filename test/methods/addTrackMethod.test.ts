@@ -2,31 +2,33 @@ import { WebRTCEndpoint } from "../../src";
 import { createConnectedEventWithOneEndpoint, stream, mockTrack } from "../fixtures";
 import { mockRTCPeerConnection } from "../mocks";
 import { deserializeMediaEvent } from "../../src/mediaEvent";
+import { expect, it } from "vitest";
 
-test("Adding track invokes renegotiation", (done) => {
-  // Given
-  const webRTCEndpoint = new WebRTCEndpoint();
+it("Adding track invokes renegotiation", () =>
+  new Promise((done) => {
+    // Given
+    const webRTCEndpoint = new WebRTCEndpoint();
 
-  webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEventWithOneEndpoint()));
+    webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEventWithOneEndpoint()));
 
-  webRTCEndpoint.on("sendMediaEvent", (mediaEvent) => {
-    // Then
-    expect(mediaEvent).toContain("renegotiateTracks");
-    const event = deserializeMediaEvent(mediaEvent);
-    expect(event.type).toBe("custom");
-    expect(event.data.type).toBe("renegotiateTracks");
-    done();
+    webRTCEndpoint.on("sendMediaEvent", (mediaEvent) => {
+      // Then
+      expect(mediaEvent).toContain("renegotiateTracks");
+      const event = deserializeMediaEvent(mediaEvent);
+      expect(event.type).toBe("custom");
+      expect(event.data.type).toBe("renegotiateTracks");
+      done("");
 
-    // now it's time to create offer and answer
-    // webRTCEndpoint.receiveMediaEvent(JSON.stringify(createOfferData()))
-    // webRTCEndpoint.receiveMediaEvent(JSON.stringify(createAnswerData("9bf0cc85-c795-43b2-baf1-2c974cd770b9:1b6d99d1-3630-4e01-b386-15cbbfe5a41f")))
-  });
+      // now it's time to create offer and answer
+      // webRTCEndpoint.receiveMediaEvent(JSON.stringify(createOfferData()))
+      // webRTCEndpoint.receiveMediaEvent(JSON.stringify(createAnswerData("9bf0cc85-c795-43b2-baf1-2c974cd770b9:1b6d99d1-3630-4e01-b386-15cbbfe5a41f")))
+    });
 
-  // When
-  webRTCEndpoint.addTrack(mockTrack, stream);
-});
+    // When
+    webRTCEndpoint.addTrack(mockTrack, stream);
+  }));
 
-test("Adding track updates internal state", () => {
+it("Adding track updates internal state", () => {
   // Given
   mockRTCPeerConnection();
   const webRTCEndpoint = new WebRTCEndpoint();
@@ -44,7 +46,7 @@ test("Adding track updates internal state", () => {
   expect(localEndpoint.tracks.size).toBe(1);
 });
 
-test("Adding track before being accepted by the server throws error", () => {
+it("Adding track before being accepted by the server throws error", () => {
   // Given
   mockRTCPeerConnection();
   const webRTCEndpoint = new WebRTCEndpoint();
@@ -55,7 +57,7 @@ test("Adding track before being accepted by the server throws error", () => {
   }).toThrow("Cannot add tracks before being accepted by the server");
 });
 
-test("Adding track updates internal state", () => {
+it("Adding track updates internal state", () => {
   // Given
   mockRTCPeerConnection();
   const webRTCEndpoint = new WebRTCEndpoint();
@@ -71,7 +73,7 @@ test("Adding track updates internal state", () => {
   expect(trackContext?.track).toBe(mockTrack);
 });
 
-test("Adding track sets default simulcast value in internal state", () => {
+it("Adding track sets default simulcast value in internal state", () => {
   // Given
   mockRTCPeerConnection();
   const webRTCEndpoint = new WebRTCEndpoint();
@@ -87,7 +89,7 @@ test("Adding track sets default simulcast value in internal state", () => {
   expect(trackContext?.simulcastConfig).toMatchObject(defaultSimulcastValue);
 });
 
-test("Adding track sets default encoding value in internal state", () => {
+it("Adding track sets default encoding value in internal state", () => {
   // Given
   mockRTCPeerConnection();
   const webRTCEndpoint = new WebRTCEndpoint();
@@ -102,7 +104,7 @@ test("Adding track sets default encoding value in internal state", () => {
   expect(trackContext?.encoding).toBe(undefined);
 });
 
-test("Adding track updates internal metadata state", () => {
+it("Adding track updates internal metadata state", () => {
   // Given
   mockRTCPeerConnection();
   const webRTCEndpoint = new WebRTCEndpoint();

@@ -1,34 +1,31 @@
 import { WebRTCEndpoint } from "../../src";
-import {
-  createTrackUpdatedEvent,
-  endpointId,
-  notExistingEndpointId,
-  trackId,
-} from "../fixtures";
+import { createTrackUpdatedEvent, endpointId, notExistingEndpointId, trackId } from "../fixtures";
 import { setupRoom } from "../utils";
+import { expect, it } from "vitest";
 
-test(`Updating existing track emits events`, (done) => {
-  // Given
-  const webRTCEndpoint = new WebRTCEndpoint();
+it(`Updating existing track emits events`, () =>
+  new Promise((done) => {
+    // Given
+    const webRTCEndpoint = new WebRTCEndpoint();
 
-  setupRoom(webRTCEndpoint, endpointId, trackId);
+    setupRoom(webRTCEndpoint, endpointId, trackId);
 
-  webRTCEndpoint.on("trackUpdated", (context) => {
-    // Then
-    expect(context.metadata).toMatchObject(metadata);
-    done();
-  });
+    webRTCEndpoint.on("trackUpdated", (context) => {
+      // Then
+      expect(context.metadata).toMatchObject(metadata);
+      done("");
+    });
 
-  const metadata = {
-    name: "New name",
-  };
+    const metadata = {
+      name: "New name",
+    };
 
-  // When
-  const trackUpdated = createTrackUpdatedEvent(trackId, endpointId, metadata);
-  webRTCEndpoint.receiveMediaEvent(JSON.stringify(trackUpdated));
-});
+    // When
+    const trackUpdated = createTrackUpdatedEvent(trackId, endpointId, metadata);
+    webRTCEndpoint.receiveMediaEvent(JSON.stringify(trackUpdated));
+  }));
 
-test(`Updating existing track changes track metadata`, () => {
+it(`Updating existing track changes track metadata`, () => {
   // Given
   const webRTCEndpoint = new WebRTCEndpoint();
 
@@ -47,7 +44,7 @@ test(`Updating existing track changes track metadata`, () => {
   expect(track.metadata).toMatchObject(metadata);
 });
 
-test(`Webrtc endpoint skips updating local endpoint metadata`, () => {
+it(`Webrtc endpoint skips updating local endpoint metadata`, () => {
   // Given
   const webRTCEndpoint = new WebRTCEndpoint();
 
@@ -71,7 +68,7 @@ test(`Webrtc endpoint skips updating local endpoint metadata`, () => {
   expect(track.metadata).toMatchObject({});
 });
 
-test(`Updating track with invalid endpoint id throws error`, () => {
+it(`Updating track with invalid endpoint id throws error`, () => {
   // Given
   const webRTCEndpoint = new WebRTCEndpoint();
 

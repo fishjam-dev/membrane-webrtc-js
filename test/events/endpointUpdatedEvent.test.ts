@@ -7,8 +7,9 @@ import {
   endpointId,
   notExistingEndpointId,
 } from "../fixtures";
+import { expect, vi, it } from "vitest";
 
-test("Update existing endpoint metadata", () => {
+it("Update existing endpoint metadata", () => {
   // Given
   mockRTCPeerConnection();
   const webRTCEndpoint = new WebRTCEndpoint();
@@ -28,29 +29,30 @@ test("Update existing endpoint metadata", () => {
   expect(endpoint.metadata).toMatchObject(metadata);
 });
 
-test("Update existing endpoint produce event", (done) => {
-  // Given
-  mockRTCPeerConnection();
-  const webRTCEndpoint = new WebRTCEndpoint();
+it("Update existing endpoint produce event", () =>
+  new Promise((done) => {
+    // Given
+    mockRTCPeerConnection();
+    const webRTCEndpoint = new WebRTCEndpoint();
 
-  const connectedMediaEvent = createConnectedEventWithOneEndpoint(endpointId);
-  webRTCEndpoint.receiveMediaEvent(JSON.stringify(connectedMediaEvent));
+    const connectedMediaEvent = createConnectedEventWithOneEndpoint(endpointId);
+    webRTCEndpoint.receiveMediaEvent(JSON.stringify(connectedMediaEvent));
 
-  const metadata = {
-    newField: "new field value",
-  };
+    const metadata = {
+      newField: "new field value",
+    };
 
-  webRTCEndpoint.on("endpointUpdated", (endpoint) => {
-    // Then
-    expect(endpoint.metadata).toMatchObject(metadata);
-    done();
-  });
+    webRTCEndpoint.on("endpointUpdated", (endpoint) => {
+      // Then
+      expect(endpoint.metadata).toMatchObject(metadata);
+      done("");
+    });
 
-  // When
-  webRTCEndpoint.receiveMediaEvent(JSON.stringify(createEndpointUpdated(endpointId, metadata)));
-});
+    // When
+    webRTCEndpoint.receiveMediaEvent(JSON.stringify(createEndpointUpdated(endpointId, metadata)));
+  }));
 
-test("Update existing endpoint with undefined metadata", () => {
+it("Update existing endpoint with undefined metadata", () => {
   // Given
   mockRTCPeerConnection();
   const webRTCEndpoint = new WebRTCEndpoint();
@@ -67,7 +69,7 @@ test("Update existing endpoint with undefined metadata", () => {
   expect(endpoint.metadata).toBe(undefined);
 });
 
-test("Update endpoint that not exist", () => {
+it("Update endpoint that not exist", () => {
   // Givenk
   mockRTCPeerConnection();
   const webRTCEndpoint = new WebRTCEndpoint();

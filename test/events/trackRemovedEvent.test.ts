@@ -1,25 +1,27 @@
 import { WebRTCEndpoint } from "../../src";
 import { createTracksRemovedEvent, endpointId, trackId } from "../fixtures";
 import { setupRoomWithMocks } from "../utils";
+import { expect, it } from "vitest";
 
-test("Remove tracks event should emit event", (done) => {
-  // Given
-  const webRTCEndpoint = new WebRTCEndpoint();
+it("Remove tracks event should emit event", () =>
+  new Promise((done) => {
+    // Given
+    const webRTCEndpoint = new WebRTCEndpoint();
 
-  setupRoomWithMocks(webRTCEndpoint, endpointId, trackId);
+    setupRoomWithMocks(webRTCEndpoint, endpointId, trackId);
 
-  webRTCEndpoint.on("trackRemoved", (trackContext) => {
-    // Then
-    expect(trackContext.trackId).toBe(trackId);
-    done();
-  });
+    webRTCEndpoint.on("trackRemoved", (trackContext) => {
+      // Then
+      expect(trackContext.trackId).toBe(trackId);
+      done("");
+    });
 
-  // When
-  const addEndpointEvent = createTracksRemovedEvent(endpointId, [trackId]);
-  webRTCEndpoint.receiveMediaEvent(JSON.stringify(addEndpointEvent));
-});
+    // When
+    const addEndpointEvent = createTracksRemovedEvent(endpointId, [trackId]);
+    webRTCEndpoint.receiveMediaEvent(JSON.stringify(addEndpointEvent));
+  }));
 
-test("Remove tracks event should remove from local state", () => {
+it("Remove tracks event should remove from local state", () => {
   // Given
   const webRTCEndpoint = new WebRTCEndpoint();
 

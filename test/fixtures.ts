@@ -29,6 +29,8 @@ import {
 } from "./schema";
 import { FakeMediaStreamTrack } from "fake-mediastreamtrack";
 import { TrackEncoding, VadStatus } from "../src";
+import { vi } from 'vitest'
+
 
 export const endpointId = "exampleEndpointId";
 export const notExistingEndpointId = "notExistingEndpointId";
@@ -37,7 +39,7 @@ export const trackId = "exampleTrackId";
 export const notExistingTrackId = "notExistingTrackId";
 
 export const mockTrack = new FakeMediaStreamTrack({ kind: "video" });
-const MediaStreamMock = jest.fn().mockImplementation(() => {});
+const MediaStreamMock = vi.fn().mockImplementation(() => {});
 export const stream = new MediaStreamMock();
 
 export const createSimulcastTrack = (): Track => ({

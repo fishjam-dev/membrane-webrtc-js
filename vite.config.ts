@@ -24,6 +24,9 @@ export default defineConfig({
   },
   test: {
     exclude: [...configDefaults.exclude, "e2e"],
+    coverage: {
+      include: ["src"],
+    },
   },
   plugins: [dts({ include: "./src/*", rollupTypes: true })],
 });

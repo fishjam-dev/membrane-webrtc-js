@@ -1,0 +1,3 @@
+[submodule "e2e/app/protos"]
+	path = e2e/app/protos
+	url = https://github.com/jellyfish-dev/protos

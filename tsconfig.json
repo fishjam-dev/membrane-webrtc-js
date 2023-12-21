@@ -5,17 +5,18 @@
     "declarationMap": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+    "jsx": "react-jsx",
     "module": "ESNext",
-    "moduleResolution": "node",
+    "moduleResolution": "Bundler",
     "outDir": "dist/",
+    "skipLibCheck": true,
     "strict": true,
-    "target": "ESNext",
-    "lib": [
-      "es2020",
-      "dom"
-    ]
+    "useDefineForClassFields": true,
+    "target": "es2018",
+    "isolatedModules": true,
+    "noEmit": true,
+    "lib": ["DOM", "DOM.Iterable", "ES2019"]
   },
-  "include": [
-    "src/**/*", "test/**/*"
-  ]
+  "include": ["./src/**/*", "./e2e/**/*"],
+  "exclude": ["e2e/app/**/*"]
 }

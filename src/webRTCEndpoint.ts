@@ -7,9 +7,9 @@ import {
   serializeMediaEvent,
 } from "./mediaEvent";
 import { v4 as uuidv4 } from "uuid";
+import EventEmitter from "events";
 import TypedEmitter from "typed-emitter";
-import { EventEmitter } from "events";
-import { defaultBitrates, defaultSimulcastBitrates, simulcastTransceiverConfig } from "./const";
+import { simulcastTransceiverConfig, defaultBitrates, defaultSimulcastBitrates } from "./const";
 
 /**
  * Interface describing Endpoint.
@@ -361,7 +361,6 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
         this.emit("connected", deserializedMediaEvent.data.id, deserializedMediaEvent.data.otherEndpoints);
 
         const endpoints: any[] = deserializedMediaEvent.data.otherEndpoints;
-
         const otherEndpoints: Endpoint[] = endpoints.map((endpoint) => {
           endpoint.tracks = this.mapMediaEventTracksToTrackContextImpl(Array.from(endpoint.tracks), endpoint);
 
@@ -1041,6 +1040,11 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
    * ```
    */
   public setTargetTrackEncoding(trackId: string, encoding: TrackEncoding) {
+    const trackContext = this.trackIdToTrack.get(trackId);
+    if (!trackContext?.simulcastConfig?.enabled || !trackContext.simulcastConfig.activeEncodings.includes(encoding)) {
+      console.warn("The track does not support changing its target encoding");
+      return;
+    }
     const mediaEvent = generateCustomEvent({
       type: "setTargetTrackVariant",
       data: {
@@ -1237,7 +1241,6 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     if (!this.connection) return;
     try {
       const offer = await this.connection.createOffer();
-      // const offer = await this.connection.createOffer();
       await this.connection.setLocalDescription(offer);
 
       const mediaEvent = generateCustomEvent({

@@ -6,7 +6,7 @@ import {
   createEndpointAdded,
   endpointId,
 } from "../fixtures";
-import { expect, vi, it } from "vitest";
+import { expect, it } from "vitest";
 
 it("Add endpoint to empty state", () => {
   // Given
@@ -38,22 +38,23 @@ it("Add another endpoint", () => {
   expect(Object.values(endpoints).length).toBe(2);
 });
 
-it("Add endpoint produces event", () => new Promise(done => {
-  // Given
-  mockRTCPeerConnection();
-  const webRTCEndpoint = new WebRTCEndpoint();
+it("Add endpoint produces event", () =>
+  new Promise((done) => {
+    // Given
+    mockRTCPeerConnection();
+    const webRTCEndpoint = new WebRTCEndpoint();
 
-  webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEventWithOneEndpoint()));
+    webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEventWithOneEndpoint()));
 
-  const addEndpointEvent = createEndpointAdded(endpointId);
+    const addEndpointEvent = createEndpointAdded(endpointId);
 
-  webRTCEndpoint.on("endpointAdded", (endpoint) => {
-    // Then
-    expect(endpoint.id).toBe(addEndpointEvent.data.id);
-    expect(endpoint.metadata).toBe(addEndpointEvent.data.metadata);
-    done("");
-  });
+    webRTCEndpoint.on("endpointAdded", (endpoint) => {
+      // Then
+      expect(endpoint.id).toBe(addEndpointEvent.data.id);
+      expect(endpoint.metadata).toBe(addEndpointEvent.data.metadata);
+      done("");
+    });
 
-  // When
-  webRTCEndpoint.receiveMediaEvent(JSON.stringify(addEndpointEvent));
-}));
+    // When
+    webRTCEndpoint.receiveMediaEvent(JSON.stringify(addEndpointEvent));
+  }));

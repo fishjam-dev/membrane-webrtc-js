@@ -1,12 +1,11 @@
 import { undefined } from "zod";
-import { expect, vi, it, Mock } from "vitest";
-
+import { vi } from "vitest";
 
 export const mockRTCPeerConnection = (): {
   addTransceiverCallback: any;
   runOnTrack: (ev: RTCTrackEvent) => void;
 } => {
-  const addTransceiverCallback  = vi.fn((_trackOrKind, _init) => null);
+  const addTransceiverCallback = vi.fn((_trackOrKind, _init) => null);
 
   (global as any).RTCPeerConnection = vi.fn().mockImplementation(() => {
     const transceivers: RTCRtpTransceiver[] = [];
@@ -47,10 +46,10 @@ export const mockRTCPeerConnection = (): {
         return transceiver;
       },
       // @ts-ignore
-      createOffer: (options?: RTCOfferOptions): Promise<RTCSessionDescriptionInit> => {
+      createOffer: (_options?: RTCOfferOptions): Promise<RTCSessionDescriptionInit> => {
         // const sleep = async (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-        return new Promise<RTCSessionDescriptionInit>((resolve, reject) => {
+        return new Promise<RTCSessionDescriptionInit>((resolve, _reject) => {
           resolve({ sdp: "", type: "offer" });
         });
       },
@@ -72,7 +71,7 @@ export const mockRTCPeerConnection = (): {
       receiver: undefined,
       // @ts-ignore
       sender: undefined,
-      setCodecPreferences(codecs: RTCRtpCodecCapability[]): void {},
+      setCodecPreferences(_codecs: RTCRtpCodecCapability[]): void {},
       stop(): void {},
     };
 

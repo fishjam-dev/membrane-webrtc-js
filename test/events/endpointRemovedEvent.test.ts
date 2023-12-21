@@ -8,7 +8,7 @@ import {
   trackId,
 } from "../fixtures";
 import { setupRoom } from "../utils";
-import { expect, vi, it } from "vitest";
+import { expect, it } from "vitest";
 
 it("Remove the endpoint that does not exist", () => {
   // Given

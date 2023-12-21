@@ -7,7 +7,7 @@ import {
   endpointId,
   notExistingEndpointId,
 } from "../fixtures";
-import { expect, vi, it } from "vitest";
+import { expect, it } from "vitest";
 
 it("Update existing endpoint metadata", () => {
   // Given

@@ -29,8 +29,7 @@ import {
 } from "./schema";
 import { FakeMediaStreamTrack } from "fake-mediastreamtrack";
 import { TrackEncoding, VadStatus } from "../src";
-import { vi } from 'vitest'
-
+import { vi } from "vitest";
 
 export const endpointId = "exampleEndpointId";
 export const notExistingEndpointId = "notExistingEndpointId";

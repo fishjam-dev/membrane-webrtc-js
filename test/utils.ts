@@ -2,7 +2,8 @@ import {
   createAddLocalTrackAnswerData,
   createAddLocalTrackSDPOffer,
   createAddTrackMediaEvent,
-  createConnectedEventWithOneEndpointWithOneTrack, stream, trackId
+  createConnectedEventWithOneEndpointWithOneTrack,
+  stream,
 } from "./fixtures";
 import { WebRTCEndpoint } from "../src";
 import { mockRTCPeerConnection } from "./mocks";
@@ -39,13 +40,14 @@ export const setupRoom = (webRTCEndpoint: WebRTCEndpoint, endpointId: string, tr
 //
 // remove todo if-else statement from addEndpoint function
 
-const sleep = async (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-
-export const setupRoomWithMocks = async (webRTCEndpoint: WebRTCEndpoint, endpointId: string, trackId: string): Promise<void> => {
+export const setupRoomWithMocks = async (
+  webRTCEndpoint: WebRTCEndpoint,
+  endpointId: string,
+  trackId: string,
+): Promise<void> => {
   mockRTCPeerConnection();
 
-  setupRoom(webRTCEndpoint, endpointId, trackId)
+  setupRoom(webRTCEndpoint, endpointId, trackId);
 
   webRTCEndpoint.receiveMediaEvent(JSON.stringify(createAddLocalTrackSDPOffer()));
   webRTCEndpoint.receiveMediaEvent(JSON.stringify(createAddLocalTrackAnswerData(trackId)));
@@ -61,5 +63,5 @@ export const setupRoomWithMocks = async (webRTCEndpoint: WebRTCEndpoint, endpoin
   // @ts-ignore
   connection.ontrack(rtcTrackEvent);
 
-  return new Promise((resolve) => resolve())
+  return new Promise((resolve) => resolve());
 };

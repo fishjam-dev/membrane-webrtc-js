@@ -29,6 +29,8 @@
   },
   "scripts": {
     "build": "tsc && vite build",
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage",
     "e2e": "NODE_OPTIONS=--dns-result-order=ipv4first playwright test",
     "docs": "typedoc src/index.ts",
     "format:fix": "prettier --write . --ignore-path ./.eslintignore",
@@ -43,16 +45,20 @@
     "@types/uuid": "^9.0.7",
     "@typescript-eslint/eslint-plugin": "^6.13.2",
     "@typescript-eslint/parser": "^6.13.2",
+    "@vitest/coverage-v8": "^1.1.0",
     "eslint": "^8.55.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
+    "fake-mediastreamtrack": "^1.2.0",
     "prettier": "3.1.0",
     "testcontainers": "^10.3.2",
     "typedoc": "^0.25.4",
     "typescript": "^5.3.3",
     "vite": "^5.0.7",
-    "vite-plugin-dts": "^3.6.4"
+    "vite-plugin-dts": "^3.6.4",
+    "vitest": "^1.1.0",
+    "zod": "^3.22.4"
   },
   "dependencies": {
     "events": "^3.3.0",

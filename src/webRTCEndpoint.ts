@@ -1,9 +1,9 @@
 import {
+  deserializeMediaEvent,
+  generateCustomEvent,
+  generateMediaEvent,
   MediaEvent,
   SerializedMediaEvent,
-  deserializeMediaEvent,
-  generateMediaEvent,
-  generateCustomEvent,
   serializeMediaEvent,
 } from "./mediaEvent";
 import { v4 as uuidv4 } from "uuid";
@@ -293,10 +293,6 @@ export interface WebRTCEndpointEvents {
  * Main class that is responsible for connecting to the RTC Engine, sending and receiving media.
  */
 export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Required<WebRTCEndpointEvents>>) {
-  private localTracksWithStreams: {
-    track: MediaStreamTrack;
-    stream: MediaStream;
-  }[] = [];
   private trackIdToTrack: Map<string, TrackContextImpl> = new Map();
   private connection?: RTCPeerConnection;
   private idToEndpoint: Map<string, Endpoint> = new Map();
@@ -396,6 +392,18 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
    */
   public getRemoteTracks(): Record<string, TrackContext> {
     return Object.fromEntries(this.trackIdToTrack.entries());
+  }
+
+  /**
+   * Returns a snapshot of currently received remote tracks.
+   *
+   * @example
+   * if (webRTCEndpoint.getRemoteTracks()[trackId]?.simulcastConfig?.enabled) {
+   *   webRTCEndpoint.setTargetTrackEncoding(trackId, encoding);
+   * }
+   */
+  public getRemoteEndpoints(): Record<string, Endpoint> {
+    return Object.fromEntries(this.idToEndpoint.entries());
   }
 
   private handleMediaEvent = (deserializedMediaEvent: MediaEvent) => {
@@ -646,7 +654,6 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
       throw "Invalid type of `maxBandwidth` argument for a non-simulcast track, expected: number";
     if (this.getEndpointId() === "") throw "Cannot add tracks before being accepted by the server";
     const trackId = this.getTrackId(uuidv4());
-    this.localTracksWithStreams.push({ track, stream });
 
     const trackContext = new TrackContextImpl(this.localEndpoint, trackId, trackMetadata, simulcastConfig);
 
@@ -1187,7 +1194,6 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
       this.connection.oniceconnectionstatechange = null;
     }
 
-    this.localTracksWithStreams = [];
     this.connection = undefined;
   };
 

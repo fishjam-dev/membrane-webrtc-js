@@ -1,6 +1,33 @@
 import { expect, Page, test, TestInfo } from "@playwright/test";
 import { v4 as uuidv4 } from "uuid";
 
+export const addScreenShare = async (page: Page) =>
+  await test.step("Add screenshare", async () => {
+    await page.getByRole("button", { name: "Start screenshare", exact: true }).click();
+  });
+
+export const createAndJoinPeer = async (page: Page, roomId: string): Promise<string> =>
+  test.step("Create and join peer", async () => {
+    const peerRequest = await createPeer(page, roomId);
+    try {
+      const {
+        peer: { id: peerId },
+        token: peerToken,
+      } = (await peerRequest.json()).data;
+
+      await test.step("Join room", async () => {
+        await page.getByPlaceholder("token").fill(peerToken);
+        await page.getByRole("button", { name: "Connect", exact: true }).click();
+        await expect(page.locator("#connection-status")).toContainText("true");
+      });
+
+      return peerId;
+    } catch (e) {
+      // todo fix
+      throw { status: peerRequest.status(), response: await peerRequest.json() };
+    }
+  });
+
 export const joinRoomAndAddScreenShare = async (page: Page, roomId: string): Promise<string> =>
   test.step("Join room and add track", async () => {
     const peerRequest = await createPeer(page, roomId);
@@ -16,9 +43,7 @@ export const joinRoomAndAddScreenShare = async (page: Page, roomId: string): Pro
         await expect(page.locator("#connection-status")).toContainText("true");
       });
 
-      await test.step("Add screenshare", async () => {
-        await page.getByRole("button", { name: "Start screenshare", exact: true }).click();
-      });
+      await addScreenShare(page);
 
       return peerId;
     } catch (e) {

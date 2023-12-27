@@ -32,6 +32,7 @@
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
     "e2e": "NODE_OPTIONS=--dns-result-order=ipv4first playwright test",
+    "e2e:ui": "NODE_OPTIONS=--dns-result-order=ipv4first playwright test --ui",
     "docs": "typedoc src/index.ts",
     "format:fix": "prettier --write . --ignore-path ./.eslintignore",
     "format:check": "prettier --check . --ignore-path ./.eslintignore",

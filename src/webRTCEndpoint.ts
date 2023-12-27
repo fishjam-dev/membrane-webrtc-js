@@ -10,6 +10,8 @@ import { v4 as uuidv4 } from "uuid";
 import EventEmitter from "events";
 import TypedEmitter from "typed-emitter";
 import { simulcastTransceiverConfig, defaultBitrates, defaultSimulcastBitrates } from "./const";
+import { AddTrackCommand, Command, RemoveTrackCommand } from "./commands";
+import { trackId } from "../test/fixtures";
 
 /**
  * Interface describing Endpoint.
@@ -311,6 +313,9 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     iceTransportPolicy: "relay",
   };
 
+  private processing: boolean = false;
+  private commandsQueue: Command[] = [];
+
   constructor() {
     super();
   }
@@ -441,6 +446,10 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
         break;
       }
       case "tracksRemoved": {
+        // server: tracksRemoved
+        // server: offerData
+        // client: sdpOffer
+        // server: sdpAnswer
         data = deserializedMediaEvent.data;
         const endpointId = data.endpointId;
         if (this.getEndpointId() === endpointId) return;
@@ -477,6 +486,9 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
         }
 
         this.onAnswer(deserializedMediaEvent.data);
+        this.processing = false;
+        console.log({ name: "Processing stop" });
+        this.processNextCommand();
         break;
 
       case "candidate":
@@ -653,6 +665,62 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     if (!simulcastConfig.enabled && !(typeof maxBandwidth === "number"))
       throw "Invalid type of `maxBandwidth` argument for a non-simulcast track, expected: number";
     if (this.getEndpointId() === "") throw "Cannot add tracks before being accepted by the server";
+    const trackId = this.getTrackId(uuidv4());
+
+    this.pushCommand({
+      commandType: "ADD-TRACK",
+      trackId,
+      track,
+      stream,
+      trackMetadata,
+      simulcastConfig,
+      maxBandwidth,
+    });
+
+    // todo change to promise?
+    return trackId;
+  }
+
+  private pushCommand(command: Command) {
+    this.commandsQueue = [...this.commandsQueue, command];
+    this.processNextCommand();
+  }
+
+  private handleCommand(command: Command) {
+    switch (command.commandType) {
+      case "ADD-TRACK":
+        this.addTrackCommandHandler(command);
+        break;
+      case "REMOVE-TRACK":
+        this.removeTrackHandler(command);
+        break;
+    }
+  }
+
+  private processNextCommand() {
+    if (this.processing) return;
+
+    const [command, ...rest] = this.commandsQueue;
+    if (command) {
+      console.log({ name: "Processing start", command });
+      this.processing = true;
+      this.commandsQueue = rest;
+      this.handleCommand(command);
+    }
+  }
+
+  private addTrackCommandHandler(addTrackCommand: AddTrackCommand): string {
+    const { simulcastConfig, maxBandwidth, track, stream, trackMetadata } = addTrackCommand;
+    const isUsedTrack = this.connection?.getSenders().some((val) => val.track === track);
+
+    if (isUsedTrack) {
+      throw "This track was already added to peerConnection, it can't be added again!";
+    }
+
+    if (!simulcastConfig.enabled && !(typeof maxBandwidth === "number"))
+      throw "Invalid type of `maxBandwidth` argument for a non-simulcast track, expected: number";
+    if (this.getEndpointId() === "") throw "Cannot add tracks before being accepted by the server";
+
     const trackId = this.getTrackId(uuidv4());
 
     const trackContext = new TrackContextImpl(this.localEndpoint, trackId, trackMetadata, simulcastConfig);
@@ -958,6 +1026,14 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
    * ```
    */
   public removeTrack(trackId: string) {
+    this.pushCommand({
+      commandType: "REMOVE-TRACK",
+      trackId,
+    });
+  }
+
+  public removeTrackHandler(command: RemoveTrackCommand) {
+    const { trackId } = command;
     const trackContext = this.localTrackIdToTrack.get(trackId)!;
     const sender = this.findSender(trackContext.track!.id);
     this.connection!.removeTrack(sender);

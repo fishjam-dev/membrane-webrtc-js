@@ -6,11 +6,14 @@ export const addBothMockTracks = async (page: Page) =>
     await page.getByRole("button", { name: "Add both", exact: true }).click();
   });
 
-export const assertThatBothTrackAreReady = async (page: Page, otherClientId: string) => {
-  await test.step("Assert that both tracks are ready", async () => {
-    await expect(
-      async () => (await page.locator(`div[data-endpoint-id="${otherClientId}"]`).all()).length > 2,
-    ).toPass();
+export const assertThatAllTracksAreReady = async (page: Page, otherClientId: string, tracks: number) => {
+  await test.step("Assert that all tracks are ready", async () => {
+    await expect(async () => {
+      const length = (await page.locator(`div[data-endpoint-id="${otherClientId}"]`).all()).length;
+      console.log({ length });
+      expect(length).toBe(tracks)
+    }).toPass();
+    console.log({ name: "Done!" });
   });
 };
 
@@ -56,7 +59,7 @@ test("Add 2 tracks at the same time RC", async ({ page: senderPage, context }, t
   await receiverPage.goto("/");
   await createAndJoinPeer(receiverPage, roomId);
 
-  await assertThatBothTrackAreReady(receiverPage, senderId);
+  await assertThatAllTracksAreReady(receiverPage, senderId, 2);
   await assertThatBothTrackAreDifferent(receiverPage, testInfo);
 });
 
@@ -82,6 +85,41 @@ test("Add 2 tracks separately", async ({ page: senderPage, context }, testInfo) 
   await receiverPage.goto("/");
   await createAndJoinPeer(receiverPage, roomId);
 
-  await assertThatBothTrackAreReady(receiverPage, senderId);
+  await assertThatAllTracksAreReady(receiverPage, senderId, 2);
   await assertThatBothTrackAreDifferent(receiverPage, testInfo);
+});
+
+export const removeTrack = async (page: Page, button: string) =>
+  await test.step(`Remove track ${button}`, async () => {
+    await page.getByRole("button", { name: button, exact: true }).click();
+  });
+
+test("Add 2 tracks at the same time and remove one track", async ({ page: sender1Page, context }, testInfo) => {
+  // given
+
+  // user 1
+  await sender1Page.goto("/");
+  const roomId = await createRoom(sender1Page);
+  const sender1Id = await createAndJoinPeer(sender1Page, roomId);
+  await sender1Page.waitForTimeout(500);
+
+  // user 2
+  const sender2Page = await context.newPage();
+  await sender2Page.goto("/");
+
+  const sender2Id = await createAndJoinPeer(sender2Page, roomId);
+  await addOneTrack(sender2Page, "Add a heart");
+  await sender2Page.waitForTimeout(500);
+  await addOneTrack(sender2Page, "Add a brain");
+
+  // when
+  await addBothMockTracks(sender1Page);
+  await removeTrack(sender2Page, "Remove a heart");
+
+  // then
+  await assertThatAllTracksAreReady(sender2Page, sender1Id, 2);
+  await assertThatBothTrackAreDifferent(sender2Page, testInfo);
+
+  await assertThatAllTracksAreReady(sender1Page, sender2Id, 1);
+  await takeScreenshot(sender1Page, testInfo);
 });

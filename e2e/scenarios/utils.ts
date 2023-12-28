@@ -82,9 +82,10 @@ export const assertThatOtherVideoIsPlaying = async (page: Page) => {
             return stat.framesDecoded;
           }
         }
+        return 0;
       });
     const firstMeasure = await getDecodedFrames();
-    await expect(async () => (await getDecodedFrames()) > firstMeasure).toPass();
+    await expect(async () => expect((await getDecodedFrames()) > firstMeasure).toBe(true)).toPass();
   });
 };
 

@@ -445,6 +445,19 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
         });
         break;
       }
+      // what if user add track in the middle of removing
+      // wydaje się, że możemy mieć tylko jeden proces offerData, sdpOffer, sdpAnswer
+      // w tym samym czasie
+
+      // server: tracksRemoved (REMOVE)
+      // client: "renegotiateTracks" (Add track)
+      // server: offerData (REMOVE)
+      // client: sdpOffer (REMOVE)
+      // server: sdpAnswer (REMOVE)
+
+      // server: "offerData" (Add track)
+      // client: "sdpOffer" (Add track)
+      // server: "spdAnswer" (Add track)
       case "tracksRemoved": {
         // server: tracksRemoved
         // server: offerData
@@ -701,16 +714,17 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     if (this.processing) return;
 
     const [command, ...rest] = this.commandsQueue;
-    if (command) {
-      console.log({ name: "Processing start", command });
-      this.processing = true;
-      this.commandsQueue = rest;
-      this.handleCommand(command);
-    }
+
+    if (!command) return;
+
+    console.log({ name: "Processing start", command });
+    this.processing = true;
+    this.commandsQueue = rest;
+    this.handleCommand(command);
   }
 
   private addTrackCommandHandler(addTrackCommand: AddTrackCommand): string {
-    const { simulcastConfig, maxBandwidth, track, stream, trackMetadata } = addTrackCommand;
+    const { simulcastConfig, maxBandwidth, track, stream, trackMetadata, trackId } = addTrackCommand;
     const isUsedTrack = this.connection?.getSenders().some((val) => val.track === track);
 
     if (isUsedTrack) {
@@ -720,8 +734,6 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     if (!simulcastConfig.enabled && !(typeof maxBandwidth === "number"))
       throw "Invalid type of `maxBandwidth` argument for a non-simulcast track, expected: number";
     if (this.getEndpointId() === "") throw "Cannot add tracks before being accepted by the server";
-
-    const trackId = this.getTrackId(uuidv4());
 
     const trackContext = new TrackContextImpl(this.localEndpoint, trackId, trackMetadata, simulcastConfig);
 
@@ -1032,7 +1044,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     });
   }
 
-  public removeTrackHandler(command: RemoveTrackCommand) {
+  private removeTrackHandler(command: RemoveTrackCommand) {
     const { trackId } = command;
     const trackContext = this.localTrackIdToTrack.get(trackId)!;
     const sender = this.findSender(trackContext.track!.id);

@@ -42,9 +42,11 @@ function connect(token: string) {
 
   websocket.addEventListener("open", socketOpenHandler);
 
+  const random = Math.floor(Math.random() * 100);
+
   webrtc.on("sendMediaEvent", (mediaEvent: SerializedMediaEvent) => {
-    console.log("%cSend:", "color:blue");
-    console.log({ event: JSON.parse(mediaEvent) });
+    console.log(`%c(${random}) - Send: ${mediaEvent}`, "color:blue");
+    // console.log({ event: JSON.parse(mediaEvent), str: mediaEvent });
     const message = PeerMessage.encode({ mediaEvent: { data: mediaEvent } }).finish();
     websocket.send(message);
   });
@@ -53,13 +55,17 @@ function connect(token: string) {
     const uint8Array = new Uint8Array(event.data);
     try {
       const data = PeerMessage.decode(uint8Array);
-      console.log("%cReceived:", "color:green");
-      if (data?.mediaEvent) {
-        // @ts-ignore
-        const mediaEvent = JSON.parse(data?.mediaEvent?.data);
-        console.log({ mediaEvent });
-      } else {
-        console.log({ data });
+      if (!JSON.stringify(data).includes("encodingSwitched")) {
+        // console.log(`%c(${random}) - Received: `, "color:green");
+        if (data?.mediaEvent) {
+          // @ts-ignore
+          const mediaEvent = JSON.parse(data?.mediaEvent?.data);
+          console.log(`%c(${random}) - Received: ${JSON.stringify(mediaEvent)}`, "color:green");
+          // console.log({ mediaEvent, str: JSON.stringify(mediaEvent) });
+        } else {
+          console.log(`%c(${random}) - Received: ${JSON.stringify(data)}`, "color:green");
+          // console.log({ data, str: JSON.stringify(data) });
+        }
       }
 
       if (data.authenticated !== undefined) {

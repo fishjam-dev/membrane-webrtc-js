@@ -1,5 +1,5 @@
 import { expect, Page, test, TestInfo } from "@playwright/test";
-import { createAndJoinPeer, createRoom, takeScreenshot } from "./utils";
+import { assertThatOtherVideoIsPlaying, createAndJoinPeer, createRoom, takeScreenshot } from "./utils";
 
 /*
  * Test in this file should be run a few times in a row to be sure that there is no race conditions.
@@ -31,8 +31,10 @@ test("Add 2 tracks separately", async ({ page: senderPage, context }, testInfo) 
   await assertThatBothTrackAreDifferent(receiverPage, testInfo);
 });
 
-
-test("RC: Add 2 tracks at the same time should not send the same one twice", async ({ page: senderPage, context }, testInfo) => {
+test("RC: Add 2 tracks at the same time should not send the same one twice", async ({
+  page: senderPage,
+  context,
+}, testInfo) => {
   // given
   await senderPage.goto("/");
   const roomId = await createRoom(senderPage);
@@ -50,7 +52,6 @@ test("RC: Add 2 tracks at the same time should not send the same one twice", asy
   await assertThatAllTracksAreReady(receiverPage, senderId, 2);
   await assertThatBothTrackAreDifferent(receiverPage, testInfo);
 });
-
 
 /*
  * This test reveals 2 race conditions:
@@ -100,6 +101,34 @@ test("RC: Add 2 tracks at the same time and remove one track", async ({ page: se
   await assertThatAllTracksAreReady(sender1Page, sender2Id, 1);
   await takeScreenshot(sender1Page, testInfo);
 });
+
+test("RC: Add and replace a track", async ({ page: sender1Page, context }, testInfo) => {
+  // given
+  await sender1Page.goto("/");
+  const roomId = await createRoom(sender1Page);
+  const sender1Id = await createAndJoinPeer(sender1Page, roomId);
+
+  // when
+  await addAndReplaceTrack(sender1Page);
+
+  // then
+  const receiverPage = await context.newPage();
+  await receiverPage.goto("/");
+  await createAndJoinPeer(receiverPage, roomId);
+
+  await assertThatAllTracksAreReady(receiverPage, sender1Id, 1);
+  await assertThatOtherVideoIsPlaying(receiverPage)
+  await takeScreenshot(receiverPage, testInfo);
+});
+
+export const addAndReplaceTrack = async (page: Page) =>
+    await test.step("Add and replace track", async () =>
+        await page
+            .getByRole("button", {
+              name: "Add and replace a heart",
+              exact: true,
+            })
+            .click());
 
 export const addBothMockTracks = async (page: Page) =>
   await test.step("Add both tracks", async () =>

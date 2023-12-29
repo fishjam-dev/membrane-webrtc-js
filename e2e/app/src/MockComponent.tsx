@@ -14,7 +14,7 @@ type Props = {
 export const MockComponent = ({ webrtc }: Props) => {
   const heartId = useRef<string | null>(null);
 
-  const addAHeart = () => {
+  const addHeart = () => {
     const stream = heartMock.stream;
     const track = stream.getVideoTracks()[0];
 
@@ -25,13 +25,13 @@ export const MockComponent = ({ webrtc }: Props) => {
     heartId.current = webrtc.addTrack(track, stream, trackMetadata, simulcastConfig, maxBandwidth);
   };
 
-  const removeAHeart = () => {
+  const removeHeart = () => {
     if (!heartId.current) throw Error("Heart id is undefined");
 
     webrtc.removeTrack(heartId.current);
   };
 
-  const replaceAHeart = () => {
+  const replaceHeart = () => {
     if (!heartId.current) throw Error("Track Id is not set");
 
     console.log({ id: heartId.current });
@@ -43,7 +43,7 @@ export const MockComponent = ({ webrtc }: Props) => {
     webrtc.replaceTrack(heartId.current, track, trackMetadata);
   };
 
-  const addABrain = () => {
+  const addBrain = () => {
     const stream = brainMock.stream;
     const track = stream.getVideoTracks()[0];
 
@@ -55,25 +55,31 @@ export const MockComponent = ({ webrtc }: Props) => {
   };
 
   const addBoth = () => {
-    addAHeart();
-    addABrain();
+    addHeart();
+    addBrain();
+  };
+
+  const addAndReplceHeart = () => {
+    addHeart();
+    removeHeart();
   };
 
   return (
     <div>
       <div>
         <VideoPlayer stream={heartMock.stream} />
-        <button onClick={addAHeart}>Add a heart</button>
-        <button onClick={removeAHeart}>Remove a heart</button>
+        <button onClick={addHeart}>Add a heart</button>
+        <button onClick={removeHeart}>Remove a heart</button>
         <VideoPlayer stream={heart2Mock.stream} />
-        <button onClick={replaceAHeart}>Replace a heart</button>
+        <button onClick={replaceHeart}>Replace a heart</button>
       </div>
       <div>
         <VideoPlayer stream={brainMock.stream} />
-        <button onClick={addABrain}>Add a brain</button>
+        <button onClick={addBrain}>Add a brain</button>
       </div>
 
       <button onClick={addBoth}>Add both</button>
+      <button onClick={addAndReplceHeart}>Add and replace a heart</button>
     </div>
   );
 };

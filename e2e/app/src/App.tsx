@@ -55,7 +55,11 @@ function connect(token: string) {
     const uint8Array = new Uint8Array(event.data);
     try {
       const data = PeerMessage.decode(uint8Array);
-      if (!JSON.stringify(data).includes("encodingSwitched")) {
+      if (
+        !JSON.stringify(data).includes("encodingSwitched") &&
+        !JSON.stringify(data).includes("bandwidthEstimation") &&
+        !JSON.stringify(data).includes(`"type":"candidate"`)
+      ) {
         // console.log(`%c(${random}) - Received: `, "color:green");
         if (data?.mediaEvent) {
           // @ts-ignore

@@ -1,5 +1,5 @@
 import { createStream } from "./mocks.ts";
-import { WebRTCEndpoint } from "@jellyfish-dev/membrane-webrtc-js";
+import { WebRTCEndpoint, SimulcastConfig } from "@jellyfish-dev/membrane-webrtc-js";
 import { VideoPlayer } from "./VideoPlayer.tsx";
 import { useRef } from "react";
 
@@ -19,7 +19,7 @@ export const MockComponent = ({ webrtc }: Props) => {
     const track = stream.getVideoTracks()[0];
 
     const trackMetadata = { name: "Heart" };
-    const simulcastConfig = { enabled: false, activeEncodings: [] };
+    const simulcastConfig: SimulcastConfig = { enabled: true, activeEncodings: ["l", "m", "h"] };
     const maxBandwidth = 0;
 
     heartId.current = webrtc.addTrack(track, stream, trackMetadata, simulcastConfig, maxBandwidth);

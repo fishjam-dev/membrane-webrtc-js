@@ -11,7 +11,6 @@ import EventEmitter from "events";
 import TypedEmitter from "typed-emitter";
 import { simulcastTransceiverConfig, defaultBitrates, defaultSimulcastBitrates } from "./const";
 import { AddTrackCommand, Command, RemoveTrackCommand } from "./commands";
-import { trackId } from "../test/fixtures";
 
 /**
  * Interface describing Endpoint.
@@ -412,16 +411,6 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     return Object.fromEntries(this.idToEndpoint.entries());
   }
 
-  private changeRenegotiation(operation: "increase" | "decrease") {
-    // if (operation === "increase") {
-    //   console.log(`%cIncreasing from ${this.activeRenegotiation} to ${this.activeRenegotiation + 1}`, "color:orange");
-    //   ++this.activeRenegotiation;
-    // } else {
-    //   console.log(`%cDecreasing from ${this.activeRenegotiation} to ${this.activeRenegotiation - 1}`, "color:orange");
-    //   --this.activeRenegotiation;
-    // }
-  }
-
   private handleMediaEvent = (deserializedMediaEvent: MediaEvent) => {
     let endpoint: Endpoint;
     let data;
@@ -436,7 +425,6 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
         break;
       }
       case "tracksAdded": {
-        this.changeRenegotiation("increase");
         this.processing = true;
         data = deserializedMediaEvent.data;
         if (this.getEndpointId() === data.endpointId) return;
@@ -458,28 +446,8 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
         });
         break;
       }
-      // what if user add track in the middle of removing
-      // wydaje się, że możemy mieć tylko jeden proces offerData, sdpOffer, sdpAnswer
-      // w tym samym czasie
-
-      // server: tracksRemoved (REMOVE)
-      // client: "renegotiateTracks" (Add track)
-      // server: offerData (REMOVE)
-      // client: sdpOffer (REMOVE)
-      // server: sdpAnswer (REMOVE)
-
-      // server: "offerData" (Add track)
-      // client: "sdpOffer" (Add track)
-      // server: "spdAnswer" (Add track)
       case "tracksRemoved": {
-        this.changeRenegotiation("increase");
         this.processing = true;
-        // server: tracksRemoved
-        // server: offerData
-        // client: sdpOffer
-        // server: sdpAnswer
-        console.log("Tracks removed handler");
-
         data = deserializedMediaEvent.data;
         const endpointId = data.endpointId;
         if (this.getEndpointId() === endpointId) return;
@@ -516,9 +484,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
         }
 
         this.onAnswer(deserializedMediaEvent.data);
-        this.changeRenegotiation("decrease");
         this.processing = false;
-        console.log({ name: "Processing stop" });
         this.processNextCommand();
         break;
 
@@ -736,15 +702,12 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
 
     if (!command) return;
 
-    console.log({ name: "Processing start", command });
-    this.changeRenegotiation("increase");
     this.processing = true;
     this.commandsQueue = rest;
     this.handleCommand(command);
   }
 
   private addTrackCommandHandler(addTrackCommand: AddTrackCommand): string {
-    console.log("Add track handler");
     const { simulcastConfig, maxBandwidth, track, stream, trackMetadata, trackId } = addTrackCommand;
     const isUsedTrack = this.connection?.getSenders().some((val) => val.track === track);
 

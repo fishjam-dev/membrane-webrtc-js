@@ -23,7 +23,6 @@ export const createAndJoinPeer = async (page: Page, roomId: string): Promise<str
 
       return peerId;
     } catch (e) {
-      // todo fix
       throw { status: peerRequest.status(), response: await peerRequest.json() };
     }
   });
@@ -47,7 +46,6 @@ export const joinRoomAndAddScreenShare = async (page: Page, roomId: string): Pro
 
       return peerId;
     } catch (e) {
-      // todo fix
       throw { status: peerRequest.status(), response: await peerRequest.json() };
     }
   });

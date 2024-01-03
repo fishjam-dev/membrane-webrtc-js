@@ -674,7 +674,6 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
       maxBandwidth,
     });
 
-    // todo change to promise?
     return trackId;
   }
 
@@ -916,13 +915,12 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
       sender
         .replaceTrack(newTrack)
         .then(() => {
-          // todo this code is async, what to do with that?
           const trackMetadata = newTrackMetadata || this.localTrackIdToTrack.get(trackId)!.metadata;
           trackContext.track = newTrack;
           this.updateTrackMetadata(trackId, trackMetadata);
           result.resolve(true);
         })
-        // todo change to .setReject("Reason"), setResolve(false) only for compatibility
+        // todo change to .reject("Reason"), .resolve(false) only for compatibility
         .catch(() => {
           result.resolve(false);
         });

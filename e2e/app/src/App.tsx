@@ -48,7 +48,6 @@ function connect(token: string) {
 
   webrtc.on("sendMediaEvent", (mediaEvent: SerializedMediaEvent) => {
     console.log(`%c(${random}) - Send: ${mediaEvent}`, "color:blue");
-    // console.log({ event: JSON.parse(mediaEvent), str: mediaEvent });
     const message = PeerMessage.encode({ mediaEvent: { data: mediaEvent } }).finish();
     websocket.send(message);
   });
@@ -62,10 +61,8 @@ function connect(token: string) {
         // @ts-ignore
         const mediaEvent = JSON.parse(data?.mediaEvent?.data);
         console.log(`%c(${random}) - Received: ${JSON.stringify(mediaEvent)}`, "color:green");
-        // console.log({ mediaEvent, str: JSON.stringify(mediaEvent) });
       } else {
         console.log(`%c(${random}) - Received: ${JSON.stringify(data)}`, "color:green");
-        // console.log({ data, str: JSON.stringify(data) });
       }
 
       if (data.authenticated !== undefined) {
@@ -108,36 +105,11 @@ async function addScreenshareTrack(): Promise<string> {
 
 export function App() {
   const [tokenInput, setTokenInput] = useState(localStorage.getItem("token") ?? "");
+  const [connected, setConnected] = useState(false);
+
   useEffect(() => {
     localStorage.setItem("token", tokenInput);
   }, [tokenInput]);
-
-  const [status, setStatus] = useState("");
-
-  useEffect(() => {
-    // this code doesn't work, why?
-    console.log("Start");
-    const onConnected = () => {
-      console.log("OK!");
-      setStatus("connected!");
-    };
-
-    const onDisconnected = () => {
-      console.log("Bad!");
-
-      setStatus("");
-    };
-
-    webrtc.on("connected", () => onConnected);
-    webrtc.on("disconnected", () => onDisconnected);
-
-    return () => {
-      console.log("Stop");
-
-      webrtc.removeListener("connected", onConnected);
-      webrtc.removeListener("connected", onDisconnected);
-    };
-  }, []);
 
   const handleConnect = () => connect(tokenInput);
   const handleStartScreenshare = () => addScreenshareTrack();
@@ -146,10 +118,6 @@ export function App() {
     (callback) => remoteTracksStore.subscribe(callback),
     () => remoteTracksStore.snapshot(),
   );
-
-  useEffect(() => {
-    console.log({ remoteTracks });
-  }, [remoteTracks]);
 
   const [counter, setCounter] = useState<number>(0);
 
@@ -164,10 +132,11 @@ export function App() {
     webrtc.setTargetTrackEncoding(trackId, encoding);
   };
 
-  const [connnected, setConnected] = useState(false);
   useEffect(() => {
     const callback = () => setConnected(true);
+
     webrtc.on("connected", callback);
+
     return () => {
       webrtc.removeListener("connected", callback);
     };
@@ -181,8 +150,7 @@ export function App() {
         <button onClick={handleConnect}>Connect</button>
         <button onClick={handleStartScreenshare}>Start screenshare</button>
       </div>
-      <div id="connection-status">{connnected ? "true" : "false"}</div>
-      <span>{status}</span>
+      <div id="connection-status">{connected ? "true" : "false"}</div>
       <MockComponent webrtc={webrtc} />
       <div style={{ width: "100%" }}>
         {Object.values(remoteTracks).map(({ stream, trackId, endpoint }) => (

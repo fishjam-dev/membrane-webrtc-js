@@ -79,12 +79,6 @@ export const createStream: (
     drawEmoji();
   }, 1000 / framerate);
 
-  // const intervalId2 = setInterval(() => {
-  //   const imageData = ctx.getImageData(0, 0, canvasElement.width, canvasElement.height);
-  //   const r = getPixel(imageData.data, canvasElement.width, 10, 10);
-  //   console.log({ r });
-  // }, 1000);
-
   return {
     stream: canvasElement.captureStream(framerate),
     stop: () => {

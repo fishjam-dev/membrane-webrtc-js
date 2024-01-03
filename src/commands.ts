@@ -21,7 +21,7 @@ export type ReplaceTackCommand = {
   trackId: string;
   newTrack: MediaStreamTrack;
   newTrackMetadata?: any;
-  result: Deferred<boolean>
+  result: Deferred<boolean>;
 };
 
 export type Command = AddTrackCommand | RemoveTrackCommand | ReplaceTackCommand;

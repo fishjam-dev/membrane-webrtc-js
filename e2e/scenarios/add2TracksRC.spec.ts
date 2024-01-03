@@ -110,7 +110,7 @@ test("RC: Add 2 tracks at the same time and remove one track", async ({ page: se
   await takeScreenshot(sender1Page, testInfo);
 });
 
-test("Add and replace tracks slow", async ({ page: senderPage, context }, testInfo) => {
+test("Add and replace tracks slow", async ({ page: senderPage, context }) => {
   // given
   await senderPage.goto("/");
   const roomId = await createRoom(senderPage);

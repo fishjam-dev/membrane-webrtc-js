@@ -36,14 +36,12 @@ export const MockComponent = ({ webrtc }: Props) => {
   const replaceHeart = async () => {
     if (!heartId.current) throw Error("Track Id is not set");
 
-    console.log({ id: heartId.current });
     const stream = heart2Mock.stream;
     const track = stream.getVideoTracks()[0];
 
     const trackMetadata = { name: "Heart" };
 
     const result = await webrtc.replaceTrack(heartId.current, track, trackMetadata);
-    console.log({ name: "Result!!!", result });
     setReplaceStatus(result ? "success" : "failure");
   };
 

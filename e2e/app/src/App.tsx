@@ -4,6 +4,8 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { MockComponent } from "./MockComponent.tsx";
 import { VideoPlayerWithDetector } from "./VideoPlayerWithDetector.tsx";
 
+/* eslint-disable no-console */
+
 class RemoteTracksStore {
   cache: Record<string, Record<string, TrackContext>> = {};
 
@@ -55,21 +57,15 @@ function connect(token: string) {
     const uint8Array = new Uint8Array(event.data);
     try {
       const data = PeerMessage.decode(uint8Array);
-      if (
-        !JSON.stringify(data).includes("encodingSwitched") &&
-        !JSON.stringify(data).includes("bandwidthEstimation") &&
-        !JSON.stringify(data).includes(`"type":"candidate"`)
-      ) {
-        // console.log(`%c(${random}) - Received: `, "color:green");
-        if (data?.mediaEvent) {
-          // @ts-ignore
-          const mediaEvent = JSON.parse(data?.mediaEvent?.data);
-          console.log(`%c(${random}) - Received: ${JSON.stringify(mediaEvent)}`, "color:green");
-          // console.log({ mediaEvent, str: JSON.stringify(mediaEvent) });
-        } else {
-          console.log(`%c(${random}) - Received: ${JSON.stringify(data)}`, "color:green");
-          // console.log({ data, str: JSON.stringify(data) });
-        }
+
+      if (data?.mediaEvent) {
+        // @ts-ignore
+        const mediaEvent = JSON.parse(data?.mediaEvent?.data);
+        console.log(`%c(${random}) - Received: ${JSON.stringify(mediaEvent)}`, "color:green");
+        // console.log({ mediaEvent, str: JSON.stringify(mediaEvent) });
+      } else {
+        console.log(`%c(${random}) - Received: ${JSON.stringify(data)}`, "color:green");
+        // console.log({ data, str: JSON.stringify(data) });
       }
 
       if (data.authenticated !== undefined) {

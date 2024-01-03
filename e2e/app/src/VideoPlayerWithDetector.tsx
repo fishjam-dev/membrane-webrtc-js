@@ -24,7 +24,7 @@ export const VideoPlayerWithDetector = ({ stream, id }: Props) => {
   useEffect(() => {
     if (!videoElementRef.current) return;
     videoElementRef.current.srcObject = stream || null;
-  }, []);
+  }, [stream]);
 
   useEffect(() => {
     const videoElement = videoElementRef.current;

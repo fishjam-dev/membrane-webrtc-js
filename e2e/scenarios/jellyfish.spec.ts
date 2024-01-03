@@ -4,7 +4,8 @@ import {
   assertThatOtherVideoIsPlaying,
   createRoom,
   joinRoomAndAddScreenShare,
-  throwIfRemoteTracksAreNotPresent, takeScreenshot,
+  throwIfRemoteTracksAreNotPresent,
+  takeScreenshot,
 } from "./utils";
 
 test.afterEach(async ({ context }, testInfo) => {

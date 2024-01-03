@@ -76,10 +76,7 @@ export const assertThatOtherVideoIsPlaying = async (page: Page) => {
       page.evaluate(async () => {
         const peerConnection = (window as typeof window & { webrtc: { connection: RTCPeerConnection } }).webrtc
           .connection;
-        if (!window || !peerConnection) {
-          console.log({ window, peerConnection });
-          throw Error("Window or peer connection does not exist");
-        }
+        if (!window || !peerConnection) throw Error("Window or webrtc does not exist");
         const stats = await peerConnection.getStats();
         for (const stat of stats.values()) {
           if (stat.type === "inbound-rtp") {

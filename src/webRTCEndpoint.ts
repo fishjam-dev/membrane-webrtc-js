@@ -11,6 +11,7 @@ import EventEmitter from "events";
 import TypedEmitter from "typed-emitter";
 import { simulcastTransceiverConfig, defaultBitrates, defaultSimulcastBitrates } from "./const";
 import { AddTrackCommand, Command, RemoveTrackCommand, ReplaceTackCommand } from "./commands";
+import { Deferred } from "./deferred";
 
 /**
  * Interface describing Endpoint.
@@ -847,7 +848,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
 
   /**
    * Replaces a track that is being sent to the RTC Engine.
-   * @param track - Audio or video track.
+   * @param trackId - Audio or video track.
    * @param {string} trackId - Id of audio or video track to replace.
    * @param {MediaStreamTrack} newTrack
    * @param {any} [newTrackMetadata] - Optional track metadata to apply to the new track. If no
@@ -892,54 +893,40 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
    *   })
    * ```
    */
-  // public async replaceTrack(trackId: string, newTrack: MediaStreamTrack, newTrackMetadata?: any): Promise<boolean> {
-  //   const trackContext = this.localTrackIdToTrack.get(trackId)!;
-  //   const sender = this.findSender(trackContext.track!.id);
-  //   if (sender) {
-  //     return sender
-  //       .replaceTrack(newTrack)
-  //       .then(() => {
-  //         const trackMetadata = newTrackMetadata || this.localTrackIdToTrack.get(trackId)!.metadata;
-  //         trackContext.track = newTrack;
-  //         this.updateTrackMetadata(trackId, trackMetadata);
-  //         return true;
-  //       })
-  //       .catch(() => false);
-  //   }
-  //
-  //   return false;
-  // }
-
   public async replaceTrack(trackId: string, newTrack: MediaStreamTrack, newTrackMetadata?: any): Promise<boolean> {
+    const result = new Deferred<boolean>();
+
     this.pushCommand({
       commandType: "REPLACE-TRACK",
       trackId,
       newTrack,
       newTrackMetadata,
+      result,
     });
 
-    // todo fix return type
-    return true;
+    return result.promise;
   }
 
-  private async replaceTrackHandler(command: ReplaceTackCommand): Promise<boolean> {
-    const { trackId, newTrack, newTrackMetadata } = command;
+  private replaceTrackHandler(command: ReplaceTackCommand) {
+    const { trackId, newTrack, newTrackMetadata, result } = command;
 
     const trackContext = this.localTrackIdToTrack.get(trackId)!;
     const sender = this.findSender(trackContext.track!.id);
     if (sender) {
-      return sender
+      sender
         .replaceTrack(newTrack)
         .then(() => {
+          // todo this code is async, what to do with that?
           const trackMetadata = newTrackMetadata || this.localTrackIdToTrack.get(trackId)!.metadata;
           trackContext.track = newTrack;
           this.updateTrackMetadata(trackId, trackMetadata);
-          return true;
+          result.resolve(true);
         })
-        .catch(() => false);
+        // todo change to .setReject("Reason"), setResolve(false) only for compatibility
+        .catch(() => {
+          result.resolve(false);
+        });
     }
-
-    return false;
   }
 
   /**

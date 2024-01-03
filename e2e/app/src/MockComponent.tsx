@@ -1,7 +1,7 @@
 import { createStream } from "./mocks.ts";
 import { WebRTCEndpoint } from "@jellyfish-dev/membrane-webrtc-js";
 import { VideoPlayer } from "./VideoPlayer.tsx";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 const brainMock = createStream("🧠", "white", "low", 24);
 const heartMock = createStream("🫀", "white", "low", 24);
@@ -13,6 +13,7 @@ type Props = {
 
 export const MockComponent = ({ webrtc }: Props) => {
   const heartId = useRef<string | null>(null);
+  const [replaceStatus, setReplaceStatus] = useState<"unknown" | "success" | "failure">("unknown");
 
   const addHeart = () => {
     const stream = heartMock.stream;
@@ -32,7 +33,7 @@ export const MockComponent = ({ webrtc }: Props) => {
     webrtc.removeTrack(heartId.current);
   };
 
-  const replaceHeart = () => {
+  const replaceHeart = async () => {
     if (!heartId.current) throw Error("Track Id is not set");
 
     console.log({ id: heartId.current });
@@ -41,7 +42,9 @@ export const MockComponent = ({ webrtc }: Props) => {
 
     const trackMetadata = { name: "Heart" };
 
-    webrtc.replaceTrack(heartId.current, track, trackMetadata);
+    const result = await webrtc.replaceTrack(heartId.current, track, trackMetadata);
+    console.log({ name: "Result!!!", result });
+    setReplaceStatus(result ? "success" : "failure");
   };
 
   const addBrain = () => {
@@ -79,6 +82,10 @@ export const MockComponent = ({ webrtc }: Props) => {
         <button onClick={removeHeart}>Remove a heart</button>
         <VideoPlayer stream={heart2Mock.stream} />
         <button onClick={replaceHeart}>Replace a heart</button>
+        <div>
+          <span>Replace status: </span>
+          <span data-replace-status={replaceStatus}>{replaceStatus}</span>
+        </div>
       </div>
       <div>
         <VideoPlayer stream={brainMock.stream} />

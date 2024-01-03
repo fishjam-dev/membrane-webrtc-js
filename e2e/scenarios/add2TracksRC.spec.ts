@@ -1,6 +1,14 @@
 import { expect, Page, test, TestInfo } from "@playwright/test";
 import { assertThatOtherVideoIsPlaying, createAndJoinPeer, createRoom, takeScreenshot } from "./utils";
 
+test.afterEach(async ({ context }, testInfo) => {
+  for (const page of context.pages()) {
+    await test.step("Screenshot after test", async () => {
+      await takeScreenshot(page, testInfo);
+    });
+  }
+});
+
 /*
  * Test in this file should be run a few times in a row to be sure that there is no race conditions.
  * To run a test multiple times use command:
@@ -122,26 +130,31 @@ test("Add and replace tracks slow", async ({ page: senderPage, context }, testIn
 
   await assertThatAllTracksAreReady(receiverPage, senderId, 1);
   await assertThatTrackBackgroundColorIsOk(receiverPage, senderId, "red");
+
+  await assertThatTrackReplaceStatusIsSuccess(senderPage, "success");
 });
 
-test("RC: Add and replace a track fast", async ({ page: sender1Page, context }, testInfo) => {
+test("RC: Add and replace a track fast", async ({ page: senderPage, context }, testInfo) => {
   // given
-  await sender1Page.goto("/");
-  const roomId = await createRoom(sender1Page);
-  const sender1Id = await createAndJoinPeer(sender1Page, roomId);
+  await senderPage.goto("/");
+  const roomId = await createRoom(senderPage);
+  const senderId = await createAndJoinPeer(senderPage, roomId);
 
   // when
-  await addAndReplaceTrack(sender1Page);
+  await addAndReplaceTrack(senderPage);
 
   // then
   const receiverPage = await context.newPage();
   await receiverPage.goto("/");
   await createAndJoinPeer(receiverPage, roomId);
 
-  await assertThatAllTracksAreReady(receiverPage, sender1Id, 1);
+  await assertThatAllTracksAreReady(receiverPage, senderId, 1);
   await assertThatOtherVideoIsPlaying(receiverPage);
   await takeScreenshot(receiverPage, testInfo);
-  await assertThatTrackBackgroundColorIsOk(receiverPage, sender1Id, "red");
+  await assertThatTrackBackgroundColorIsOk(receiverPage, senderId, "red");
+
+  await assertThatTrackReplaceStatusIsSuccess(senderPage, "success");
+
   await takeScreenshot(receiverPage, testInfo);
 });
 
@@ -175,6 +188,12 @@ export const assertThatTrackBackgroundColorIsOk = async (page: Page, otherClient
       expect(
         page.locator(`xpath=//div[@data-endpoint-id="${otherClientId}"]//div[@data-color-name="${color}"]`),
       ).toBeVisible(),
+    ).toPass());
+
+export const assertThatTrackReplaceStatusIsSuccess = async (page: Page, replaceStatus: string) =>
+  await test.step(`Assert that track background color is ${replaceStatus}`, async () =>
+    await expect(async () =>
+      expect(page.locator(`xpath=//span[@data-replace-status="${replaceStatus}"]`)).toBeVisible(),
     ).toPass());
 
 export const assertThatTrackIdIsNotEmpty = async (page: Page, locator: string) =>

@@ -76,6 +76,10 @@ export const assertThatOtherVideoIsPlaying = async (page: Page) => {
       page.evaluate(async () => {
         const peerConnection = (window as typeof window & { webrtc: { connection: RTCPeerConnection } }).webrtc
           .connection;
+        if (!window || !peerConnection) {
+          console.log({ window, peerConnection });
+          throw Error("Window or peer connection does not exist");
+        }
         const stats = await peerConnection.getStats();
         for (const stat of stats.values()) {
           if (stat.type === "inbound-rtp") {
@@ -89,11 +93,11 @@ export const assertThatOtherVideoIsPlaying = async (page: Page) => {
   });
 };
 
-export const takeScreenshot = async (page: Page, testInfo: TestInfo) =>
+export const takeScreenshot = async (page: Page, testInfo: TestInfo, name?: string) =>
   await test.step("Take screenshot", async () => {
     const screenShotId = uuidv4();
     const screenshot = await page.screenshot({ path: `test-results/screenshots/${screenShotId}.png` });
-    await testInfo.attach("screenshot", { body: screenshot, contentType: "image/png" });
+    await testInfo.attach(name ?? "screenshot", { body: screenshot, contentType: "image/png" });
   });
 
 export const createRoom = async (page: Page, maxPeers?: number) =>

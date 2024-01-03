@@ -1,4 +1,5 @@
 import { SimulcastConfig, TrackBandwidthLimit } from "./webRTCEndpoint";
+import { Deferred } from "./deferred";
 
 export type AddTrackCommand = {
   commandType: "ADD-TRACK";
@@ -20,6 +21,7 @@ export type ReplaceTackCommand = {
   trackId: string;
   newTrack: MediaStreamTrack;
   newTrackMetadata?: any;
+  result: Deferred<boolean>
 };
 
 export type Command = AddTrackCommand | RemoveTrackCommand | ReplaceTackCommand;

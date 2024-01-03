@@ -89,4 +89,6 @@ export default defineConfig({
 
   globalSetup: "./e2e/setup/setupJellyfish",
   globalTeardown: "./e2e/setup/teardownJellyfish",
+  /* Timeout for each test in milliseconds. Defaults to 30 seconds. */
+  // timeout: 60 * 1000,
 });

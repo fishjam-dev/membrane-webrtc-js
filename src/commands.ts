@@ -15,4 +15,11 @@ export type RemoveTrackCommand = {
   trackId: string;
 };
 
-export type Command = AddTrackCommand | RemoveTrackCommand
+export type ReplaceTackCommand = {
+  commandType: "REPLACE-TRACK";
+  trackId: string;
+  newTrack: MediaStreamTrack;
+  newTrackMetadata?: any;
+};
+
+export type Command = AddTrackCommand | RemoveTrackCommand | ReplaceTackCommand;

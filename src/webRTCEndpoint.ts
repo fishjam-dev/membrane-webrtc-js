@@ -10,7 +10,7 @@ import { v4 as uuidv4 } from "uuid";
 import EventEmitter from "events";
 import TypedEmitter from "typed-emitter";
 import { simulcastTransceiverConfig, defaultBitrates, defaultSimulcastBitrates } from "./const";
-import { AddTrackCommand, Command, RemoveTrackCommand } from "./commands";
+import { AddTrackCommand, Command, RemoveTrackCommand, ReplaceTackCommand } from "./commands";
 
 /**
  * Interface describing Endpoint.
@@ -312,7 +312,6 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     iceTransportPolicy: "relay",
   };
 
-  // private activeRenegotiation: number = 0;
   private processing: boolean = false;
   private commandsQueue: Command[] = [];
 
@@ -691,12 +690,14 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
       case "REMOVE-TRACK":
         this.removeTrackHandler(command);
         break;
+      case "REPLACE-TRACK":
+        this.replaceTrackHandler(command);
+        break;
     }
   }
 
   private processNextCommand() {
     if (this.processing) return;
-    // if (this.activeRenegotiation > 0) return;
 
     const [command, ...rest] = this.commandsQueue;
 
@@ -849,7 +850,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
    * @param track - Audio or video track.
    * @param {string} trackId - Id of audio or video track to replace.
    * @param {MediaStreamTrack} newTrack
-   * @param {any} [newMetadata] - Optional track metadata to apply to the new track. If no
+   * @param {any} [newTrackMetadata] - Optional track metadata to apply to the new track. If no
    *                              track metadata is passed, the old track metadata is retained.
    * @returns {Promise<boolean>} success
    * @example
@@ -891,7 +892,39 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
    *   })
    * ```
    */
+  // public async replaceTrack(trackId: string, newTrack: MediaStreamTrack, newTrackMetadata?: any): Promise<boolean> {
+  //   const trackContext = this.localTrackIdToTrack.get(trackId)!;
+  //   const sender = this.findSender(trackContext.track!.id);
+  //   if (sender) {
+  //     return sender
+  //       .replaceTrack(newTrack)
+  //       .then(() => {
+  //         const trackMetadata = newTrackMetadata || this.localTrackIdToTrack.get(trackId)!.metadata;
+  //         trackContext.track = newTrack;
+  //         this.updateTrackMetadata(trackId, trackMetadata);
+  //         return true;
+  //       })
+  //       .catch(() => false);
+  //   }
+  //
+  //   return false;
+  // }
+
   public async replaceTrack(trackId: string, newTrack: MediaStreamTrack, newTrackMetadata?: any): Promise<boolean> {
+    this.pushCommand({
+      commandType: "REPLACE-TRACK",
+      trackId,
+      newTrack,
+      newTrackMetadata,
+    });
+
+    // todo fix return type
+    return true;
+  }
+
+  private async replaceTrackHandler(command: ReplaceTackCommand): Promise<boolean> {
+    const { trackId, newTrack, newTrackMetadata } = command;
+
     const trackContext = this.localTrackIdToTrack.get(trackId)!;
     const sender = this.findSender(trackContext.track!.id);
     if (sender) {

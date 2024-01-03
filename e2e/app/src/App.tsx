@@ -2,7 +2,7 @@ import { SerializedMediaEvent, TrackContext, TrackEncoding, WebRTCEndpoint } fro
 import { PeerMessage } from "./protos/jellyfish/peer_notifications";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { MockComponent } from "./MockComponent.tsx";
-import { VideoPlayer } from "./VideoPlayer.tsx";
+import { VideoPlayerWithDetector } from "./VideoPlayerWithDetector.tsx";
 
 class RemoteTracksStore {
   cache: Record<string, Record<string, TrackContext>> = {};
@@ -192,7 +192,7 @@ export function App() {
         {Object.values(remoteTracks).map(({ stream, trackId, endpoint }) => (
           <div key={trackId} data-endpoint-id={endpoint.id} data-stream-id={stream?.id}>
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <VideoPlayer id={endpoint.id} stream={stream ?? undefined} />
+              <VideoPlayerWithDetector id={endpoint.id} stream={stream ?? undefined} />
             </div>
             <div data-name="stream-id">{stream?.id}</div>
             <div>

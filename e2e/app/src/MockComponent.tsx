@@ -1,11 +1,11 @@
 import { createStream } from "./mocks.ts";
-import { WebRTCEndpoint, SimulcastConfig } from "@jellyfish-dev/membrane-webrtc-js";
+import { WebRTCEndpoint } from "@jellyfish-dev/membrane-webrtc-js";
 import { VideoPlayer } from "./VideoPlayer.tsx";
 import { useRef } from "react";
 
 const brainMock = createStream("🧠", "white", "low", 24);
 const heartMock = createStream("🫀", "white", "low", 24);
-const heart2Mock = createStream("💝", "pink", "low", 24);
+const heart2Mock = createStream("💝", "#FF0000", "low", 24);
 
 type Props = {
   webrtc: WebRTCEndpoint;
@@ -19,10 +19,11 @@ export const MockComponent = ({ webrtc }: Props) => {
     const track = stream.getVideoTracks()[0];
 
     const trackMetadata = { name: "Heart" };
-    const simulcastConfig: SimulcastConfig = { enabled: true, activeEncodings: ["l", "m", "h"] };
-    const maxBandwidth = 0;
+    // const simulcastConfig: SimulcastConfig = { enabled: true, activeEncodings: ["l", "m", "h"] };
+    // const maxBandwidth = 0;
 
-    heartId.current = webrtc.addTrack(track, stream, trackMetadata, simulcastConfig, maxBandwidth);
+    // heartId.current = webrtc.addTrack(track, stream, trackMetadata, simulcastConfig, maxBandwidth);
+    heartId.current = webrtc.addTrack(track, stream, trackMetadata);
   };
 
   const removeHeart = () => {
@@ -59,7 +60,13 @@ export const MockComponent = ({ webrtc }: Props) => {
     addBrain();
   };
 
-  const addAndReplceHeart = () => {
+  const addAndReplaceHeart = () => {
+    addHeart();
+    replaceHeart();
+  };
+
+  // todo test it
+  const addAndRemoveHeart = () => {
     addHeart();
     removeHeart();
   };
@@ -79,7 +86,8 @@ export const MockComponent = ({ webrtc }: Props) => {
       </div>
 
       <button onClick={addBoth}>Add both</button>
-      <button onClick={addAndReplceHeart}>Add and replace a heart</button>
+      <button onClick={addAndReplaceHeart}>Add and replace a heart</button>
+      <button onClick={addAndRemoveHeart}>Add and remove a heart</button>
     </div>
   );
 };

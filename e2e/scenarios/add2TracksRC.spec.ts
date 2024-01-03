@@ -102,7 +102,29 @@ test("RC: Add 2 tracks at the same time and remove one track", async ({ page: se
   await takeScreenshot(sender1Page, testInfo);
 });
 
-test("RC: Add and replace a track", async ({ page: sender1Page, context }, testInfo) => {
+test("Add and replace tracks slow", async ({ page: senderPage, context }, testInfo) => {
+  // given
+  await senderPage.goto("/");
+  const roomId = await createRoom(senderPage);
+  const senderId = await createAndJoinPeer(senderPage, roomId);
+
+  const receiverPage = await context.newPage();
+  await receiverPage.goto("/");
+  await createAndJoinPeer(receiverPage, roomId);
+
+  // when
+  await addOneTrack(senderPage, "Add a heart");
+  await assertThatTrackBackgroundColorIsOk(receiverPage, senderId, "white");
+  await senderPage.waitForTimeout(500);
+  await addOneTrack(senderPage, "Replace a heart");
+
+  // then
+
+  await assertThatAllTracksAreReady(receiverPage, senderId, 1);
+  await assertThatTrackBackgroundColorIsOk(receiverPage, senderId, "red");
+});
+
+test("RC: Add and replace a track fast", async ({ page: sender1Page, context }, testInfo) => {
   // given
   await sender1Page.goto("/");
   const roomId = await createRoom(sender1Page);
@@ -117,18 +139,20 @@ test("RC: Add and replace a track", async ({ page: sender1Page, context }, testI
   await createAndJoinPeer(receiverPage, roomId);
 
   await assertThatAllTracksAreReady(receiverPage, sender1Id, 1);
-  await assertThatOtherVideoIsPlaying(receiverPage)
+  await assertThatOtherVideoIsPlaying(receiverPage);
+  await takeScreenshot(receiverPage, testInfo);
+  await assertThatTrackBackgroundColorIsOk(receiverPage, sender1Id, "red");
   await takeScreenshot(receiverPage, testInfo);
 });
 
 export const addAndReplaceTrack = async (page: Page) =>
-    await test.step("Add and replace track", async () =>
-        await page
-            .getByRole("button", {
-              name: "Add and replace a heart",
-              exact: true,
-            })
-            .click());
+  await test.step("Add and replace track", async () =>
+    await page
+      .getByRole("button", {
+        name: "Add and replace a heart",
+        exact: true,
+      })
+      .click());
 
 export const addBothMockTracks = async (page: Page) =>
   await test.step("Add both tracks", async () =>
@@ -143,6 +167,14 @@ export const assertThatAllTracksAreReady = async (page: Page, otherClientId: str
   await test.step("Assert that all tracks are ready", async () =>
     await expect(async () =>
       expect((await page.locator(`div[data-endpoint-id="${otherClientId}"]`).all()).length).toBe(tracks),
+    ).toPass());
+
+export const assertThatTrackBackgroundColorIsOk = async (page: Page, otherClientId: string, color: string) =>
+  await test.step(`Assert that track background color is ${color}`, async () =>
+    await expect(async () =>
+      expect(
+        page.locator(`xpath=//div[@data-endpoint-id="${otherClientId}"]//div[@data-color-name="${color}"]`),
+      ).toBeVisible(),
     ).toPass());
 
 export const assertThatTrackIdIsNotEmpty = async (page: Page, locator: string) =>

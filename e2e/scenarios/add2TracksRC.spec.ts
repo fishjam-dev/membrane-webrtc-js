@@ -188,11 +188,11 @@ test("Add and remove a track (slow)", async ({ page: senderPage, context }, test
   const receiverPage = await context.newPage();
   await receiverPage.goto("/");
   await createAndJoinPeer(receiverPage, roomId);
-  await receiverPage.waitForTimeout(1000)
+  await receiverPage.waitForTimeout(1000);
 
   // when
   await clickButton(senderPage, "Add a heart");
-  await senderPage.waitForTimeout(1000)
+  await senderPage.waitForTimeout(1000);
   await clickButton(senderPage, "Remove a heart");
 
   // then
@@ -212,7 +212,7 @@ test.skip("RC: Add and remove a track (fast)", async ({ page: senderPage, contex
   const receiverPage = await context.newPage();
   await receiverPage.goto("/");
   await createAndJoinPeer(receiverPage, roomId);
-  await receiverPage.waitForTimeout(1000)
+  await receiverPage.waitForTimeout(1000);
 
   // when
   await addAndRemoveTrack(senderPage);
@@ -224,7 +224,6 @@ test.skip("RC: Add and remove a track (fast)", async ({ page: senderPage, contex
   await takeScreenshot(receiverPage, testInfo);
 });
 
-
 export const addAndReplaceTrack = async (page: Page) =>
   await test.step("Add and replace track", async () =>
     await page
@@ -235,13 +234,13 @@ export const addAndReplaceTrack = async (page: Page) =>
       .click());
 
 export const addAndRemoveTrack = async (page: Page) =>
-    await test.step("Add and remove track", async () =>
-        await page
-            .getByRole("button", {
-              name: "Add and remove a heart",
-              exact: true,
-            })
-            .click());
+  await test.step("Add and remove track", async () =>
+    await page
+      .getByRole("button", {
+        name: "Add and remove a heart",
+        exact: true,
+      })
+      .click());
 
 export const addBothMockTracks = async (page: Page) =>
   await test.step("Add both tracks", async () =>

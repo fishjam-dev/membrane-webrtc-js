@@ -26,7 +26,6 @@ export const MockComponent = ({ webrtc }: Props) => {
   const removeHeart = () => {
     if (!heartId.current) throw Error("Heart id is undefined");
 
-    console.log({name: "Removing track", trackId: heartId.current})
     webrtc.removeTrack(heartId.current);
   };
 

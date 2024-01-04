@@ -1,14 +1,18 @@
-import { expect, Page, test, TestInfo } from "@playwright/test";
+import { test } from "@playwright/test";
 import {
   addAndRemoveTrack,
   addAndReplaceTrack,
   addBothMockTracks,
-  assertThatAllTracksAreReady, assertThatBothTrackAreDifferent,
-  assertThatOtherVideoIsPlaying, assertThatTrackBackgroundColorIsOk, assertThatTrackReplaceStatusIsSuccess, clickButton,
+  assertThatAllTracksAreReady,
+  assertThatBothTrackAreDifferent,
+  assertThatOtherVideoIsPlaying,
+  assertThatTrackBackgroundColorIsOk,
+  assertThatTrackReplaceStatusIsSuccess,
+  clickButton,
   createAndJoinPeer,
-  createRoom, removeTrack,
+  createRoom,
+  removeTrack,
   takeScreenshot,
-  TO_PASS_CONFIG
 } from "./utils";
 
 test.afterEach(async ({ context }, testInfo) => {
@@ -206,7 +210,7 @@ test("Slowly add and remove a track", async ({ page: senderPage, context }, test
   await assertThatAllTracksAreReady(receiverPage, senderId, 1);
 
   // when
-  await senderPage.waitForTimeout(1000)
+  await senderPage.waitForTimeout(1000);
   await clickButton(senderPage, "Remove a heart");
 
   // then

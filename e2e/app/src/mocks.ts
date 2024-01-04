@@ -83,7 +83,6 @@ export const createStream: (
     stream: canvasElement.captureStream(framerate),
     stop: () => {
       clearInterval(intervalId);
-      // clearInterval(intervalId2);
     },
   };
 };

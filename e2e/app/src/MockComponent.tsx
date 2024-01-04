@@ -62,7 +62,7 @@ export const MockComponent = ({ webrtc }: Props) => {
     replaceHeart();
   };
 
-  // todo test it
+  // todo fix skipped test
   const addAndRemoveHeart = () => {
     addHeart();
     removeHeart();

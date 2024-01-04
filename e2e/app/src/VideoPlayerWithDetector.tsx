@@ -27,16 +27,16 @@ export const VideoPlayerWithDetector = ({ stream, id }: Props) => {
   }, [stream]);
 
   useEffect(() => {
-    const videoElement = videoElementRef.current;
-    if (!videoElement || videoElement.videoWidth === 0) return;
-
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d")!;
-
-    canvas.width = videoElement.videoWidth;
-    canvas.height = videoElement.videoHeight;
-
     const id = setInterval(() => {
+      const videoElement = videoElementRef.current;
+      if (!videoElement || videoElement.videoWidth === 0) return;
+
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d")!;
+
+      canvas.width = videoElement.videoWidth;
+      canvas.height = videoElement.videoHeight;
+
       ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const pixel = getPixel(imageData.data, canvas.width, 10, 10);
@@ -46,7 +46,7 @@ export const VideoPlayerWithDetector = ({ stream, id }: Props) => {
     return () => {
       clearInterval(id);
     };
-  }, [videoElementRef?.current?.videoWidth]);
+  }, []);
 
   return (
     <div>

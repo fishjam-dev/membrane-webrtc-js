@@ -296,6 +296,12 @@ export interface WebRTCEndpointEvents {
  */
 export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Required<WebRTCEndpointEvents>>) {
   private trackIdToTrack: Map<string, TrackContextImpl> = new Map();
+  // todo
+  //  there are 4 states:
+  //  1) new object                      -> this.connection === undefined
+  //  2) websocket connected             -> this.connection === undefined, this library is not responsible for establishing connection
+  //  3) after successful authentication -> this.connection === undefined, emit("connected"), Called when peer was accepted.
+  //  4) after offerData                 -> this.connection === DEFINED
   private connection?: RTCPeerConnection;
   private idToEndpoint: Map<string, Endpoint> = new Map();
   private localEndpoint: Endpoint = {
@@ -455,9 +461,9 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
         trackIds.forEach((trackId) => {
           const trackContext = this.trackIdToTrack.get(trackId)!;
 
-          this.emit("trackRemoved", trackContext);
-
           this.eraseTrack(trackId, endpointId);
+
+          this.emit("trackRemoved", trackContext);
         });
         break;
       }

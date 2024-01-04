@@ -68,14 +68,17 @@ export const assertThatRemoteTracksAreVisible = async (page: Page, otherClientId
   });
 };
 
+type WebrtcClient = { webrtc?: { connection?: RTCPeerConnection } };
+type WindowType = typeof window;
+
 export const assertThatOtherVideoIsPlaying = async (page: Page) => {
   await test.step("Assert that media is working", async () => {
     const getDecodedFrames: () => Promise<number> = () =>
       page.evaluate(async () => {
-        const peerConnection = (window as typeof window & { webrtc: { connection: RTCPeerConnection } }).webrtc
-          .connection;
-        if (!window || !peerConnection) throw Error("Window or webrtc does not exist");
-        const stats = await peerConnection.getStats();
+        const connection = (window as WindowType & WebrtcClient)?.webrtc?.connection;
+        // connection object is available after first renegotiation (sdpOffer, sdpAnswer)
+        if (!window || !connection) return -1;
+        const stats = await connection.getStats();
         for (const stat of stats.values()) {
           if (stat.type === "inbound-rtp") {
             return stat.framesDecoded;

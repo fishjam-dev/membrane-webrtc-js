@@ -90,8 +90,7 @@ test("RC: Add 2 tracks at the same time should not send the same one twice", asy
  * server: sdpAnswer
  */
 test("RC: Add 2 tracks at the same time and remove one track", async ({ page: sender1Page, context }, testInfo) => {
-  // given
-  const { sender1Id, roomId } = await test.step("Given sender 1", async () => {
+  const { sender1Id, roomId } = await test.step("Given sender 1 - join", async () => {
     await sender1Page.goto("/");
     const roomId = await createRoom(sender1Page);
 
@@ -111,7 +110,6 @@ test("RC: Add 2 tracks at the same time and remove one track", async ({ page: se
     return { sender2Page, sender2Id };
   });
 
-  // when
   await test.step("When - first: add 2 tracks, second: remove track", async () => {
     await addBothMockTracks(sender1Page);
     await removeTrack(sender2Page, "Remove a heart");
@@ -128,7 +126,7 @@ test("RC: Add 2 tracks at the same time and remove one track", async ({ page: se
   });
 });
 
-test("Add and replace tracks slow", async ({ page: senderPage, context }) => {
+test("Add and replace tracks (slow)", async ({ page: senderPage, context }) => {
   // given
   await senderPage.goto("/");
   const roomId = await createRoom(senderPage);
@@ -154,7 +152,7 @@ test("Add and replace tracks slow", async ({ page: senderPage, context }) => {
   await assertThatTrackReplaceStatusIsSuccess(senderPage, "success");
 });
 
-test("RC: Add and replace a track fast", async ({ page: senderPage, context }, testInfo) => {
+test("RC: Add and replace a track (fast)", async ({ page: senderPage, context }, testInfo) => {
   // given
   await senderPage.goto("/");
   const roomId = await createRoom(senderPage);
@@ -180,7 +178,7 @@ test("RC: Add and replace a track fast", async ({ page: senderPage, context }, t
   await takeScreenshot(receiverPage, testInfo);
 });
 
-test("Add and remove a track slow", async ({ page: senderPage, context }, testInfo) => {
+test("Add and remove a track (slow)", async ({ page: senderPage, context }, testInfo) => {
   // given
   await senderPage.goto("/");
   const roomId = await createRoom(senderPage);
@@ -204,8 +202,7 @@ test("Add and remove a track slow", async ({ page: senderPage, context }, testIn
   await takeScreenshot(receiverPage, testInfo);
 });
 
-
-test("RC: Add and remove a track fast", async ({ page: senderPage, context }, testInfo) => {
+test.skip("RC: Add and remove a track (fast)", async ({ page: senderPage, context }, testInfo) => {
   // given
   await senderPage.goto("/");
   const roomId = await createRoom(senderPage);

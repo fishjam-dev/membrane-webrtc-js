@@ -1046,6 +1046,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
    * ```
    */
   public removeTrack(trackId: string) {
+    console.log({name: "removeTrack"})
     this.pushCommand({
       commandType: "REMOVE-TRACK",
       trackId,
@@ -1053,6 +1054,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
   }
 
   private removeTrackHandler(command: RemoveTrackCommand) {
+    console.log({name: "removeTrackHandler"})
     const { trackId } = command;
     const trackContext = this.localTrackIdToTrack.get(trackId)!;
     const sender = this.findSender(trackContext.track!.id);

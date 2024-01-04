@@ -20,16 +20,13 @@ export const MockComponent = ({ webrtc }: Props) => {
     const track = stream.getVideoTracks()[0];
 
     const trackMetadata = { name: "Heart" };
-    // const simulcastConfig: SimulcastConfig = { enabled: true, activeEncodings: ["l", "m", "h"] };
-    // const maxBandwidth = 0;
-
-    // heartId.current = webrtc.addTrack(track, stream, trackMetadata, simulcastConfig, maxBandwidth);
     heartId.current = webrtc.addTrack(track, stream, trackMetadata);
   };
 
   const removeHeart = () => {
     if (!heartId.current) throw Error("Heart id is undefined");
 
+    console.log({name: "Removing track", trackId: heartId.current})
     webrtc.removeTrack(heartId.current);
   };
 

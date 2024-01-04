@@ -30,9 +30,9 @@ test("Add 2 tracks separately", async ({ page: senderPage, context }, testInfo) 
 
   // when
   await test.step("When", async () => {
-    await addOneTrack(senderPage, "Add a heart");
+    await clickButton(senderPage, "Add a heart");
     await senderPage.waitForTimeout(500);
-    await addOneTrack(senderPage, "Add a brain");
+    await clickButton(senderPage, "Add a brain");
   });
 
   // then
@@ -105,9 +105,9 @@ test("RC: Add 2 tracks at the same time and remove one track", async ({ page: se
     await sender2Page.goto("/");
     const sender2Id = await createAndJoinPeer(sender2Page, roomId);
 
-    await addOneTrack(sender2Page, "Add a heart");
+    await clickButton(sender2Page, "Add a heart");
     await sender2Page.waitForTimeout(500);
-    await addOneTrack(sender2Page, "Add a brain");
+    await clickButton(sender2Page, "Add a brain");
     return { sender2Page, sender2Id };
   });
 
@@ -141,10 +141,10 @@ test("Add and replace tracks slow", async ({ page: senderPage, context }) => {
   await createAndJoinPeer(receiverPage, roomId);
 
   // when
-  await addOneTrack(senderPage, "Add a heart");
+  await clickButton(senderPage, "Add a heart");
   await assertThatTrackBackgroundColorIsOk(receiverPage, senderId, "white");
   await senderPage.waitForTimeout(500);
-  await addOneTrack(senderPage, "Replace a heart");
+  await clickButton(senderPage, "Replace a heart");
 
   // then
 
@@ -180,6 +180,54 @@ test("RC: Add and replace a track fast", async ({ page: senderPage, context }, t
   await takeScreenshot(receiverPage, testInfo);
 });
 
+test("Add and remove a track slow", async ({ page: senderPage, context }, testInfo) => {
+  // given
+  await senderPage.goto("/");
+  const roomId = await createRoom(senderPage);
+
+  const senderId = await createAndJoinPeer(senderPage, roomId);
+
+  const receiverPage = await context.newPage();
+  await receiverPage.goto("/");
+  await createAndJoinPeer(receiverPage, roomId);
+  await receiverPage.waitForTimeout(1000)
+
+  // when
+  await clickButton(senderPage, "Add a heart");
+  await senderPage.waitForTimeout(1000)
+  await clickButton(senderPage, "Remove a heart");
+
+  // then
+  await assertThatAllTracksAreReady(receiverPage, senderId, 1);
+  await assertThatAllTracksAreReady(receiverPage, senderId, 0);
+
+  await takeScreenshot(receiverPage, testInfo);
+});
+
+
+test("RC: Add and remove a track fast", async ({ page: senderPage, context }, testInfo) => {
+  // given
+  await senderPage.goto("/");
+  const roomId = await createRoom(senderPage);
+
+  const senderId = await createAndJoinPeer(senderPage, roomId);
+
+  const receiverPage = await context.newPage();
+  await receiverPage.goto("/");
+  await createAndJoinPeer(receiverPage, roomId);
+  await receiverPage.waitForTimeout(1000)
+
+  // when
+  await addAndRemoveTrack(senderPage);
+
+  // then
+  await assertThatAllTracksAreReady(receiverPage, senderId, 1);
+  await assertThatAllTracksAreReady(receiverPage, senderId, 0);
+
+  await takeScreenshot(receiverPage, testInfo);
+});
+
+
 export const addAndReplaceTrack = async (page: Page) =>
   await test.step("Add and replace track", async () =>
     await page
@@ -188,6 +236,15 @@ export const addAndReplaceTrack = async (page: Page) =>
         exact: true,
       })
       .click());
+
+export const addAndRemoveTrack = async (page: Page) =>
+    await test.step("Add and remove track", async () =>
+        await page
+            .getByRole("button", {
+              name: "Add and remove a heart",
+              exact: true,
+            })
+            .click());
 
 export const addBothMockTracks = async (page: Page) =>
   await test.step("Add both tracks", async () =>
@@ -243,7 +300,7 @@ export const assertThatBothTrackAreDifferent = async (page: Page, testInfo: Test
   });
 };
 
-export const addOneTrack = async (page: Page, name: string) =>
+export const clickButton = async (page: Page, name: string) =>
   await test.step(`Add '${name}' track`, async () => {
     await page.getByRole("button", { name: name, exact: true }).click();
   });

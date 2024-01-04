@@ -62,8 +62,6 @@ class RemoteTracksStore {
 
 const webrtc = new WebRTCEndpoint();
 (window as typeof window & { webrtc: WebRTCEndpoint }).webrtc = webrtc;
-// @ts-ignore
-console.log({ name: "Page init", webrtc: window["webrtc"] });
 const remoteTracksStore = new RemoteTracksStore(webrtc);
 
 function connect(token: string) {
@@ -80,17 +78,6 @@ function connect(token: string) {
 
   // Assign a random client ID to make it easier to distinguish their messages
   const clientId = Math.floor(Math.random() * 100);
-
-  webrtc.on("connected", () => {
-    console.log({
-      name: "Connected!",
-      // @ts-ignore
-      webrtc: window["webrtc"],
-      // @ts-ignore
-      windowConnection: window["webrtc"]["connection"],
-      webrtcConnection: webrtc["connection"],
-    });
-  });
 
   webrtc.on("sendMediaEvent", (mediaEvent: SerializedMediaEvent) => {
     console.log(`%c(${clientId}) - Send: ${mediaEvent}`, "color:blue");
@@ -171,19 +158,6 @@ export function App() {
     () => remoteTracksStore.snapshot(),
   );
 
-  // const [counter, setCounter] = useState<number>(0);
-  //
-  // // // this code solves
-  // useEffect(() => {
-  //   const id = setInterval(() => {
-  //     setCounter((prev) => {
-  //       console.log("Counter updated!")
-  //       return prev + 1
-  //     });
-  //   }, 1000);
-  //   return () => clearInterval(id);
-  // }, []);
-
   const setEncoding = (trackId: string, encoding: TrackEncoding) => {
     webrtc.setTargetTrackEncoding(trackId, encoding);
   };
@@ -200,7 +174,6 @@ export function App() {
 
   return (
     <>
-      {/*<span>{counter}</span>*/}
       <div>
         <input value={tokenInput} onChange={(e) => setTokenInput(e.target.value)} placeholder="token" />
         <button onClick={handleConnect}>Connect</button>
@@ -209,22 +182,19 @@ export function App() {
       <div id="connection-status">{connected ? "true" : "false"}</div>
       <MockComponent webrtc={webrtc} />
       <div style={{ width: "100%" }}>
-        {Object.values(remoteTracks).map(({ stream, trackId, endpoint }) => {
-          console.log({ streamId: stream?.id, stream, trackId, endpoint });
-          return (
-            <div key={trackId} data-endpoint-id={endpoint.id} data-stream-id={stream?.id}>
-              <div style={{ display: "flex", flexDirection: "column" }}>
-                <VideoPlayerWithDetector id={endpoint.id} stream={stream ?? undefined} />
-              </div>
-              <div data-name="stream-id">{stream?.id}</div>
-              <div>
-                <button onClick={() => setEncoding(trackId, "l")}>l</button>
-                <button onClick={() => setEncoding(trackId, "m")}>m</button>
-                <button onClick={() => setEncoding(trackId, "h")}>h</button>
-              </div>
+        {Object.values(remoteTracks).map(({ stream, trackId, endpoint }) => (
+          <div key={trackId} data-endpoint-id={endpoint.id} data-stream-id={stream?.id}>
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <VideoPlayerWithDetector id={endpoint.id} stream={stream ?? undefined} />
             </div>
-          );
-        })}
+            <div data-name="stream-id">{stream?.id}</div>
+            <div>
+              <button onClick={() => setEncoding(trackId, "l")}>l</button>
+              <button onClick={() => setEncoding(trackId, "m")}>m</button>
+              <button onClick={() => setEncoding(trackId, "h")}>h</button>
+            </div>
+          </div>
+        ))}
       </div>
     </>
   );

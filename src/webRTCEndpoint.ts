@@ -514,6 +514,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
 
         this.onAnswer(deserializedMediaEvent.data);
 
+        // todo remove?
         this.processing = false;
         this.sdpAnswer = true;
         this.processNextCommand();
@@ -714,7 +715,6 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
   }
 
   private handleCommand(command: Command) {
-
     switch (command.commandType) {
       case "ADD-TRACK":
         this.addTrackCommandHandler(command);
@@ -729,20 +729,29 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
   }
 
   private processNextCommand() {
-    if (
-      !this.sdpAnswer ||
-      !this.sendCandidate ||
-      !this.receivedCandidate ||
-      !this.connectionChanged ||
-      !this.iceConnectionChanged ||
-      !this.iceGatheringState ||
-      !this.connectionState
-    )
-      return;
+    console.log(
+      `(${this.testId}) - Start processing next command, queue: ${this.commandsQueue.length} signalingState: ${this.connection?.signalingState}, connectionState: ${this.connection?.connectionState}, iceConnectionState: ${this.connection?.iceConnectionState}`,
+    );
+
+    const b = this.connection?.signalingState !== "stable";
+    const b1 = this.connection?.connectionState !== "connected";
+    const b2 = this.connection?.iceConnectionState !== "connected";
+    const b3 = this.processing;
+    const condition = !!this.connection && (b || b1 || b2);
+
+    console.log(
+      `(${this.testId}) - queue: ${this.commandsQueue.length} b: ${b}, b1: ${b1}, b2: ${b2}, processing: ${b3}, condition: ${condition}`,
+    );
+    if (b3) return;
+    if (condition) return;
+
+    console.log(`(${this.testId}) - Continue processing next command`);
 
     const [command, ...rest] = this.commandsQueue;
 
     if (!command) return;
+
+    console.log(`(${this.testId}) - Next command: ${command.commandType}`);
 
     this.processing = true;
     this.sdpAnswer = false;
@@ -1481,8 +1490,8 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     } catch (error) {
       console.error(error);
     }
-    this.receivedCandidate = true;
-    this.processNextCommand();
+    // this.receivedCandidate = true;
+    // this.processNextCommand();
   };
 
   private onLocalCandidate = () => {
@@ -1498,8 +1507,8 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
           },
         });
         this.sendMediaEvent(mediaEvent);
-        this.sendCandidate = true;
-        this.processNextCommand();
+        // this.sendCandidate = true;
+        // this.processNextCommand();
       }
     };
   };
@@ -1535,8 +1544,8 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
       this.emit("connectionError", message);
     }
 
-    this.connectionChanged = true;
-    this.processNextCommand();
+    // this.connectionChanged = true;
+    // this.processNextCommand();
   };
 
   private onIceConnectionStateChange = (_event: Event) => {
@@ -1551,10 +1560,11 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
       case "failed":
         this.emit("connectionError", errorMessages);
         break;
+      case "connected":
+        this.iceConnectionChanged = true;
+        this.processNextCommand();
+        break;
     }
-
-    this.iceConnectionChanged = true;
-    this.processNextCommand();
   };
 
   private onNegotiationNeeded = (_event: Event) => {
@@ -1582,6 +1592,11 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
 
   private onSignalingStateChange = (event: any) => {
     console.log(`(${this.testId}) - onSignalingStateChange: ${this.connection?.signalingState}`);
+    switch (this.connection?.signalingState) {
+      case "stable":
+        this.processNextCommand();
+        break;
+    }
   };
 
   private onTrack = () => {

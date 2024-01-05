@@ -185,6 +185,7 @@ export function App() {
       <div style={{ width: "100%" }}>
         {Object.values(remoteTracks).map(({ stream, trackId, endpoint }) => (
           <div key={trackId} data-endpoint-id={endpoint.id} data-stream-id={stream?.id}>
+            <div>Endpoint id: {endpoint.id}</div>
             <div style={{ display: "flex", flexDirection: "column" }}>
               <VideoPlayerWithDetector id={endpoint.id} stream={stream ?? undefined} />
             </div>

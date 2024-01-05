@@ -700,14 +700,14 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
   }
 
   private processNextCommand() {
-    const b = this.connection?.signalingState !== "stable";
-    const b1 = this.connection?.connectionState !== "connected";
-    const b2 = this.connection?.iceConnectionState !== "connected";
-    const b3 = this.processing;
-    const condition = !!this.connection && (b || b1 || b2);
-
-    if (b3) return;
-    if (condition) return;
+    if (this.processing) return;
+    if (
+      this.connection &&
+      (this.connection.signalingState !== "stable" ||
+        this.connection.connectionState !== "connected" ||
+        this.connection.iceConnectionState !== "connected")
+    )
+      return;
 
     const [command, ...rest] = this.commandsQueue;
 
@@ -931,7 +931,6 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
           this.updateTrackMetadata(trackId, trackMetadata);
           result.resolve(true);
         })
-        // todo change to .reject("Reason"), .resolve(false) only for compatibility
         .catch(() => {
           result.resolve(false);
         });

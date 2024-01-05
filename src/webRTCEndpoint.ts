@@ -320,10 +320,21 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
   };
 
   private processing: boolean = false;
+  private sdpAnswer: boolean = true;
+  private receivedCandidate: boolean = true;
+  private sendCandidate: boolean = true;
+  private iceConnectionChanged: boolean = true;
+  private connectionChanged: boolean = true;
+  private iceGatheringState: boolean = true;
+  private connectionState: boolean = true;
+
   private commandsQueue: Command[] = [];
 
-  constructor() {
+  private testId: number;
+
+  constructor(testId?: number) {
     super();
+    this.testId = testId ?? 0;
   }
 
   /**
@@ -432,6 +443,12 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
       }
       case "tracksAdded": {
         this.processing = true;
+        this.sdpAnswer = false;
+        this.receivedCandidate = false;
+        this.sendCandidate = false;
+        this.iceConnectionChanged = false;
+        this.connectionChanged = false;
+
         data = deserializedMediaEvent.data;
         if (this.getEndpointId() === data.endpointId) return;
         data.tracks = new Map<string, any>(Object.entries(data.tracks));
@@ -454,6 +471,12 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
       }
       case "tracksRemoved": {
         this.processing = true;
+        this.sdpAnswer = false;
+        this.receivedCandidate = false;
+        this.sendCandidate = false;
+        this.iceConnectionChanged = false;
+        this.connectionChanged = false;
+
         data = deserializedMediaEvent.data;
         const endpointId = data.endpointId;
         if (this.getEndpointId() === endpointId) return;
@@ -490,7 +513,9 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
         }
 
         this.onAnswer(deserializedMediaEvent.data);
+
         this.processing = false;
+        this.sdpAnswer = true;
         this.processNextCommand();
         break;
 
@@ -689,6 +714,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
   }
 
   private handleCommand(command: Command) {
+
     switch (command.commandType) {
       case "ADD-TRACK":
         this.addTrackCommandHandler(command);
@@ -703,13 +729,28 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
   }
 
   private processNextCommand() {
-    if (this.processing) return;
+    if (
+      !this.sdpAnswer ||
+      !this.sendCandidate ||
+      !this.receivedCandidate ||
+      !this.connectionChanged ||
+      !this.iceConnectionChanged ||
+      !this.iceGatheringState ||
+      !this.connectionState
+    )
+      return;
 
     const [command, ...rest] = this.commandsQueue;
 
     if (!command) return;
 
     this.processing = true;
+    this.sdpAnswer = false;
+    this.receivedCandidate = false;
+    this.sendCandidate = false;
+    this.iceConnectionChanged = false;
+    this.connectionChanged = false;
+
     this.commandsQueue = rest;
     this.handleCommand(command);
   }
@@ -1303,6 +1344,8 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
   };
 
   private onAnswer = async (answer: RTCSessionDescriptionInit) => {
+    console.log(`(${this.testId}) - onAnswer`);
+
     this.connection!.ontrack = this.onTrack();
     try {
       await this.connection!.setRemoteDescription(answer);
@@ -1402,12 +1445,17 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     Array.from(endpoint.tracks.keys()).some((track) => trackId.startsWith(track));
 
   private onOfferData = async (offerData: Map<string, number>) => {
+    console.log(`(${this.testId}) - onOfferData`);
+
     if (!this.connection) {
       this.connection = new RTCPeerConnection(this.rtcConfig);
       this.connection.onicecandidate = this.onLocalCandidate();
       this.connection.onicecandidateerror = this.onIceCandidateError as (event: Event) => void;
       this.connection.onconnectionstatechange = this.onConnectionStateChange;
       this.connection.oniceconnectionstatechange = this.onIceConnectionStateChange;
+      this.connection.onnegotiationneeded = this.onNegotiationNeeded;
+      this.connection.onicegatheringstatechange = this.onIceGatheringStateChange;
+      this.connection.onsignalingstatechange = this.onSignalingStateChange;
 
       Array.from(this.localTrackIdToTrack.values()).forEach((trackContext) => this.addTrackToConnection(trackContext));
 
@@ -1422,6 +1470,8 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
   };
 
   private onRemoteCandidate = (candidate: RTCIceCandidate) => {
+    console.log(`(${this.testId}) - onRemoteCandidate`);
+
     try {
       const iceCandidate = new RTCIceCandidate(candidate);
       if (!this.connection) {
@@ -1431,9 +1481,13 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     } catch (error) {
       console.error(error);
     }
+    this.receivedCandidate = true;
+    this.processNextCommand();
   };
 
   private onLocalCandidate = () => {
+    console.log(`(${this.testId}) - onLocalCandidate`);
+
     return (event: RTCPeerConnectionIceEvent) => {
       if (event.candidate) {
         const mediaEvent = generateCustomEvent({
@@ -1444,22 +1498,50 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
           },
         });
         this.sendMediaEvent(mediaEvent);
+        this.sendCandidate = true;
+        this.processNextCommand();
       }
     };
   };
 
   private onIceCandidateError = (event: RTCPeerConnectionIceErrorEvent) => {
+    console.log(`(${this.testId}) - onIceCandidateError`);
+
     console.warn(event);
   };
 
   private onConnectionStateChange = (_event: Event) => {
+    console.log(`(${this.testId}) - onConnectionStateChange`);
+    if (this.connection) {
+      const state = this.connection?.connectionState;
+      console.log(`(${this.testId}) - connectionState: ${state}`);
+
+      switch (this.connection?.connectionState) {
+        case "connected":
+          this.connectionState = true;
+          this.processNextCommand();
+          break;
+        case "connecting":
+        case "disconnected":
+        case "failed":
+        case "closed":
+          this.connectionState = false;
+          break;
+      }
+    }
+
     if (this.connection?.connectionState === "failed") {
       const message = "Connection failed";
       this.emit("connectionError", message);
     }
+
+    this.connectionChanged = true;
+    this.processNextCommand();
   };
 
   private onIceConnectionStateChange = (_event: Event) => {
+    console.log(`(${this.testId}) - onIceConnectionStateChange`);
+
     const errorMessages = "Ice connection failed";
 
     switch (this.connection?.iceConnectionState) {
@@ -1470,10 +1552,44 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
         this.emit("connectionError", errorMessages);
         break;
     }
+
+    this.iceConnectionChanged = true;
+    this.processNextCommand();
+  };
+
+  private onNegotiationNeeded = (_event: Event) => {
+    console.log(`(${this.testId}) - onNegotiationNeeded`);
+  };
+
+  private onIceGatheringStateChange = (event: any) => {
+    const state = this.connection?.iceGatheringState;
+    console.log(`(${this.testId}) - onIceGatheringStateChange ${state}`);
+
+    let connection = event.target;
+
+    switch (connection.iceGatheringState) {
+      case "gathering":
+        this.iceGatheringState = false;
+        break;
+      case "complete":
+        this.iceGatheringState = true;
+        this.processNextCommand();
+        break;
+      case "new":
+        break;
+    }
+  };
+
+  private onSignalingStateChange = (event: any) => {
+    console.log(`(${this.testId}) - onSignalingStateChange: ${this.connection?.signalingState}`);
   };
 
   private onTrack = () => {
+    console.log(`(${this.testId}) - onTrack init`);
+
     return (event: RTCTrackEvent) => {
+      console.log(`(${this.testId}) - onTrack`);
+
       const [stream] = event.streams;
       const mid = event.transceiver.mid!;
 

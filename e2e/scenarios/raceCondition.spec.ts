@@ -219,7 +219,7 @@ test("Slowly add and remove a track", async ({ page: senderPage, context }, test
   await takeScreenshot(receiverPage, testInfo);
 });
 
-test.skip("RC: Quickly add and remove a track", async ({ page: senderPage, context }, testInfo) => {
+test("RC: Quickly add and remove a track", async ({ page: senderPage, context }, testInfo) => {
   // given
   await senderPage.goto("/");
   const roomId = await createRoom(senderPage);

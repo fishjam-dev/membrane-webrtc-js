@@ -60,7 +60,11 @@ class RemoteTracksStore {
   }
 }
 
-const webrtc = new WebRTCEndpoint();
+
+// Assign a random client ID to make it easier to distinguish their messages
+const clientId = Math.floor(Math.random() * 100);
+
+const webrtc = new WebRTCEndpoint(clientId);
 (window as typeof window & { webrtc: WebRTCEndpoint }).webrtc = webrtc;
 const remoteTracksStore = new RemoteTracksStore(webrtc);
 
@@ -75,9 +79,6 @@ function connect(token: string) {
   }
 
   websocket.addEventListener("open", socketOpenHandler);
-
-  // Assign a random client ID to make it easier to distinguish their messages
-  const clientId = Math.floor(Math.random() * 100);
 
   webrtc.on("sendMediaEvent", (mediaEvent: SerializedMediaEvent) => {
     console.log(`%c(${clientId}) - Send: ${mediaEvent}`, "color:blue");

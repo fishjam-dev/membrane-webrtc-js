@@ -313,6 +313,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     iceTransportPolicy: "relay",
   };
 
+  // indicates that the processing of renegotiation is ongoing (renegotiateTracks, offerData, sdpOffer, sdpAnswer)
   private processing: boolean = false;
   private commandsQueue: Command[] = [];
 

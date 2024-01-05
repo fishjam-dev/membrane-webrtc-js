@@ -9,7 +9,7 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import EventEmitter from "events";
 import TypedEmitter from "typed-emitter";
-import { simulcastTransceiverConfig, defaultBitrates, defaultSimulcastBitrates } from "./const";
+import { defaultBitrates, defaultSimulcastBitrates, simulcastTransceiverConfig } from "./const";
 import { AddTrackCommand, Command, RemoveTrackCommand, ReplaceTackCommand } from "./commands";
 import { Deferred } from "./deferred";
 
@@ -1465,8 +1465,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
         this.processNextCommand();
         break;
       case "failed":
-        const message = "Connection failed";
-        this.emit("connectionError", message);
+        this.emit("connectionError", "Connection failed");
         break;
     }
   };
@@ -1487,7 +1486,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     }
   };
 
-  private onIceGatheringStateChange = (event: any) => {
+  private onIceGatheringStateChange = (_event: any) => {
     switch (this.connection?.iceGatheringState) {
       case "complete":
         this.processNextCommand();
@@ -1495,7 +1494,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     }
   };
 
-  private onSignalingStateChange = (event: any) => {
+  private onSignalingStateChange = (_event: any) => {
     switch (this.connection?.signalingState) {
       case "stable":
         this.processNextCommand();

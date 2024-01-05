@@ -60,7 +60,6 @@ class RemoteTracksStore {
   }
 }
 
-
 // Assign a random client ID to make it easier to distinguish their messages
 const clientId = Math.floor(Math.random() * 100);
 

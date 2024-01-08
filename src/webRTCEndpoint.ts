@@ -313,8 +313,8 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     iceTransportPolicy: "relay",
   };
 
-  // indicates that the processing of renegotiation is ongoing (renegotiateTracks, offerData, sdpOffer, sdpAnswer)
-  private processing: boolean = false;
+  // indicates that the ongoingRenegotiation of renegotiation is ongoing (renegotiateTracks, offerData, sdpOffer, sdpAnswer)
+  private ongoingRenegotiation: boolean = false;
   private commandsQueue: Command[] = [];
 
   constructor() {
@@ -426,7 +426,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
         break;
       }
       case "tracksAdded": {
-        this.processing = true;
+        this.ongoingRenegotiation = true;
 
         data = deserializedMediaEvent.data;
         if (this.getEndpointId() === data.endpointId) return;
@@ -449,7 +449,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
         break;
       }
       case "tracksRemoved": {
-        this.processing = true;
+        this.ongoingRenegotiation = true;
 
         data = deserializedMediaEvent.data;
         const endpointId = data.endpointId;
@@ -488,7 +488,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
 
         this.onAnswer(deserializedMediaEvent.data);
 
-        this.processing = false;
+        this.ongoingRenegotiation = false;
         this.processNextCommand();
         break;
 
@@ -701,7 +701,8 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
   }
 
   private processNextCommand() {
-    if (this.processing) return;
+    if (this.ongoingRenegotiation) return;
+
     if (
       this.connection &&
       (this.connection.signalingState !== "stable" ||
@@ -710,13 +711,12 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     )
       return;
 
-    const [command, ...rest] = this.commandsQueue;
+    const command = this.commandsQueue.shift();
 
     if (!command) return;
 
-    this.processing = true;
+    this.ongoingRenegotiation = true;
 
-    this.commandsQueue = rest;
     this.handleCommand(command);
   }
 

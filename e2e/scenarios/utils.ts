@@ -2,12 +2,12 @@ import { expect, Page, test, TestInfo } from "@playwright/test";
 import { v4 as uuidv4 } from "uuid";
 
 export const TO_PASS_TIMEOUT_MILLIS = 10 * 1000; // 10 seconds
-export const TO_PASS_CONFIG = { timeout: TO_PASS_TIMEOUT_MILLIS };
-
 export const addScreenShare = async (page: Page) =>
   await test.step("Add screenshare", async () => {
     await page.getByRole("button", { name: "Start screenshare", exact: true }).click();
   });
+
+const shortExpect = expect.configure({ timeout: TO_PASS_TIMEOUT_MILLIS });
 
 export const createAndJoinPeer = async (page: Page, roomId: string): Promise<string> =>
   test.step("Create and join peer", async () => {
@@ -90,7 +90,7 @@ export const assertThatOtherVideoIsPlaying = async (page: Page) => {
         return 0;
       });
     const firstMeasure = await getDecodedFrames();
-    await expect(async () => expect((await getDecodedFrames()) > firstMeasure).toBe(true)).toPass(TO_PASS_CONFIG);
+    await shortExpect(async () => expect((await getDecodedFrames()) > firstMeasure).toBe(true)).toPass();
   });
 };
 
@@ -162,29 +162,23 @@ export const addBothMockTracks = async (page: Page) =>
 
 export const assertThatAllTracksAreReady = async (page: Page, otherClientId: string, tracks: number) =>
   await test.step(`Assert that all (${tracks}) tracks are ready`, async () =>
-    await expect(async () =>
-      expect((await page.locator(`div[data-endpoint-id="${otherClientId}"]`).all()).length).toBe(tracks),
-    ).toPass(TO_PASS_CONFIG));
+    shortExpect(page.locator(`div[data-endpoint-id="${otherClientId}"]`)).toHaveCount(tracks));
 
 export const assertThatTrackBackgroundColorIsOk = async (page: Page, otherClientId: string, color: string) =>
-  await test.step(`Assert that track background color is ${color}`, async () =>
-    await expect(async () =>
-      expect(
-        page.locator(`xpath=//div[@data-endpoint-id="${otherClientId}"]//div[@data-color-name="${color}"]`),
-      ).toBeVisible(),
-    ).toPass(TO_PASS_CONFIG));
+  await test.step(`Assert that track background color is ${color}`, () =>
+    shortExpect(
+      page.locator(`xpath=//div[@data-endpoint-id="${otherClientId}"]//div[@data-color-name="${color}"]`),
+    ).toBeVisible());
 
 export const assertThatTrackReplaceStatusIsSuccess = async (page: Page, replaceStatus: string) =>
   await test.step(`Assert that track background color is ${replaceStatus}`, async () =>
-    await expect(async () =>
-      expect(page.locator(`xpath=//span[@data-replace-status="${replaceStatus}"]`)).toBeVisible(),
-    ).toPass(TO_PASS_CONFIG));
+    await shortExpect(page.locator(`xpath=//span[@data-replace-status="${replaceStatus}"]`)).toBeVisible());
+
+const NOT_EMPTY_TEXT = /\S/
 
 export const assertThatTrackIdIsNotEmpty = async (page: Page, locator: string) =>
   await test.step("Assert that track id is not empty", async () =>
-    await expect(async () => {
-      expect((await page.locator(locator).textContent())?.trim()?.length ?? 0).toBeGreaterThan(0);
-    }).toPass(TO_PASS_CONFIG));
+    await shortExpect(page.locator(locator)).toContainText(NOT_EMPTY_TEXT));
 
 export const assertThatBothTrackAreDifferent = async (page: Page, testInfo: TestInfo, name?: string) => {
   await test.step("Assert that both tracks are different", async () => {

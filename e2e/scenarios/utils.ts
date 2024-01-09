@@ -174,7 +174,7 @@ export const assertThatTrackReplaceStatusIsSuccess = async (page: Page, replaceS
   await test.step(`Assert that track background color is ${replaceStatus}`, async () =>
     await shortExpect(page.locator(`xpath=//span[@data-replace-status="${replaceStatus}"]`)).toBeVisible());
 
-const NOT_EMPTY_TEXT = /\S/
+const NOT_EMPTY_TEXT = /\S/;
 
 export const assertThatTrackIdIsNotEmpty = async (page: Page, locator: string) =>
   await test.step("Assert that track id is not empty", async () =>

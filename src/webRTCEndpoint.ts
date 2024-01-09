@@ -682,7 +682,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
   }
 
   private pushCommand(command: Command) {
-    this.commandsQueue.push(command)
+    this.commandsQueue.push(command);
     this.processNextCommand();
   }
 

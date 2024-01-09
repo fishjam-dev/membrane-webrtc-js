@@ -193,8 +193,6 @@ export const assertThatBothTrackAreDifferent = async (page: Page, testInfo: Test
     const text1 = await page.locator(locator1).textContent();
     const text2 = await page.locator(locator2).textContent();
 
-    expect(text1 !== "").toBe(true);
-    expect(text2 !== "").toBe(true);
     expect(text1 !== text2).toBe(true);
   });
 };

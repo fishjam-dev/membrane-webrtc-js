@@ -9,7 +9,9 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import EventEmitter from "events";
 import TypedEmitter from "typed-emitter";
-import { simulcastTransceiverConfig, defaultBitrates, defaultSimulcastBitrates } from "./const";
+import { defaultBitrates, defaultSimulcastBitrates, simulcastTransceiverConfig } from "./const";
+import { AddTrackCommand, Command, RemoveTrackCommand, ReplaceTackCommand } from "./commands";
+import { Deferred } from "./deferred";
 
 /**
  * Interface describing Endpoint.
@@ -311,6 +313,10 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     iceTransportPolicy: "relay",
   };
 
+  // indicates that the ongoingRenegotiation of renegotiation is ongoing (renegotiateTracks, offerData, sdpOffer, sdpAnswer)
+  private ongoingRenegotiation: boolean = false;
+  private commandsQueue: Command[] = [];
+
   constructor() {
     super();
   }
@@ -420,6 +426,8 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
         break;
       }
       case "tracksAdded": {
+        this.ongoingRenegotiation = true;
+
         data = deserializedMediaEvent.data;
         if (this.getEndpointId() === data.endpointId) return;
         data.tracks = new Map<string, any>(Object.entries(data.tracks));
@@ -441,6 +449,8 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
         break;
       }
       case "tracksRemoved": {
+        this.ongoingRenegotiation = true;
+
         data = deserializedMediaEvent.data;
         const endpointId = data.endpointId;
         if (this.getEndpointId() === endpointId) return;
@@ -448,9 +458,9 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
         trackIds.forEach((trackId) => {
           const trackContext = this.trackIdToTrack.get(trackId)!;
 
-          this.emit("trackRemoved", trackContext);
-
           this.eraseTrack(trackId, endpointId);
+
+          this.emit("trackRemoved", trackContext);
         });
         break;
       }
@@ -477,6 +487,9 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
         }
 
         this.onAnswer(deserializedMediaEvent.data);
+
+        this.ongoingRenegotiation = false;
+        this.processNextCommand();
         break;
 
       case "candidate":
@@ -655,6 +668,70 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     if (this.getEndpointId() === "") throw "Cannot add tracks before being accepted by the server";
     const trackId = this.getTrackId(uuidv4());
 
+    this.pushCommand({
+      commandType: "ADD-TRACK",
+      trackId,
+      track,
+      stream,
+      trackMetadata,
+      simulcastConfig,
+      maxBandwidth,
+    });
+
+    return trackId;
+  }
+
+  private pushCommand(command: Command) {
+    this.commandsQueue.push(command);
+    this.processNextCommand();
+  }
+
+  private handleCommand(command: Command) {
+    switch (command.commandType) {
+      case "ADD-TRACK":
+        this.addTrackCommandHandler(command);
+        break;
+      case "REMOVE-TRACK":
+        this.removeTrackHandler(command);
+        break;
+      case "REPLACE-TRACK":
+        this.replaceTrackHandler(command);
+        break;
+    }
+  }
+
+  private processNextCommand() {
+    if (this.ongoingRenegotiation) return;
+
+    if (
+      this.connection &&
+      (this.connection.signalingState !== "stable" ||
+        this.connection.connectionState !== "connected" ||
+        this.connection.iceConnectionState !== "connected")
+    )
+      return;
+
+    const command = this.commandsQueue.shift();
+
+    if (!command) return;
+
+    this.ongoingRenegotiation = true;
+
+    this.handleCommand(command);
+  }
+
+  private addTrackCommandHandler(addTrackCommand: AddTrackCommand): string {
+    const { simulcastConfig, maxBandwidth, track, stream, trackMetadata, trackId } = addTrackCommand;
+    const isUsedTrack = this.connection?.getSenders().some((val) => val.track === track);
+
+    if (isUsedTrack) {
+      throw "This track was already added to peerConnection, it can't be added again!";
+    }
+
+    if (!simulcastConfig.enabled && !(typeof maxBandwidth === "number"))
+      throw "Invalid type of `maxBandwidth` argument for a non-simulcast track, expected: number";
+    if (this.getEndpointId() === "") throw "Cannot add tracks before being accepted by the server";
+
     const trackContext = new TrackContextImpl(this.localEndpoint, trackId, trackMetadata, simulcastConfig);
 
     this.localEndpoint.tracks.set(trackId, trackContext);
@@ -782,10 +859,10 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
 
   /**
    * Replaces a track that is being sent to the RTC Engine.
-   * @param track - Audio or video track.
+   * @param trackId - Audio or video track.
    * @param {string} trackId - Id of audio or video track to replace.
    * @param {MediaStreamTrack} newTrack
-   * @param {any} [newMetadata] - Optional track metadata to apply to the new track. If no
+   * @param {any} [newTrackMetadata] - Optional track metadata to apply to the new track. If no
    *                              track metadata is passed, the old track metadata is retained.
    * @returns {Promise<boolean>} success
    * @example
@@ -828,21 +905,37 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
    * ```
    */
   public async replaceTrack(trackId: string, newTrack: MediaStreamTrack, newTrackMetadata?: any): Promise<boolean> {
+    const result = new Deferred<boolean>();
+
+    this.pushCommand({
+      commandType: "REPLACE-TRACK",
+      trackId,
+      newTrack,
+      newTrackMetadata,
+      result,
+    });
+
+    return result.promise;
+  }
+
+  private replaceTrackHandler(command: ReplaceTackCommand) {
+    const { trackId, newTrack, newTrackMetadata, result } = command;
+
     const trackContext = this.localTrackIdToTrack.get(trackId)!;
     const sender = this.findSender(trackContext.track!.id);
     if (sender) {
-      return sender
+      sender
         .replaceTrack(newTrack)
         .then(() => {
           const trackMetadata = newTrackMetadata || this.localTrackIdToTrack.get(trackId)!.metadata;
           trackContext.track = newTrack;
           this.updateTrackMetadata(trackId, trackMetadata);
-          return true;
+          result.resolve(true);
         })
-        .catch(() => false);
+        .catch(() => {
+          result.resolve(false);
+        });
     }
-
-    return false;
   }
 
   /**
@@ -958,6 +1051,14 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
    * ```
    */
   public removeTrack(trackId: string) {
+    this.pushCommand({
+      commandType: "REMOVE-TRACK",
+      trackId,
+    });
+  }
+
+  private removeTrackHandler(command: RemoveTrackCommand) {
+    const { trackId } = command;
     const trackContext = this.localTrackIdToTrack.get(trackId)!;
     const sender = this.findSender(trackContext.track!.id);
     this.connection!.removeTrack(sender);
@@ -1312,6 +1413,8 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
       this.connection.onicecandidateerror = this.onIceCandidateError as (event: Event) => void;
       this.connection.onconnectionstatechange = this.onConnectionStateChange;
       this.connection.oniceconnectionstatechange = this.onIceConnectionStateChange;
+      this.connection.onicegatheringstatechange = this.onIceGatheringStateChange;
+      this.connection.onsignalingstatechange = this.onSignalingStateChange;
 
       Array.from(this.localTrackIdToTrack.values()).forEach((trackContext) => this.addTrackToConnection(trackContext));
 
@@ -1357,9 +1460,13 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
   };
 
   private onConnectionStateChange = (_event: Event) => {
-    if (this.connection?.connectionState === "failed") {
-      const message = "Connection failed";
-      this.emit("connectionError", message);
+    switch (this.connection?.connectionState) {
+      case "connected":
+        this.processNextCommand();
+        break;
+      case "failed":
+        this.emit("connectionError", "Connection failed");
+        break;
     }
   };
 
@@ -1372,6 +1479,25 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
         break;
       case "failed":
         this.emit("connectionError", errorMessages);
+        break;
+      case "connected":
+        this.processNextCommand();
+        break;
+    }
+  };
+
+  private onIceGatheringStateChange = (_event: any) => {
+    switch (this.connection?.iceGatheringState) {
+      case "complete":
+        this.processNextCommand();
+        break;
+    }
+  };
+
+  private onSignalingStateChange = (_event: any) => {
+    switch (this.connection?.signalingState) {
+      case "stable":
+        this.processNextCommand();
         break;
     }
   };

@@ -5,7 +5,16 @@ import {
   createRoom,
   joinRoomAndAddScreenShare,
   throwIfRemoteTracksAreNotPresent,
+  takeScreenshot,
 } from "./utils";
+
+test.afterEach(async ({ context }, testInfo) => {
+  for (const page of context.pages()) {
+    await test.step("Screenshot after test", async () => {
+      await takeScreenshot(page, testInfo);
+    });
+  }
+});
 
 test("Displays basic UI", async ({ page }) => {
   await page.goto("/");

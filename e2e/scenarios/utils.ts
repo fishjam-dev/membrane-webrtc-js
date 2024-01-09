@@ -7,7 +7,7 @@ export const addScreenShare = async (page: Page) =>
     await page.getByRole("button", { name: "Start screenshare", exact: true }).click();
   });
 
-const shortExpect = expect.configure({ timeout: TO_PASS_TIMEOUT_MILLIS });
+const expectWithLongerTimeout = expect.configure({ timeout: TO_PASS_TIMEOUT_MILLIS });
 
 export const createAndJoinPeer = async (page: Page, roomId: string): Promise<string> =>
   test.step("Create and join peer", async () => {
@@ -90,7 +90,7 @@ export const assertThatOtherVideoIsPlaying = async (page: Page) => {
         return 0;
       });
     const firstMeasure = await getDecodedFrames();
-    await shortExpect(async () => expect((await getDecodedFrames()) > firstMeasure).toBe(true)).toPass();
+    await expectWithLongerTimeout(async () => expect((await getDecodedFrames()) > firstMeasure).toBe(true)).toPass();
   });
 };
 
@@ -162,23 +162,23 @@ export const addBothMockTracks = async (page: Page) =>
 
 export const assertThatAllTracksAreReady = async (page: Page, otherClientId: string, tracks: number) =>
   await test.step(`Assert that all (${tracks}) tracks are ready`, async () =>
-    shortExpect(page.locator(`div[data-endpoint-id="${otherClientId}"]`)).toHaveCount(tracks));
+    expectWithLongerTimeout(page.locator(`div[data-endpoint-id="${otherClientId}"]`)).toHaveCount(tracks));
 
 export const assertThatTrackBackgroundColorIsOk = async (page: Page, otherClientId: string, color: string) =>
   await test.step(`Assert that track background color is ${color}`, () =>
-    shortExpect(
+    expectWithLongerTimeout(
       page.locator(`xpath=//div[@data-endpoint-id="${otherClientId}"]//div[@data-color-name="${color}"]`),
     ).toBeVisible());
 
 export const assertThatTrackReplaceStatusIsSuccess = async (page: Page, replaceStatus: string) =>
   await test.step(`Assert that track background color is ${replaceStatus}`, async () =>
-    await shortExpect(page.locator(`xpath=//span[@data-replace-status="${replaceStatus}"]`)).toBeVisible());
+    await expectWithLongerTimeout(page.locator(`xpath=//span[@data-replace-status="${replaceStatus}"]`)).toBeVisible());
 
 const NOT_EMPTY_TEXT = /\S/;
 
 export const assertThatTrackIdIsNotEmpty = async (page: Page, locator: string) =>
   await test.step("Assert that track id is not empty", async () =>
-    await shortExpect(page.locator(locator)).toContainText(NOT_EMPTY_TEXT));
+    await expectWithLongerTimeout(page.locator(locator)).toContainText(NOT_EMPTY_TEXT));
 
 export const assertThatBothTrackAreDifferent = async (page: Page, testInfo: TestInfo, name?: string) => {
   await test.step("Assert that both tracks are different", async () => {

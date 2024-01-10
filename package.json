@@ -1,6 +1,6 @@
 {
   "name": "@jellyfish-dev/membrane-webrtc-js",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "JS/TS client library for Membrane RTC Engine.",
   "license": "Apache-2.0",
   "author": "Membrane Team",
@@ -13,7 +13,7 @@
   },
   "types": "./dist/membrane-webrtc-js.d.ts",
   "files": [
-    "dist/src"
+    "dist"
   ],
   "bugs": {
     "url": "https://github.com/jellyfish-dev/membrane-webrtc-js/issues"
@@ -58,7 +58,7 @@
     "typedoc": "^0.25.4",
     "typescript": "^5.3.3",
     "vite": "^5.0.7",
-    "vite-plugin-dts": "^3.6.4",
+    "vite-plugin-dts": "^3.7.0",
     "vitest": "^1.1.0",
     "zod": "^3.22.4"
   },

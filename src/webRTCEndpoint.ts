@@ -1073,64 +1073,6 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
   }
 
   /**
-   * Currently, this function only works when DisplayManager in RTC Engine is
-   * enabled and simulcast is disabled.
-   *
-   * Prioritizes a track in connection to be always sent to browser.
-   *
-   * @param {string} trackId - Id of video track to prioritize.
-   */
-  public prioritizeTrack(trackId: string) {
-    const mediaEvent = generateCustomEvent({
-      type: "prioritizeTrack",
-      data: { trackId },
-    });
-    this.sendMediaEvent(mediaEvent);
-  }
-
-  /**
-   * Currently, this function only works when DisplayManager in RTC Engine is
-   * enabled and simulcast is disabled.
-   *
-   * Unprioritizes a track.
-   *
-   * @param {string} trackId - Id of video track to unprioritize.
-   */
-  public unprioritizeTrack(trackId: string) {
-    const mediaEvent = generateCustomEvent({
-      type: "unprioritizeTrack",
-      data: { trackId },
-    });
-    this.sendMediaEvent(mediaEvent);
-  }
-
-  /**
-   * Currently this function has no effect.
-   *
-   * This function allows to adjust resolution and number of video tracks sent by an SFU to a client.
-   *
-   * @param {number} bigScreens - number of screens with big size
-   * (if simulcast is used this will limit number of tracks sent with highest quality).
-   * @param {number} smallScreens - number of screens with small size
-   * (if simulcast is used this will limit number of tracks sent with lowest quality).
-   * @param {number} mediumScreens - number of screens with medium size
-   * (if simulcast is used this will limit number of tracks sent with medium quality).
-   * @param {boolean} allSameSize - flag that indicates whether all screens should use the same quality
-   */
-  public setPreferedVideoSizes(
-    bigScreens: number,
-    smallScreens: number,
-    mediumScreens: number = 0,
-    allSameSize: boolean = false,
-  ) {
-    const mediaEvent = generateCustomEvent({
-      type: "preferedVideoSizes",
-      data: { bigScreens, mediumScreens, smallScreens, allSameSize },
-    });
-    this.sendMediaEvent(mediaEvent);
-  }
-
-  /**
    * Sets track encoding that server should send to the client library.
    *
    * The encoding will be sent whenever it is available.

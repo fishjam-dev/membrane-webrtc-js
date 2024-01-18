@@ -401,12 +401,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
   }
 
   /**
-   * Returns a snapshot of currently received remote tracks.
-   *
-   * @example
-   * if (webRTCEndpoint.getRemoteTracks()[trackId]?.simulcastConfig?.enabled) {
-   *   webRTCEndpoint.setTargetTrackEncoding(trackId, encoding);
-   * }
+   * Returns a snapshot of currently received remote endpoints.
    */
   public getRemoteEndpoints(): Record<string, Endpoint> {
     return Object.fromEntries(this.idToEndpoint.entries());
@@ -715,8 +710,6 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
 
     if (!command) return;
 
-    this.ongoingRenegotiation = true;
-
     this.handleCommand(command);
   }
 
@@ -731,6 +724,8 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     if (!simulcastConfig.enabled && !(typeof maxBandwidth === "number"))
       throw "Invalid type of `maxBandwidth` argument for a non-simulcast track, expected: number";
     if (this.getEndpointId() === "") throw "Cannot add tracks before being accepted by the server";
+
+    this.ongoingRenegotiation = true;
 
     const trackContext = new TrackContextImpl(this.localEndpoint, trackId, trackMetadata, simulcastConfig);
 
@@ -1061,6 +1056,9 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     const { trackId } = command;
     const trackContext = this.localTrackIdToTrack.get(trackId)!;
     const sender = this.findSender(trackContext.track!.id);
+
+    this.ongoingRenegotiation = true;
+
     this.connection!.removeTrack(sender);
     const mediaEvent = generateCustomEvent({ type: "renegotiateTracks" });
     this.sendMediaEvent(mediaEvent);

@@ -192,7 +192,7 @@ test("RC: Quickly add and replace a track", async ({ page: senderPage, context }
   await takeScreenshot(receiverPage, testInfo);
 });
 
-test.only("Add, replace and remove a track", async ({ page: senderPage, context }, testInfo) => {
+test("Add, replace and remove a track", async ({ page: senderPage, context }, testInfo) => {
   // given
   await senderPage.goto("/");
   const roomId = await createRoom(senderPage);

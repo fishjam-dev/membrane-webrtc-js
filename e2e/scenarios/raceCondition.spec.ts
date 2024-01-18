@@ -192,6 +192,32 @@ test("RC: Quickly add and replace a track", async ({ page: senderPage, context }
   await takeScreenshot(receiverPage, testInfo);
 });
 
+test.only("Add, replace and remove a track", async ({ page: senderPage, context }, testInfo) => {
+  // given
+  await senderPage.goto("/");
+  const roomId = await createRoom(senderPage);
+
+  const senderId = await createAndJoinPeer(senderPage, roomId);
+
+  const receiverPage = await context.newPage();
+  await receiverPage.goto("/");
+  await createAndJoinPeer(receiverPage, roomId);
+
+  // when
+  await addAndReplaceTrack(senderPage);
+  await assertThatOtherVideoIsPlaying(receiverPage);
+  await takeScreenshot(receiverPage, testInfo);
+  await assertThatTrackBackgroundColorIsOk(receiverPage, senderId, "red");
+  await assertThatAllTracksAreReady(receiverPage, senderId, 1);
+  await assertThatTrackReplaceStatusIsSuccess(senderPage, "success");
+
+  await clickButton(senderPage, "Remove a heart");
+
+  // then
+  await assertThatAllTracksAreReady(receiverPage, senderId, 0);
+  await takeScreenshot(receiverPage, testInfo);
+});
+
 test("Slowly add and remove a track", async ({ page: senderPage, context }, testInfo) => {
   // given
   await senderPage.goto("/");

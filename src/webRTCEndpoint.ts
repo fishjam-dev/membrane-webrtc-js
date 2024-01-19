@@ -318,6 +318,8 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
   private ongoingTrackReplacement: boolean = false;
   private commandsQueue: Command[] = [];
 
+  private trackIdToSender: Record<string, RTCRtpSender> = {};
+
   constructor() {
     super();
   }
@@ -900,7 +902,11 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
    *   })
    * ```
    */
-  public async replaceTrack(trackId: string, newTrack: MediaStreamTrack, newTrackMetadata?: any): Promise<boolean> {
+  public async replaceTrack(
+    trackId: string,
+    newTrack: MediaStreamTrack | null,
+    newTrackMetadata?: any,
+  ): Promise<boolean> {
     const result = new Deferred<boolean>();
 
     this.pushCommand({
@@ -918,13 +924,25 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     const { trackId, newTrack, newTrackMetadata, result } = command;
 
     const trackContext = this.localTrackIdToTrack.get(trackId)!;
-    const sender = this.findSender(trackContext.track!.id);
+
+    console.log({ trackContext });
+
+    let sender: RTCRtpSender | null = null;
+    if (trackContext.track !== null) {
+      sender = this.findSender(trackContext.track!.id);
+      this.trackIdToSender[trackId] = sender;
+    } else {
+      sender = this.trackIdToSender[trackId];
+    }
+
+    if (!sender) throw Error("Sender is empty!");
+
     if (sender) {
       this.ongoingTrackReplacement = true;
       sender
         .replaceTrack(newTrack)
         .then(() => {
-          const trackMetadata = newTrackMetadata || this.localTrackIdToTrack.get(trackId)!.metadata;
+          const trackMetadata = newTrackMetadata || this.localTrackIdToTrack.get(trackId)?.metadata;
           trackContext.track = newTrack;
           this.updateTrackMetadata(trackId, trackMetadata);
           result.resolve(true);
@@ -1204,6 +1222,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
   }
 
   private findSender(trackId: string): RTCRtpSender {
+    console.log({ senders: this.connection!.getSenders() });
     return this.connection!.getSenders().find((sender) => sender.track && sender!.track!.id === trackId)!;
   }
 

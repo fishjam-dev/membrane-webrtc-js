@@ -19,7 +19,7 @@ export type RemoveTrackCommand = {
 export type ReplaceTackCommand = {
   commandType: "REPLACE-TRACK";
   trackId: string;
-  newTrack: MediaStreamTrack;
+  newTrack: MediaStreamTrack | null;
   newTrackMetadata?: any;
   result: Deferred<boolean>;
 };

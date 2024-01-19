@@ -1,10 +1,11 @@
 import { SerializedMediaEvent, TrackContext, TrackEncoding, WebRTCEndpoint } from "@jellyfish-dev/membrane-webrtc-js";
 import { PeerMessage } from "./protos/jellyfish/peer_notifications";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import React, { useEffect, useState, useSyncExternalStore } from "react";
 import { MockComponent } from "./MockComponent.tsx";
 import { VideoPlayerWithDetector } from "./VideoPlayerWithDetector.tsx";
 import { WebRTCEndpointEvents } from "../../../dist/membrane-webrtc-js";
 import { TrackContextEvents } from "../../../src";
+import { ReplaceTrackWithDummyStream } from "./ReplaceTrackWithDummyStream.tsx";
 
 /* eslint-disable no-console */
 
@@ -181,6 +182,7 @@ export function App() {
       </div>
       <div id="connection-status">{connected ? "true" : "false"}</div>
       <MockComponent webrtc={webrtc} />
+      <ReplaceTrackWithDummyStream webrtc={webrtc}/>
       <div style={{ width: "100%" }}>
         {Object.values(remoteTracks).map(({ stream, trackId, endpoint }) => (
           <div key={trackId} data-endpoint-id={endpoint.id} data-stream-id={stream?.id}>

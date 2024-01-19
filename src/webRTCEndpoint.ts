@@ -697,14 +697,13 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
   }
 
   private processNextCommand() {
-    if (this.ongoingRenegotiation) return;
+    if (this.ongoingRenegotiation || this.ongoingTrackReplacement) return;
 
     if (
       this.connection &&
       (this.connection.signalingState !== "stable" ||
         this.connection.connectionState !== "connected" ||
-        this.connection.iceConnectionState !== "connected" ||
-        this.ongoingTrackReplacement)
+        this.connection.iceConnectionState !== "connected")
     )
       return;
 

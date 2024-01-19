@@ -219,7 +219,7 @@ test("Add, replace and remove a track", async ({ page: senderPage, context }, te
 });
 
 // replca
-test("replaceTrack blocks client", async ({ page: senderPage, context }, testInfo) => {
+test("replaceTrack blocks client", async ({ page: senderPage, context }) => {
   // given
   await senderPage.goto("/");
   const roomId = await createRoom(senderPage);
@@ -240,7 +240,6 @@ test("replaceTrack blocks client", async ({ page: senderPage, context }, testInf
   // then
   await assertThatAllTracksAreReady(receiverPage, senderId, 0);
 });
-
 
 test("Slowly add and remove a track", async ({ page: senderPage, context }, testInfo) => {
   // given

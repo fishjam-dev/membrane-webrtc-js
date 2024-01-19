@@ -57,8 +57,7 @@ export const MockComponent = ({ webrtc }: Props) => {
 
     const trackMetadata = { name: "Heart" };
 
-    const result = await webrtc.replaceTrack(brainId.current, track, trackMetadata);
-    setReplaceStatus(result ? "success" : "failure");
+    await webrtc.replaceTrack(brainId.current, track, trackMetadata);
   };
 
   const addBrain = () => {
@@ -111,10 +110,6 @@ export const MockComponent = ({ webrtc }: Props) => {
       <button onClick={addBoth}>Add both</button>
       <button onClick={addAndReplaceHeart}>Add and replace a heart</button>
       <button onClick={addAndRemoveHeart}>Add and remove a heart</button>
-
-      <div>
-
-      </div>
     </div>
   );
 };

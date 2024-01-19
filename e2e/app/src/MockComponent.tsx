@@ -4,6 +4,7 @@ import { VideoPlayer } from "./VideoPlayer.tsx";
 import { useRef, useState } from "react";
 
 const brainMock = createStream("🧠", "white", "low", 24);
+const brain2Mock = createStream("🤯", "#00ff00", "low", 24);
 const heartMock = createStream("🫀", "white", "low", 24);
 const heart2Mock = createStream("💝", "#FF0000", "low", 24);
 
@@ -13,6 +14,7 @@ type Props = {
 
 export const MockComponent = ({ webrtc }: Props) => {
   const heartId = useRef<string | null>(null);
+  const brainId = useRef<string | null>(null);
   const [replaceStatus, setReplaceStatus] = useState<"unknown" | "success" | "failure">("unknown");
 
   const addHeart = () => {
@@ -29,6 +31,12 @@ export const MockComponent = ({ webrtc }: Props) => {
     webrtc.removeTrack(heartId.current);
   };
 
+  const removeBrain = () => {
+    if (!brainId.current) throw Error("Brain id is undefined");
+
+    webrtc.removeTrack(brainId.current);
+  };
+
   const replaceHeart = async () => {
     if (!heartId.current) throw Error("Track Id is not set");
 
@@ -41,6 +49,17 @@ export const MockComponent = ({ webrtc }: Props) => {
     setReplaceStatus(result ? "success" : "failure");
   };
 
+  const replaceBrain = async () => {
+    if (!brainId.current) throw Error("Track Id is not set");
+
+    const stream = brain2Mock.stream;
+    const track = stream.getVideoTracks()[0];
+
+    const trackMetadata = { name: "Heart" };
+
+    await webrtc.replaceTrack(brainId.current, track, trackMetadata);
+  };
+
   const addBrain = () => {
     const stream = brainMock.stream;
     const track = stream.getVideoTracks()[0];
@@ -49,7 +68,7 @@ export const MockComponent = ({ webrtc }: Props) => {
     const simulcastConfig = { enabled: false, activeEncodings: [] };
     const maxBandwidth = 0;
 
-    webrtc.addTrack(track, stream, trackMetadata, simulcastConfig, maxBandwidth);
+    brainId.current = webrtc.addTrack(track, stream, trackMetadata, simulcastConfig, maxBandwidth);
   };
 
   const addBoth = () => {
@@ -83,6 +102,9 @@ export const MockComponent = ({ webrtc }: Props) => {
       <div>
         <VideoPlayer stream={brainMock.stream} />
         <button onClick={addBrain}>Add a brain</button>
+        <button onClick={removeBrain}>Remove a brain</button>
+        <VideoPlayer stream={brain2Mock.stream} />
+        <button onClick={replaceBrain}>Replace a brain</button>
       </div>
 
       <button onClick={addBoth}>Add both</button>

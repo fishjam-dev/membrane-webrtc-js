@@ -218,6 +218,29 @@ test("Add, replace and remove a track", async ({ page: senderPage, context }, te
   await takeScreenshot(receiverPage, testInfo);
 });
 
+// replca
+test("replaceTrack blocks client", async ({ page: senderPage, context }) => {
+  // given
+  await senderPage.goto("/");
+  const roomId = await createRoom(senderPage);
+
+  const senderId = await createAndJoinPeer(senderPage, roomId);
+
+  const receiverPage = await context.newPage();
+  await receiverPage.goto("/");
+  await createAndJoinPeer(receiverPage, roomId);
+
+  // when
+  await clickButton(senderPage, "Add both");
+  await clickButton(senderPage, "Replace a heart");
+  await clickButton(senderPage, "Replace a brain");
+  await clickButton(senderPage, "Remove a heart");
+  await clickButton(senderPage, "Remove a brain");
+
+  // then
+  await assertThatAllTracksAreReady(receiverPage, senderId, 0);
+});
+
 test("Slowly add and remove a track", async ({ page: senderPage, context }, testInfo) => {
   // given
   await senderPage.goto("/");

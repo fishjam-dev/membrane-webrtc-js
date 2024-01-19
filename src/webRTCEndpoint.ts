@@ -315,6 +315,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
 
   // indicates that the ongoingRenegotiation of renegotiation is ongoing (renegotiateTracks, offerData, sdpOffer, sdpAnswer)
   private ongoingRenegotiation: boolean = false;
+  private ongoingTrackReplacement: boolean = false;
   private commandsQueue: Command[] = [];
 
   constructor() {
@@ -696,7 +697,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
   }
 
   private processNextCommand() {
-    if (this.ongoingRenegotiation) return;
+    if (this.ongoingRenegotiation || this.ongoingTrackReplacement) return;
 
     if (
       this.connection &&
@@ -919,6 +920,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     const trackContext = this.localTrackIdToTrack.get(trackId)!;
     const sender = this.findSender(trackContext.track!.id);
     if (sender) {
+      this.ongoingTrackReplacement = true;
       sender
         .replaceTrack(newTrack)
         .then(() => {
@@ -929,6 +931,10 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
         })
         .catch(() => {
           result.resolve(false);
+        })
+        .finally(() => {
+          this.ongoingTrackReplacement = false;
+          this.processNextCommand();
         });
     }
   }

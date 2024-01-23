@@ -770,12 +770,11 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
 
     const trackContext = new TrackContextImpl(this.localEndpoint, trackId, trackMetadata, simulcastConfig);
 
-
-    this.localEndpoint.tracks.set(trackId, trackContext);
-
     trackContext.track = track;
     trackContext.stream = stream;
     trackContext.maxBandwidth = maxBandwidth;
+
+    this.localEndpoint.tracks.set(trackId, trackContext);
 
     this.localTrackIdToTrack.set(trackId, trackContext);
 
@@ -798,6 +797,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
   private addTrackToConnection = (trackContext: TrackContext) => {
     const transceiverConfig = this.createTransceiverConfig(trackContext);
     const track = trackContext.track!;
+    console.log("AddTrack: ", track, transceiverConfig)
     this.connection!.addTransceiver(track, transceiverConfig);
   };
 
@@ -813,8 +813,8 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     return transceiverConfig;
   }
 
-  private createAudioTransceiverConfig(_trackContext: TrackContext): RTCRtpTransceiverInit {
-    return { direction: "sendonly" };
+  private createAudioTransceiverConfig(trackContext: TrackContext): RTCRtpTransceiverInit {
+    return { direction: "sendonly", streams: trackContext.stream ? [trackContext.stream] : [] };
   }
 
   private createVideoTransceiverConfig(trackContext: TrackContext): RTCRtpTransceiverInit {
@@ -839,11 +839,15 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
             active: true,
           },
         ],
+        streams: trackContext.stream ? [trackContext.stream] : []
       };
     }
 
     if (trackContext.maxBandwidth && transceiverConfig.sendEncodings)
       this.applyBandwidthLimitation(transceiverConfig.sendEncodings, trackContext.maxBandwidth);
+
+
+    console.log("Config: ", transceiverConfig)
 
     return transceiverConfig;
   }

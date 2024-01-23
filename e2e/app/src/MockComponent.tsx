@@ -3,10 +3,10 @@ import { WebRTCEndpoint } from "@jellyfish-dev/membrane-webrtc-js";
 import { VideoPlayer } from "./VideoPlayer.tsx";
 import { useRef, useState } from "react";
 
-const brainMock = createStream("🧠", "white", "low", 24);
-const brain2Mock = createStream("🤯", "#00ff00", "low", 24);
-const heartMock = createStream("🫀", "white", "low", 24);
-const heart2Mock = createStream("💝", "#FF0000", "low", 24);
+const brainMock = createStream("🧠", "white", "high", 24);
+const brain2Mock = createStream("🤯", "#00ff00", "high", 24);
+const heartMock = createStream("🫀", "white", "high", 24);
+const heart2Mock = createStream("💝", "#FF0000", "high", 24);
 
 type Props = {
   webrtc: WebRTCEndpoint;
@@ -105,6 +105,13 @@ export const MockComponent = ({ webrtc }: Props) => {
         <button onClick={removeBrain}>Remove a brain</button>
         <VideoPlayer stream={brain2Mock.stream} />
         <button onClick={replaceBrain}>Replace a brain</button>
+      </div>
+      <div>
+        {/*<VideoPlayer stream={.stream} />*/}
+        {/*<button onClick={addBrain}>Add a brain</button>*/}
+        {/*<button onClick={removeBrain}>Remove a brain</button>*/}
+        {/*<VideoPlayer stream={brain2Mock.stream} />*/}
+        {/*<button onClick={replaceBrain}>Replace a brain</button>*/}
       </div>
 
       <button onClick={addBoth}>Add both</button>

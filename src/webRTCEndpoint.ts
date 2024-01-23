@@ -759,7 +759,8 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
   private addTrackToConnection = (trackContext: TrackContext) => {
     const transceiverConfig = this.createTransceiverConfig(trackContext);
     const track = trackContext.track!;
-    this.connection!.addTransceiver(track, transceiverConfig);
+    const abc = this.connection!.addTransceiver(track, transceiverConfig);
+    
   };
 
   private createTransceiverConfig(trackContext: TrackContext): RTCRtpTransceiverInit {

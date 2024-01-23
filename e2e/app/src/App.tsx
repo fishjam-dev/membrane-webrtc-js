@@ -1,6 +1,6 @@
 import { SerializedMediaEvent, TrackContext, TrackEncoding, WebRTCEndpoint } from "@jellyfish-dev/membrane-webrtc-js";
 import { PeerMessage } from "./protos/jellyfish/peer_notifications";
-import React, { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { MockComponent } from "./MockComponent.tsx";
 import { VideoPlayerWithDetector } from "./VideoPlayerWithDetector.tsx";
 import { WebRTCEndpointEvents } from "../../../dist/membrane-webrtc-js";

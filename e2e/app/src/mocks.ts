@@ -73,16 +73,19 @@ export const createStream: (
     ctx.rotate(-radian);
     ctx.translate(-translateX, -translateY);
     degree++;
+    window.requestAnimationFrame(drawEmoji);
   };
 
-  const intervalId = setInterval(() => {
-    drawEmoji();
-  }, 1000 / framerate);
+  // const intervalId = setInterval(() => {
+  //   drawEmoji();
+  // }, 1000 / framerate);
+
+  window.requestAnimationFrame(drawEmoji);
 
   return {
     stream: canvasElement.captureStream(framerate),
     stop: () => {
-      clearInterval(intervalId);
+      // clearInterval(intervalId);
     },
   };
 };

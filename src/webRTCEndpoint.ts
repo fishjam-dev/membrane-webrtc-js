@@ -161,13 +161,14 @@ export interface TrackContextEvents {
   voiceActivityChanged: (context: TrackContext) => void;
 }
 
-export interface TrackContext extends TrackContextFields, TypedEmitter<Required<TrackContextEvents>> { }
+export interface TrackContext extends TrackContextFields, TypedEmitter<Required<TrackContextEvents>> {}
 
 type TrackNegotiationStatus = "awaiting" | "offered" | "done";
 
 class TrackContextImpl
   extends (EventEmitter as new () => TypedEmitter<Required<TrackContextEvents>>)
-  implements TrackContext {
+  implements TrackContext
+{
   endpoint: Endpoint;
   trackId: string;
   track: MediaStreamTrack | null = null;
@@ -289,10 +290,9 @@ export interface WebRTCEndpointEvents {
    */
   bandwidthEstimationChanged: (estimation: bigint) => void;
 
-
   /**
- * Emitted each time track encoding has been disabled.
- */
+   * Emitted each time track encoding has been disabled.
+   */
   trackEncodingDisabled: (context: TrackContext, encoding: string) => void;
 
   /**
@@ -564,7 +564,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
         const trackId = deserializedMediaEvent.data.trackId;
         const encoding = deserializedMediaEvent.data.encoding;
 
-        const trackContext = endpoint.tracks.get(trackId)!!;
+        const trackContext = endpoint.tracks.get(trackId)!;
 
         this.emit("trackEncodingDisabled", trackContext, encoding);
         break;
@@ -579,7 +579,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
         const trackId = deserializedMediaEvent.data.trackId;
         const encoding = deserializedMediaEvent.data.encoding;
 
-        const trackContext = endpoint.tracks.get(trackId)!!;
+        const trackContext = endpoint.tracks.get(trackId)!;
 
         this.emit("trackEncodingEnabled", trackContext, encoding);
         break;
@@ -797,7 +797,6 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
   private addTrackToConnection = (trackContext: TrackContext) => {
     const transceiverConfig = this.createTransceiverConfig(trackContext);
     const track = trackContext.track!;
-    console.log("AddTrack: ", track, transceiverConfig)
     this.connection!.addTransceiver(track, transceiverConfig);
   };
 
@@ -839,15 +838,12 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
             active: true,
           },
         ],
-        streams: trackContext.stream ? [trackContext.stream] : []
+        streams: trackContext.stream ? [trackContext.stream] : [],
       };
     }
 
     if (trackContext.maxBandwidth && transceiverConfig.sendEncodings)
       this.applyBandwidthLimitation(transceiverConfig.sendEncodings, trackContext.maxBandwidth);
-
-
-    console.log("Config: ", transceiverConfig)
 
     return transceiverConfig;
   }
@@ -1228,8 +1224,8 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     params!.encodings.filter((en) => en.rid == encoding)[0].active = true;
     sender?.setParameters(params!);
 
-    const mediaEvent = generateMediaEvent("trackEncodingEnabled", { trackId: trackId, encoding: encoding })
-    this.sendMediaEvent(mediaEvent)
+    const mediaEvent = generateMediaEvent("trackEncodingEnabled", { trackId: trackId, encoding: encoding });
+    this.sendMediaEvent(mediaEvent);
   }
 
   /**
@@ -1250,9 +1246,8 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     params!.encodings.filter((en) => en.rid == encoding)[0].active = false;
     sender?.setParameters(params!);
 
-
-    const mediaEvent = generateMediaEvent("trackEncodingDisabled", { trackId: trackId, encoding: encoding })
-    this.sendMediaEvent(mediaEvent)
+    const mediaEvent = generateMediaEvent("trackEncodingDisabled", { trackId: trackId, encoding: encoding });
+    this.sendMediaEvent(mediaEvent);
   }
 
   private findSender(trackId: string): RTCRtpSender {

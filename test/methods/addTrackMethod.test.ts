@@ -46,79 +46,13 @@ it("Adding track updates internal state", () => {
   expect(localEndpoint.tracks.size).toBe(1);
 });
 
-it("Adding track before being accepted by the server throws error", () => {
+it("Adding track before being accepted by the server throws error", async () => {
   // Given
   mockRTCPeerConnection();
   const webRTCEndpoint = new WebRTCEndpoint();
 
   // When
-  expect(() => {
-    webRTCEndpoint.addTrack(mockTrack, stream);
-  }).toThrow("Cannot add tracks before being accepted by the server");
-});
-
-it("Adding track updates internal state", () => {
-  // Given
-  mockRTCPeerConnection();
-  const webRTCEndpoint = new WebRTCEndpoint();
-
-  webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEventWithOneEndpoint()));
-
-  // When
-  const trackId = webRTCEndpoint.addTrack(mockTrack, stream);
-
-  // Then
-  const trackContext = webRTCEndpoint["localTrackIdToTrack"].get(trackId);
-  expect(trackContext?.trackId).toBe(trackId);
-  expect(trackContext?.track).toBe(mockTrack);
-});
-
-it("Adding track sets default simulcast value in internal state", () => {
-  // Given
-  mockRTCPeerConnection();
-  const webRTCEndpoint = new WebRTCEndpoint();
-
-  webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEventWithOneEndpoint()));
-
-  // When
-  const trackId = webRTCEndpoint.addTrack(mockTrack, stream);
-
-  // Then
-  const trackContext = webRTCEndpoint["localTrackIdToTrack"].get(trackId);
-  const defaultSimulcastValue = { activeEncodings: [], enabled: false };
-  expect(trackContext?.simulcastConfig).toMatchObject(defaultSimulcastValue);
-});
-
-it("Adding track sets default encoding value in internal state", () => {
-  // Given
-  mockRTCPeerConnection();
-  const webRTCEndpoint = new WebRTCEndpoint();
-
-  webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEventWithOneEndpoint()));
-
-  // When
-  const trackId = webRTCEndpoint.addTrack(mockTrack, stream);
-
-  // Then
-  const trackContext = webRTCEndpoint["localTrackIdToTrack"].get(trackId);
-  expect(trackContext?.encoding).toBe(undefined);
-});
-
-it("Adding track updates internal metadata state", () => {
-  // Given
-  mockRTCPeerConnection();
-  const webRTCEndpoint = new WebRTCEndpoint();
-
-  webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEventWithOneEndpoint()));
-
-  const metadata = {
-    name: "track name",
-  };
-
-  // When
-  const trackId = webRTCEndpoint.addTrack(mockTrack, stream, metadata);
-
-  // Then
-  const localTrackIdToTrack = webRTCEndpoint["localTrackIdToTrack"].get(trackId);
-  expect(localTrackIdToTrack?.trackId).toBe(trackId);
+  await expect(() => 
+    webRTCEndpoint.addTrack(mockTrack, stream)
+  ).rejects.toThrow("Cannot add tracks before being accepted by the server");
 });

@@ -317,6 +317,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
   private ongoingRenegotiation: boolean = false;
   private ongoingTrackReplacement: boolean = false;
   private commandsQueue: Command[] = [];
+  private commandResolutionNotifier: Deferred<void> | null = null;
 
   constructor() {
     super();
@@ -652,16 +653,8 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     trackMetadata: any = new Map(),
     simulcastConfig: SimulcastConfig = { enabled: false, activeEncodings: [] },
     maxBandwidth: TrackBandwidthLimit = 0, // unlimited bandwidth
-  ): string {
-    const isUsedTrack = this.connection?.getSenders().some((val) => val.track === track);
-
-    if (isUsedTrack) {
-      throw "This track was already added to peerConnection, it can't be added again!";
-    }
-
-    if (!simulcastConfig.enabled && !(typeof maxBandwidth === "number"))
-      throw "Invalid type of `maxBandwidth` argument for a non-simulcast track, expected: number";
-    if (this.getEndpointId() === "") throw "Cannot add tracks before being accepted by the server";
+  ): Promise<string> {
+    const resolutionNotifier = new Deferred<void>();
     const trackId = this.getTrackId(uuidv4());
 
     this.pushCommand({
@@ -672,9 +665,10 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
       trackMetadata,
       simulcastConfig,
       maxBandwidth,
+      resolutionNotifier
     });
 
-    return trackId;
+    return resolutionNotifier.promise.then(() => trackId);
   }
 
   private pushCommand(command: Command) {
@@ -706,25 +700,43 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
         this.connection.iceConnectionState !== "connected")
     )
       return;
+      
+    this.resolvePreviousCommand();
 
     const command = this.commandsQueue.shift();
 
     if (!command) return;
 
+    this.commandResolutionNotifier = command.resolutionNotifier;
     this.handleCommand(command);
   }
 
-  private addTrackCommandHandler(addTrackCommand: AddTrackCommand): string {
+  private resolvePreviousCommand() {
+      if (this.commandResolutionNotifier) {
+        this.commandResolutionNotifier.resolve();
+        this.commandResolutionNotifier = null;
+      }
+  }
+
+  private addTrackCommandHandler(addTrackCommand: AddTrackCommand) {
     const { simulcastConfig, maxBandwidth, track, stream, trackMetadata, trackId } = addTrackCommand;
     const isUsedTrack = this.connection?.getSenders().some((val) => val.track === track);
 
+    let error;
     if (isUsedTrack) {
-      throw "This track was already added to peerConnection, it can't be added again!";
+      error = "This track was already added to peerConnection, it can't be added again!";
     }
 
     if (!simulcastConfig.enabled && !(typeof maxBandwidth === "number"))
-      throw "Invalid type of `maxBandwidth` argument for a non-simulcast track, expected: number";
-    if (this.getEndpointId() === "") throw "Cannot add tracks before being accepted by the server";
+      error = "Invalid type of `maxBandwidth` argument for a non-simulcast track, expected: number";
+    if (this.getEndpointId() === "") error = "Cannot add tracks before being accepted by the server";
+    
+    if (error) {
+      this.commandResolutionNotifier?.reject(error);
+      this.commandResolutionNotifier = null;
+      this.processNextCommand();
+      return;
+    }
 
     this.ongoingRenegotiation = true;
 
@@ -751,7 +763,6 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
 
     const mediaEvent = generateCustomEvent({ type: "renegotiateTracks" });
     this.sendMediaEvent(mediaEvent);
-    return trackId;
   }
 
   private addTrackToConnection = (trackContext: TrackContext) => {
@@ -900,22 +911,20 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
    *   })
    * ```
    */
-  public async replaceTrack(trackId: string, newTrack: MediaStreamTrack, newTrackMetadata?: any): Promise<boolean> {
-    const result = new Deferred<boolean>();
-
+  public async replaceTrack(trackId: string, newTrack: MediaStreamTrack, newTrackMetadata?: any): Promise<void> {
+    const resolutionNotifier = new Deferred<void>();
     this.pushCommand({
       commandType: "REPLACE-TRACK",
       trackId,
       newTrack,
       newTrackMetadata,
-      result,
+      resolutionNotifier,
     });
-
-    return result.promise;
+    return resolutionNotifier.promise;
   }
 
   private replaceTrackHandler(command: ReplaceTackCommand) {
-    const { trackId, newTrack, newTrackMetadata, result } = command;
+    const { trackId, newTrack, newTrackMetadata } = command;
 
     const trackContext = this.localTrackIdToTrack.get(trackId)!;
     const sender = this.findSender(trackContext.track!.id);
@@ -927,12 +936,9 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
           const trackMetadata = newTrackMetadata || this.localTrackIdToTrack.get(trackId)!.metadata;
           trackContext.track = newTrack;
           this.updateTrackMetadata(trackId, trackMetadata);
-          result.resolve(true);
-        })
-        .catch(() => {
-          result.resolve(false);
         })
         .finally(() => {
+          this.resolvePreviousCommand();
           this.ongoingTrackReplacement = false;
           this.processNextCommand();
         });
@@ -1051,11 +1057,14 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
    * webrtc.removeTrack(trackId)
    * ```
    */
-  public removeTrack(trackId: string) {
+  public removeTrack(trackId: string): Promise<void> {
+    const resolutionNotifier = new Deferred<void>();
     this.pushCommand({
       commandType: "REMOVE-TRACK",
       trackId,
+      resolutionNotifier
     });
+    return resolutionNotifier.promise;
   }
 
   private removeTrackHandler(command: RemoveTrackCommand) {

@@ -52,7 +52,7 @@ it("Adding track before being accepted by the server throws error", async () => 
   const webRTCEndpoint = new WebRTCEndpoint();
 
   // When
-  await expect(() => 
-    webRTCEndpoint.addTrack(mockTrack, stream)
-  ).rejects.toThrow("Cannot add tracks before being accepted by the server");
+  await expect(() => webRTCEndpoint.addTrack(mockTrack, stream)).rejects.toThrow(
+    "Cannot add tracks before being accepted by the server",
+  );
 });

@@ -9,13 +9,13 @@ export type AddTrackCommand = {
   trackMetadata: any;
   simulcastConfig: SimulcastConfig;
   maxBandwidth: TrackBandwidthLimit; // unlimited bandwidth
-  resolutionNotifier: Deferred<void>
+  resolutionNotifier: Deferred<void>;
 };
 
 export type RemoveTrackCommand = {
   commandType: "REMOVE-TRACK";
   trackId: string;
-  resolutionNotifier: Deferred<void>
+  resolutionNotifier: Deferred<void>;
 };
 
 export type ReplaceTackCommand = {

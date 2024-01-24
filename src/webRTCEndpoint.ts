@@ -665,7 +665,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
       trackMetadata,
       simulcastConfig,
       maxBandwidth,
-      resolutionNotifier
+      resolutionNotifier,
     });
 
     return resolutionNotifier.promise.then(() => trackId);
@@ -700,7 +700,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
         this.connection.iceConnectionState !== "connected")
     )
       return;
-      
+
     this.resolvePreviousCommand();
 
     const command = this.commandsQueue.shift();
@@ -712,10 +712,10 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
   }
 
   private resolvePreviousCommand() {
-      if (this.commandResolutionNotifier) {
-        this.commandResolutionNotifier.resolve();
-        this.commandResolutionNotifier = null;
-      }
+    if (this.commandResolutionNotifier) {
+      this.commandResolutionNotifier.resolve();
+      this.commandResolutionNotifier = null;
+    }
   }
 
   private addTrackCommandHandler(addTrackCommand: AddTrackCommand) {
@@ -730,7 +730,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     if (!simulcastConfig.enabled && !(typeof maxBandwidth === "number"))
       error = "Invalid type of `maxBandwidth` argument for a non-simulcast track, expected: number";
     if (this.getEndpointId() === "") error = "Cannot add tracks before being accepted by the server";
-    
+
     if (error) {
       this.commandResolutionNotifier?.reject(error);
       this.commandResolutionNotifier = null;
@@ -1062,7 +1062,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     this.pushCommand({
       commandType: "REMOVE-TRACK",
       trackId,
-      resolutionNotifier
+      resolutionNotifier,
     });
     return resolutionNotifier.promise;
   }

@@ -90,6 +90,14 @@ export interface SimulcastConfig {
    * enabled using {@link WebRTCEndpoint.enableTrackEncoding}.
    */
   activeEncodings: TrackEncoding[];
+
+  /**
+   * List of disabled encodings.
+   *
+   * Encoding that is present in this list was
+   * disabled using {@link WebRTCEndpoint.disableTrackEncoding}.
+   */
+  disabledEncodings: TrackEncoding[];
 }
 
 /**
@@ -690,7 +698,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     track: MediaStreamTrack,
     stream: MediaStream,
     trackMetadata: any = new Map(),
-    simulcastConfig: SimulcastConfig = { enabled: false, activeEncodings: [] },
+    simulcastConfig: SimulcastConfig = { enabled: false, activeEncodings: [], disabledEncodings: [] },
     maxBandwidth: TrackBandwidthLimit = 0, // unlimited bandwidth
   ): string {
     const isUsedTrack = this.connection?.getSenders().some((val) => val.track === track);

@@ -8,8 +8,20 @@ import { TrackContextEvents } from "../../../src";
 
 /* eslint-disable no-console */
 
+// type TrackMetadata = {
+//   test?: string;
+// }
+// 
+type TrackMetadata = number;
+
+function trackMetadataValidator(a: any): TrackMetadata {
+return a;
+  if (a === null) return a;
+  return { test: a?.test };
+}
+
 class RemoteTracksStore {
-  cache: Record<string, Record<string, TrackContext>> = {};
+  cache: Record<string, Record<string, TrackContext<TrackMetadata>>> = {};
   invalidateCache: boolean = false;
 
   constructor(private webrtc: WebRTCEndpoint) {}
@@ -20,16 +32,16 @@ class RemoteTracksStore {
       callback();
     };
 
-    const trackCb: TrackContextEvents["encodingChanged"] = () => cb();
+    const trackCb: TrackContextEvents<TrackMetadata>["encodingChanged"] = () => cb();
 
-    const trackAddedCb: WebRTCEndpointEvents["trackAdded"] = (context) => {
+    const trackAddedCb: WebRTCEndpointEvents<TrackMetadata>["trackAdded"] = (context) => {
       context.on("encodingChanged", () => trackCb);
       context.on("voiceActivityChanged", () => trackCb);
 
       callback();
     };
 
-    const removeCb: WebRTCEndpointEvents["trackRemoved"] = (context) => {
+    const removeCb: WebRTCEndpointEvents<TrackMetadata>["trackRemoved"] = (context) => {
       context.removeListener("encodingChanged", () => trackCb);
       context.removeListener("voiceActivityChanged", () => trackCb);
 
@@ -63,7 +75,8 @@ class RemoteTracksStore {
 // Assign a random client ID to make it easier to distinguish their messages
 const clientId = Math.floor(Math.random() * 100);
 
-const webrtc = new WebRTCEndpoint();
+const webrtc = new WebRTCEndpoint({trackMetadataValidator: trackMetadataValidator});
+const w: WebRTCEndpoint<string> = new WebRTCEndpoint({trackMetadataValidator: trackMetadataValidator});
 (window as typeof window & { webrtc: WebRTCEndpoint }).webrtc = webrtc;
 const remoteTracksStore = new RemoteTracksStore(webrtc);
 
@@ -182,9 +195,9 @@ export function App() {
       <div id="connection-status">{connected ? "true" : "false"}</div>
       <MockComponent webrtc={webrtc} />
       <div style={{ width: "100%" }}>
-        {Object.values(remoteTracks).map(({ stream, trackId, endpoint }) => (
+        {Object.values(remoteTracks).map(({ stream, trackId, endpoint, metadata }) => (
           <div key={trackId} data-endpoint-id={endpoint.id} data-stream-id={stream?.id}>
-            <div>Endpoint id: {endpoint.id}</div>
+            <div>Endpoint id: {endpoint.id} / { metadata?.test } / {JSON.stringify(metadata)}</div>
             <div style={{ display: "flex", flexDirection: "column" }}>
               <VideoPlayerWithDetector id={endpoint.id} stream={stream ?? undefined} />
             </div>

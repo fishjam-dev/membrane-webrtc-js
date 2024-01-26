@@ -8,16 +8,14 @@ import { TrackContextEvents } from "../../../src";
 
 /* eslint-disable no-console */
 
-// type TrackMetadata = {
-//   test?: string;
-// }
-// 
-type TrackMetadata = number;
+export type TrackMetadata = {
+  test: string;
+}
+
 
 function trackMetadataValidator(a: any): TrackMetadata {
-return a;
-  if (a === null) return a;
-  return { test: a?.test };
+  if (typeof a !== "object" || !("test" in a) || typeof a.test !== "string") throw "Invalid metadata!!!";
+  return { test: a.test };
 }
 
 class RemoteTracksStore {
@@ -76,7 +74,6 @@ class RemoteTracksStore {
 const clientId = Math.floor(Math.random() * 100);
 
 const webrtc = new WebRTCEndpoint({trackMetadataValidator: trackMetadataValidator});
-const w: WebRTCEndpoint<string> = new WebRTCEndpoint({trackMetadataValidator: trackMetadataValidator});
 (window as typeof window & { webrtc: WebRTCEndpoint }).webrtc = webrtc;
 const remoteTracksStore = new RemoteTracksStore(webrtc);
 
@@ -148,7 +145,7 @@ async function addScreenshareTrack(): Promise<string> {
   const stream = await window.navigator.mediaDevices.getDisplayMedia();
   const track = stream.getVideoTracks()[0];
 
-  const trackMetadata = {};
+  const trackMetadata: TrackMetadata = {test: "screenshare"};
   const simulcastConfig = { enabled: false, activeEncodings: [] };
   const maxBandwidth = 0;
 
@@ -195,9 +192,12 @@ export function App() {
       <div id="connection-status">{connected ? "true" : "false"}</div>
       <MockComponent webrtc={webrtc} />
       <div style={{ width: "100%" }}>
-        {Object.values(remoteTracks).map(({ stream, trackId, endpoint, metadata }) => (
+        {Object.values(remoteTracks).map(({ stream, trackId, endpoint, metadata, rawMetadata, metadataValidationError }) => (
           <div key={trackId} data-endpoint-id={endpoint.id} data-stream-id={stream?.id}>
-            <div>Endpoint id: {endpoint.id} / { metadata?.test } / {JSON.stringify(metadata)}</div>
+            <div>Endpoint id: {endpoint.id}</div>
+            Metadata: <code>{JSON.stringify(metadata, null, 2)}</code><br/>
+            Raw: <code>{JSON.stringify(rawMetadata)}</code><br/>
+            Error: <code>{metadataValidationError}</code>
             <div style={{ display: "flex", flexDirection: "column" }}>
               <VideoPlayerWithDetector id={endpoint.id} stream={stream ?? undefined} />
             </div>

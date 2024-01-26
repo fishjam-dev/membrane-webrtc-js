@@ -126,7 +126,9 @@ interface TrackContextFields<TrackMetadata> {
   /**
    * Any info that was passed in {@link WebRTCEndpoint.addTrack}.
    */
-  readonly metadata: TrackMetadata;
+  readonly metadata?: TrackMetadata;
+  readonly rawMetadata: any;
+  readonly metadataValidationError?: any;
 
   readonly maxBandwidth?: TrackBandwidthLimit;
 
@@ -176,7 +178,9 @@ class TrackContextImpl<ParsedMetadata>
   trackId: string;
   track: MediaStreamTrack | null = null;
   stream: MediaStream | null = null;
-  metadata: ParsedMetadata;
+  metadata?: ParsedMetadata;
+  rawMetadata: any;
+  metadataValidationError?: any;
   simulcastConfig?: SimulcastConfig;
   maxBandwidth: TrackBandwidthLimit = 0;
   encoding?: TrackEncoding;
@@ -193,7 +197,12 @@ class TrackContextImpl<ParsedMetadata>
     super();
     this.endpoint = endpoint;
     this.trackId = trackId;
-    this.metadata = metadata;
+    try {
+      this.metadata = metadataValidator(metadata);
+    } catch (error) {
+      this.metadataValidationError = error;
+    }
+    this.rawMetadata = metadata;
     this.simulcastConfig = simulcastConfig;
     this.metadataValidator = metadataValidator;
   }
@@ -546,10 +555,21 @@ export class WebRTCEndpoint<trackMetadata = any> extends (EventEmitter as { new<
 
         const trackId = deserializedMediaEvent.data.trackId;
         const trackMetadata = deserializedMediaEvent.data.metadata;
-        const prevTrack = endpoint.tracks.get(trackId)!;
-        endpoint.tracks.set(trackId, { ...prevTrack, metadata: this.trackMetadataValidator(trackMetadata) });
+        let newTrack = endpoint.tracks.get(trackId)!;
         const trackContext = this.trackIdToTrack.get(trackId)!;
-        trackContext.metadata = this.trackMetadataValidator(trackMetadata);
+        try {
+          const validatedMetadata = this.trackMetadataValidator(trackMetadata);
+          newTrack = { ...newTrack, metadata: validatedMetadata, metadataValidationError: undefined };
+          trackContext.metadata = validatedMetadata;
+          trackContext.metadataValidationError = undefined;
+        } catch (error) {
+          newTrack = { ...newTrack, metadata: undefined, metadataValidationError: error };
+          trackContext.metadataValidationError = error;
+        } finally {
+          newTrack = { ...newTrack, rawMetadata: trackMetadata };
+          trackContext.rawMetadata = trackMetadata;
+          endpoint.tracks.set(trackId, newTrack);
+        }
 
         this.emit("trackUpdated", trackContext);
         break;
@@ -659,7 +679,7 @@ export class WebRTCEndpoint<trackMetadata = any> extends (EventEmitter as { new<
   public addTrack(
     track: MediaStreamTrack,
     stream: MediaStream,
-    trackMetadata: any = new Map(),
+    trackMetadata?: trackMetadata,
     simulcastConfig: SimulcastConfig = { enabled: false, activeEncodings: [] },
     maxBandwidth: TrackBandwidthLimit = 0, // unlimited bandwidth
   ): Promise<string> {

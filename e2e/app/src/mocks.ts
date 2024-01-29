@@ -1,5 +1,6 @@
 export const canvasWidth = 320;
 export const canvasHeight = 180;
+import MockVideoWorker from "./mockVideoWorker.ts?worker";
 
 export type Quality = "low" | "medium" | "high";
 type QualityMultiplier = 1 | 2 | 4;
@@ -32,6 +33,38 @@ export const getPixel = (pixels: Uint8ClampedArray, width: number, x: number, y:
   };
 };
 
+export const createWorkerStream: (
+  emoji: string,
+  backgroundColor: string,
+  quality: Quality,
+  frameRate: number,
+) => {
+  stop: () => void;
+  stream: MediaStream;
+} = (emoji: string, backgroundColor: string, quality: Quality, frameRate: number) => {
+  const worker = new MockVideoWorker();
+  const canvasElement = document.createElement("canvas");
+  const canvasWorker = canvasElement.transferControlToOffscreen();
+  worker.postMessage(
+    {
+      action: "start",
+      canvas: canvasWorker,
+      emoji,
+      backgroundColor,
+      quality,
+      frameRate,
+    },
+    [canvasWorker],
+  );
+
+  return {
+    stream: canvasElement.captureStream(frameRate),
+    stop: () => {
+      worker.postMessage({ action: "stop" }, [canvasWorker]);
+    },
+  };
+};
+
 export const createStream: (
   emoji: string,
   backgroundColor: string,
@@ -58,6 +91,7 @@ export const createStream: (
     if (degree > 360) {
       degree = 0;
     }
+
     const radian = (degree * Math.PI) / 180;
     const translateX = currentCanvasWidth / 2;
     const translateY = currentCanvasHeight / 2;

@@ -1,7 +1,7 @@
 import { VideoPlayer } from "./VideoPlayer.tsx";
 import { useRef, useState } from "react";
 import { WebRTCEndpoint } from "@jellyfish-dev/membrane-webrtc-js";
-import { createStream } from "./mocks.ts";
+import { createWorkerStream } from "./mocks.ts";
 
 /*
  * Looks like Jellyfish handles track without simulcast properly
@@ -36,7 +36,7 @@ type Props = {
   webrtc: WebRTCEndpoint;
 };
 
-const blackDummyStream = createStream("", "black", "high", 60)
+const blackDummyStream = createWorkerStream("🤖", "black", "high", 60);
 
 const createDummyStream = (
   width: number = 1280,
@@ -101,11 +101,11 @@ export const ReplaceTrackWithDummyStream = ({ webrtc }: Props) => {
   const toggleEnableCamera = () => {
     if (!videoStream) throw Error("Video stream is null");
     const track = videoStream.getVideoTracks()[0];
-    const prevState = track.enabled
+    const prevState = track.enabled;
 
     videoStream.getVideoTracks().forEach((track) => {
-      track.enabled = !prevState
-    })
+      track.enabled = !prevState;
+    });
   };
 
   const removeCameraTrack = () => {
@@ -120,7 +120,6 @@ export const ReplaceTrackWithDummyStream = ({ webrtc }: Props) => {
     const { track } = createDummyStream();
     webrtc.replaceTrack(videoStreamIdRef.current, track, { source: "dummy" });
   };
-
 
   const replaceWithDummyDynamicStream = () => {
     if (!videoStreamIdRef.current) throw Error("Track id is null");
@@ -150,7 +149,12 @@ export const ReplaceTrackWithDummyStream = ({ webrtc }: Props) => {
     <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
       <div>
         <label htmlFor="simulcast">Simulcast?</label>
-        <input checked={simulcastCheckbox} type="checkbox" id="simulcast" onChange={() => setSimulcastCheckbox(!simulcastCheckbox)} />
+        <input
+          checked={simulcastCheckbox}
+          type="checkbox"
+          id="simulcast"
+          onChange={() => setSimulcastCheckbox(!simulcastCheckbox)}
+        />
       </div>
       <div style={{ display: "flex", flexDirection: "row", flexWrap: "wrap", gap: "8px" }}>
         <button onClick={startCamera}>Start a camera</button>

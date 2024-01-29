@@ -13,7 +13,7 @@ import { defaultBitrates, defaultSimulcastBitrates, simulcastTransceiverConfig }
 import { AddTrackCommand, Command, RemoveTrackCommand, ReplaceTackCommand } from "./commands";
 import { Deferred } from "./deferred";
 
-type MetadataValidator<ParsedMetadata> = (rawMetadata: any) => ParsedMetadata;
+type MetadataParser<ParsedMetadata> = (rawMetadata: any) => ParsedMetadata;
 
 /**
  * Interface describing Endpoint.
@@ -32,7 +32,7 @@ export interface Endpoint<PeerMetadata, TrackMetadata> {
    */
   metadata?: PeerMetadata;
   rawMetadata: any;
-  metadataValidationError?: any;
+  metadataParsingError?: any;
   /**
    * List of tracks that are sent by the endpoint.
    */
@@ -129,7 +129,7 @@ interface TrackContextFields<PeerMetadata, TrackMetadata> {
    */
   readonly metadata?: TrackMetadata;
   readonly rawMetadata: any;
-  readonly metadataValidationError?: any;
+  readonly metadataParsingError?: any;
 
   readonly maxBandwidth?: TrackBandwidthLimit;
 
@@ -185,14 +185,14 @@ class TrackContextImpl<PeerMetadata, ParsedMetadata>
   stream: MediaStream | null = null;
   metadata?: ParsedMetadata;
   rawMetadata: any;
-  metadataValidationError?: any;
+  metadataParsingError?: any;
   simulcastConfig?: SimulcastConfig;
   maxBandwidth: TrackBandwidthLimit = 0;
   encoding?: TrackEncoding;
   encodingReason?: EncodingReason;
   vadStatus: VadStatus = "silence";
   negotiationStatus: TrackNegotiationStatus = "awaiting";
-  metadataValidator: MetadataValidator<ParsedMetadata>;
+  metadataParser: MetadataParser<ParsedMetadata>;
 
   // Indicates that metadata were changed when in "offered" negotiationStatus
   // and `updateTrackMetadata` Media Event should be sent after the transition to "done"
@@ -203,19 +203,19 @@ class TrackContextImpl<PeerMetadata, ParsedMetadata>
     trackId: string,
     metadata: any,
     simulcastConfig: SimulcastConfig,
-    metadataValidator: MetadataValidator<ParsedMetadata>,
+    metadataParser: MetadataParser<ParsedMetadata>,
   ) {
     super();
     this.endpoint = endpoint;
     this.trackId = trackId;
     try {
-      this.metadata = metadataValidator(metadata);
+      this.metadata = metadataParser(metadata);
     } catch (error) {
-      this.metadataValidationError = error;
+      this.metadataParsingError = error;
     }
     this.rawMetadata = metadata;
     this.simulcastConfig = simulcastConfig;
-    this.metadataValidator = metadataValidator;
+    this.metadataParser = metadataParser;
   }
 }
 
@@ -322,20 +322,20 @@ export interface WebRTCEndpointEvents<PeerMetadata, TrackMetadata> {
 /**
  * Main class that is responsible for connecting to the RTC Engine, sending and receiving media.
  */
-export class WebRTCEndpoint<PeerMetadata = any, trackMetadata = any> extends (EventEmitter as {
+export class WebRTCEndpoint<PeerMetadata = any, TrackMetadata = any> extends (EventEmitter as {
   new <PeerMetadata, trackMetadata>(): TypedEmitter<Required<WebRTCEndpointEvents<PeerMetadata, trackMetadata>>>;
-})<PeerMetadata, trackMetadata> {
-  private trackIdToTrack: Map<string, TrackContextImpl<PeerMetadata, trackMetadata>> = new Map();
+})<PeerMetadata, TrackMetadata> {
+  private trackIdToTrack: Map<string, TrackContextImpl<PeerMetadata, TrackMetadata>> = new Map();
   private connection?: RTCPeerConnection;
-  private idToEndpoint: Map<string, Endpoint<PeerMetadata, trackMetadata>> = new Map();
-  private localEndpoint: Endpoint<PeerMetadata, trackMetadata> = {
+  private idToEndpoint: Map<string, Endpoint<PeerMetadata, TrackMetadata>> = new Map();
+  private localEndpoint: Endpoint<PeerMetadata, TrackMetadata> = {
     id: "",
     type: "webrtc",
     metadata: {} as PeerMetadata,
     rawMetadata: {} as PeerMetadata,
     tracks: new Map(),
   };
-  private localTrackIdToTrack: Map<string, TrackContextImpl<PeerMetadata, trackMetadata>> = new Map();
+  private localTrackIdToTrack: Map<string, TrackContextImpl<PeerMetadata, TrackMetadata>> = new Map();
   private midToTrackId: Map<string, string> = new Map();
   private disabledTrackEncodings: Map<string, TrackEncoding[]> = new Map();
   private rtcConfig: RTCConfiguration = {
@@ -347,19 +347,19 @@ export class WebRTCEndpoint<PeerMetadata = any, trackMetadata = any> extends (Ev
   // indicates that the ongoingRenegotiation of renegotiation is ongoing (renegotiateTracks, offerData, sdpOffer, sdpAnswer)
   private ongoingRenegotiation: boolean = false;
   private ongoingTrackReplacement: boolean = false;
-  private commandsQueue: Command<trackMetadata>[] = [];
+  private commandsQueue: Command<TrackMetadata>[] = [];
   private commandResolutionNotifier: Deferred<void> | null = null;
 
-  private peerMetadataValidator: MetadataValidator<PeerMetadata>;
-  private trackMetadataValidator: MetadataValidator<trackMetadata>;
+  private peerMetadataParser: MetadataParser<PeerMetadata>;
+  private trackMetadataParser: MetadataParser<TrackMetadata>;
 
-  constructor(validators?: {
-    peerMetadataValidator?: MetadataValidator<PeerMetadata>;
-    trackMetadataValidator?: MetadataValidator<trackMetadata>;
+  constructor(metadataParsers?: {
+    peerMetadataParser?: MetadataParser<PeerMetadata>;
+    trackMetadataParser?: MetadataParser<TrackMetadata>;
   }) {
     super();
-    this.peerMetadataValidator = validators?.peerMetadataValidator ?? ((x) => x);
-    this.trackMetadataValidator = validators?.trackMetadataValidator ?? ((x) => x);
+    this.peerMetadataParser = metadataParsers?.peerMetadataParser ?? ((x) => x);
+    this.trackMetadataParser = metadataParsers?.trackMetadataParser ?? ((x) => x);
   }
 
   /**
@@ -378,11 +378,11 @@ export class WebRTCEndpoint<PeerMetadata = any, trackMetadata = any> extends (Ev
   public connect = (metadata: any): void => {
     this.localEndpoint.rawMetadata = metadata;
     try {
-      this.localEndpoint.metadata = this.peerMetadataValidator(metadata);
-      this.localEndpoint.metadataValidationError = undefined;
+      this.localEndpoint.metadata = this.peerMetadataParser(metadata);
+      this.localEndpoint.metadataParsingError = undefined;
     } catch (error) {
       this.localEndpoint.metadata = undefined;
-      this.localEndpoint.metadataValidationError = error;
+      this.localEndpoint.metadataParsingError = error;
       throw error;
     }
     const mediaEvent = generateMediaEvent("connect", {
@@ -416,7 +416,7 @@ export class WebRTCEndpoint<PeerMetadata = any, trackMetadata = any> extends (Ev
         this.emit("connected", deserializedMediaEvent.data.id, deserializedMediaEvent.data.otherEndpoints);
 
         const endpoints: any[] = deserializedMediaEvent.data.otherEndpoints;
-        const otherEndpoints: Endpoint<PeerMetadata, trackMetadata>[] = endpoints.map((endpoint) => {
+        const otherEndpoints: Endpoint<PeerMetadata, TrackMetadata>[] = endpoints.map((endpoint) => {
           endpoint.tracks = this.mapMediaEventTracksToTrackContextImpl(Array.from(endpoint.tracks), endpoint);
 
           this.addEndpoint(endpoint);
@@ -445,19 +445,19 @@ export class WebRTCEndpoint<PeerMetadata = any, trackMetadata = any> extends (Ev
    *   webRTCEndpoint.setTargetTrackEncoding(trackId, encoding);
    * }
    */
-  public getRemoteTracks(): Record<string, TrackContext<PeerMetadata, trackMetadata>> {
+  public getRemoteTracks(): Record<string, TrackContext<PeerMetadata, TrackMetadata>> {
     return Object.fromEntries(this.trackIdToTrack.entries());
   }
 
   /**
    * Returns a snapshot of currently received remote endpoints.
    */
-  public getRemoteEndpoints(): Record<string, Endpoint<PeerMetadata, trackMetadata>> {
+  public getRemoteEndpoints(): Record<string, Endpoint<PeerMetadata, TrackMetadata>> {
     return Object.fromEntries(this.idToEndpoint.entries());
   }
 
   private handleMediaEvent = (deserializedMediaEvent: MediaEvent) => {
-    let endpoint: Endpoint<PeerMetadata, trackMetadata>;
+    let endpoint: Endpoint<PeerMetadata, TrackMetadata>;
     let data;
     switch (deserializedMediaEvent.type) {
       case "offerData": {
@@ -545,10 +545,10 @@ export class WebRTCEndpoint<PeerMetadata = any, trackMetadata = any> extends (Ev
         if (endpoint.id === this.getEndpointId()) return;
         endpoint.rawMetadata = endpoint.metadata;
         try {
-          endpoint.metadataValidationError = undefined;
-          endpoint.metadata = this.peerMetadataValidator(endpoint.rawMetadata);
+          endpoint.metadataParsingError = undefined;
+          endpoint.metadata = this.peerMetadataParser(endpoint.rawMetadata);
         } catch (error) {
-          endpoint.metadataValidationError = error;
+          endpoint.metadataParsingError = error;
           endpoint.metadata = undefined;
         }
         this.addEndpoint(endpoint);
@@ -580,10 +580,10 @@ export class WebRTCEndpoint<PeerMetadata = any, trackMetadata = any> extends (Ev
         endpoint = this.idToEndpoint.get(deserializedMediaEvent.data.id)!;
         endpoint.rawMetadata = deserializedMediaEvent.data.metadata;
         try {
-          endpoint.metadataValidationError = undefined;
-          endpoint.metadata = this.peerMetadataValidator(deserializedMediaEvent.data.metadata);
+          endpoint.metadataParsingError = undefined;
+          endpoint.metadata = this.peerMetadataParser(deserializedMediaEvent.data.metadata);
         } catch (error) {
-          endpoint.metadataValidationError = error;
+          endpoint.metadataParsingError = error;
           endpoint.metadata = undefined;
         }
         this.addEndpoint(endpoint);
@@ -602,13 +602,13 @@ export class WebRTCEndpoint<PeerMetadata = any, trackMetadata = any> extends (Ev
         let newTrack = endpoint.tracks.get(trackId)!;
         const trackContext = this.trackIdToTrack.get(trackId)!;
         try {
-          const validatedMetadata = this.trackMetadataValidator(trackMetadata);
-          newTrack = { ...newTrack, metadata: validatedMetadata, metadataValidationError: undefined };
-          trackContext.metadata = validatedMetadata;
-          trackContext.metadataValidationError = undefined;
+          const parsedMetadata = this.trackMetadataParser(trackMetadata);
+          newTrack = { ...newTrack, metadata: parsedMetadata, metadataParsingError: undefined };
+          trackContext.metadata = parsedMetadata;
+          trackContext.metadataParsingError = undefined;
         } catch (error) {
-          newTrack = { ...newTrack, metadata: undefined, metadataValidationError: error };
-          trackContext.metadataValidationError = error;
+          newTrack = { ...newTrack, metadata: undefined, metadataParsingError: error };
+          trackContext.metadataParsingError = error;
         }
         newTrack = { ...newTrack, rawMetadata: trackMetadata };
         trackContext.rawMetadata = trackMetadata;
@@ -730,7 +730,7 @@ export class WebRTCEndpoint<PeerMetadata = any, trackMetadata = any> extends (Ev
     const trackId = this.getTrackId(uuidv4());
 
     try {
-      const parsedTrackMetadata: trackMetadata = this.trackMetadataValidator(trackMetadata);
+      const parsedTrackMetadata: TrackMetadata = this.trackMetadataParser(trackMetadata);
       this.pushCommand({
         commandType: "ADD-TRACK",
         trackId,
@@ -748,12 +748,12 @@ export class WebRTCEndpoint<PeerMetadata = any, trackMetadata = any> extends (Ev
     return resolutionNotifier.promise.then(() => trackId);
   }
 
-  private pushCommand(command: Command<trackMetadata>) {
+  private pushCommand(command: Command<TrackMetadata>) {
     this.commandsQueue.push(command);
     this.processNextCommand();
   }
 
-  private handleCommand(command: Command<trackMetadata>) {
+  private handleCommand(command: Command<TrackMetadata>) {
     switch (command.commandType) {
       case "ADD-TRACK":
         this.addTrackHandler(command);
@@ -795,7 +795,7 @@ export class WebRTCEndpoint<PeerMetadata = any, trackMetadata = any> extends (Ev
     }
   }
 
-  private addTrackHandler(addTrackCommand: AddTrackCommand<trackMetadata>) {
+  private addTrackHandler(addTrackCommand: AddTrackCommand<TrackMetadata>) {
     const { simulcastConfig, maxBandwidth, track, stream, trackMetadata, trackId } = addTrackCommand;
     const isUsedTrack = this.connection?.getSenders().some((val) => val.track === track);
 
@@ -822,7 +822,7 @@ export class WebRTCEndpoint<PeerMetadata = any, trackMetadata = any> extends (Ev
       trackId,
       trackMetadata,
       simulcastConfig,
-      this.trackMetadataValidator,
+      this.trackMetadataParser,
     );
 
     this.localEndpoint.tracks.set(trackId, trackContext);
@@ -848,13 +848,13 @@ export class WebRTCEndpoint<PeerMetadata = any, trackMetadata = any> extends (Ev
     this.sendMediaEvent(mediaEvent);
   }
 
-  private addTrackToConnection = (trackContext: TrackContext<PeerMetadata, trackMetadata>) => {
+  private addTrackToConnection = (trackContext: TrackContext<PeerMetadata, TrackMetadata>) => {
     const transceiverConfig = this.createTransceiverConfig(trackContext);
     const track = trackContext.track!;
     this.connection!.addTransceiver(track, transceiverConfig);
   };
 
-  private createTransceiverConfig(trackContext: TrackContext<PeerMetadata, trackMetadata>): RTCRtpTransceiverInit {
+  private createTransceiverConfig(trackContext: TrackContext<PeerMetadata, TrackMetadata>): RTCRtpTransceiverInit {
     let transceiverConfig: RTCRtpTransceiverInit;
 
     if (trackContext.track!.kind === "audio") {
@@ -867,12 +867,12 @@ export class WebRTCEndpoint<PeerMetadata = any, trackMetadata = any> extends (Ev
   }
 
   private createAudioTransceiverConfig(
-    _trackContext: TrackContext<PeerMetadata, trackMetadata>,
+    _trackContext: TrackContext<PeerMetadata, TrackMetadata>,
   ): RTCRtpTransceiverInit {
     return { direction: "sendonly" };
   }
 
-  private createVideoTransceiverConfig(trackContext: TrackContext<PeerMetadata, trackMetadata>): RTCRtpTransceiverInit {
+  private createVideoTransceiverConfig(trackContext: TrackContext<PeerMetadata, TrackMetadata>): RTCRtpTransceiverInit {
     let transceiverConfig: RTCRtpTransceiverInit;
     if (trackContext.simulcastConfig!.enabled) {
       transceiverConfig = simulcastTransceiverConfig;
@@ -999,7 +999,7 @@ export class WebRTCEndpoint<PeerMetadata = any, trackMetadata = any> extends (Ev
   public async replaceTrack(trackId: string, newTrack: MediaStreamTrack, newTrackMetadata?: any): Promise<void> {
     const resolutionNotifier = new Deferred<void>();
     try {
-      const parsedTrackMetadata = newTrackMetadata && this.trackMetadataValidator(newTrackMetadata);
+      const parsedTrackMetadata = newTrackMetadata && this.trackMetadataParser(newTrackMetadata);
       this.pushCommand({
         commandType: "REPLACE-TRACK",
         trackId,
@@ -1013,7 +1013,7 @@ export class WebRTCEndpoint<PeerMetadata = any, trackMetadata = any> extends (Ev
     return resolutionNotifier.promise;
   }
 
-  private replaceTrackHandler(command: ReplaceTackCommand<trackMetadata>) {
+  private replaceTrackHandler(command: ReplaceTackCommand<TrackMetadata>) {
     const { trackId, newTrack, newTrackMetadata } = command;
 
     const trackContext = this.localTrackIdToTrack.get(trackId)!;
@@ -1276,17 +1276,17 @@ export class WebRTCEndpoint<PeerMetadata = any, trackMetadata = any> extends (Ev
     trackContext.rawMetadata = trackMetadata;
     this.localEndpoint.tracks.set(trackId, { ...prevTrack, rawMetadata: trackMetadata });
     try {
-      trackContext.metadata = trackMetadata && this.trackMetadataValidator(trackMetadata);
-      trackContext.metadataValidationError = undefined;
+      trackContext.metadata = trackMetadata && this.trackMetadataParser(trackMetadata);
+      trackContext.metadataParsingError = undefined;
       this.localEndpoint.tracks.set(trackId, {
         ...prevTrack,
         metadata: trackContext.metadata,
-        metadataValidationError: undefined,
+        metadataParsingError: undefined,
       });
     } catch (error) {
       trackContext.metadata = undefined;
-      trackContext.metadataValidationError = error;
-      this.localEndpoint.tracks.set(trackId, { ...prevTrack, metadata: undefined, metadataValidationError: error });
+      trackContext.metadataParsingError = error;
+      this.localEndpoint.tracks.set(trackId, { ...prevTrack, metadata: undefined, metadataParsingError: error });
       throw error;
     }
     this.localTrackIdToTrack.set(trackId, trackContext);
@@ -1461,7 +1461,7 @@ export class WebRTCEndpoint<PeerMetadata = any, trackMetadata = any> extends (Ev
     return trackIdToTrackBitrates;
   };
 
-  private checkIfTrackBelongToEndpoint = (trackId: string, endpoint: Endpoint<PeerMetadata, trackMetadata>) =>
+  private checkIfTrackBelongToEndpoint = (trackId: string, endpoint: Endpoint<PeerMetadata, TrackMetadata>) =>
     Array.from(endpoint.tracks.keys()).some((track) => trackId.startsWith(track));
 
   private onOfferData = async (offerData: Map<string, number>) => {
@@ -1597,7 +1597,7 @@ export class WebRTCEndpoint<PeerMetadata = any, trackMetadata = any> extends (Ev
     });
   };
 
-  private addEndpoint = (endpoint: Endpoint<PeerMetadata, trackMetadata>): void => {
+  private addEndpoint = (endpoint: Endpoint<PeerMetadata, TrackMetadata>): void => {
     // #TODO remove this line after fixing deserialization
     if (Object.prototype.hasOwnProperty.call(endpoint, "trackIdToMetadata"))
       endpoint.tracks = new Map(Object.entries(endpoint.tracks));
@@ -1606,7 +1606,7 @@ export class WebRTCEndpoint<PeerMetadata = any, trackMetadata = any> extends (Ev
     this.idToEndpoint.set(endpoint.id, endpoint);
   };
 
-  private eraseEndpoint = (endpoint: Endpoint<PeerMetadata, trackMetadata>): void => {
+  private eraseEndpoint = (endpoint: Endpoint<PeerMetadata, TrackMetadata>): void => {
     const tracksId = Array.from(endpoint.tracks.keys());
     tracksId.forEach((trackId) => this.trackIdToTrack.delete(trackId));
     Array.from(this.midToTrackId.entries()).forEach(([mid, trackId]) => {
@@ -1628,12 +1628,12 @@ export class WebRTCEndpoint<PeerMetadata = any, trackMetadata = any> extends (Ev
 
   private mapMediaEventTracksToTrackContextImpl = (
     tracks: [string, any][],
-    endpoint: Endpoint<PeerMetadata, trackMetadata>,
-  ): Map<string, TrackContextImpl<PeerMetadata, trackMetadata>> => {
-    const mappedTracks: Array<[string, TrackContextImpl<PeerMetadata, trackMetadata>]> = Array.from(tracks).map(
+    endpoint: Endpoint<PeerMetadata, TrackMetadata>,
+  ): Map<string, TrackContextImpl<PeerMetadata, TrackMetadata>> => {
+    const mappedTracks: Array<[string, TrackContextImpl<PeerMetadata, TrackMetadata>]> = Array.from(tracks).map(
       ([trackId, track]) => [
         trackId,
-        new TrackContextImpl(endpoint, trackId, track.metadata, track.simulcastConfig, this.trackMetadataValidator),
+        new TrackContextImpl(endpoint, trackId, track.metadata, track.simulcastConfig, this.trackMetadataParser),
       ],
     );
 

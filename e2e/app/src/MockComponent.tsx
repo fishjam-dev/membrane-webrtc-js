@@ -2,7 +2,7 @@ import { createStream } from "./mocks.ts";
 import { WebRTCEndpoint } from "@jellyfish-dev/membrane-webrtc-js";
 import { VideoPlayer } from "./VideoPlayer.tsx";
 import { useRef, useState } from "react";
-import { TrackMetadata } from "./App.tsx";
+import { PeerMetadata, TrackMetadata } from "./App.tsx";
 
 const brainMock = createStream("🧠", "white", "low", 24);
 const brain2Mock = createStream("🤯", "#00ff00", "low", 24);
@@ -10,7 +10,7 @@ const heartMock = createStream("🫀", "white", "low", 24);
 const heart2Mock = createStream("💝", "#FF0000", "low", 24);
 
 type Props = {
-  webrtc: WebRTCEndpoint<TrackMetadata>;
+  webrtc: WebRTCEndpoint<PeerMetadata, TrackMetadata>;
 };
 
 export const MockComponent = ({ webrtc }: Props) => {

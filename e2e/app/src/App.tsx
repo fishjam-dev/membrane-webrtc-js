@@ -8,10 +8,19 @@ import { TrackContextEvents } from "../../../src";
 
 /* eslint-disable no-console */
 
+export type PeerMetadata = {
+  peer: string;
+};
+
 export type TrackMetadata = {
   test: string;
-}
+};
 
+function peerMetadataValidator(a: any): PeerMetadata {
+  console.log(a);
+  if (typeof a !== "object" || !("peer" in a) || typeof a.peer !== "string") throw "Invalid metadata!!!";
+  return { peer: a.peer };
+}
 
 function trackMetadataValidator(a: any): TrackMetadata {
   if (typeof a !== "object" || !("test" in a) || typeof a.test !== "string") throw "Invalid metadata!!!";
@@ -19,10 +28,10 @@ function trackMetadataValidator(a: any): TrackMetadata {
 }
 
 class RemoteTracksStore {
-  cache: Record<string, Record<string, TrackContext<TrackMetadata>>> = {};
+  cache: Record<string, Record<string, TrackContext<PeerMetadata, TrackMetadata>>> = {};
   invalidateCache: boolean = false;
 
-  constructor(private webrtc: WebRTCEndpoint) {}
+  constructor(private webrtc: WebRTCEndpoint<PeerMetadata, TrackMetadata>) {}
 
   subscribe(callback: () => void) {
     const cb = () => {
@@ -30,16 +39,16 @@ class RemoteTracksStore {
       callback();
     };
 
-    const trackCb: TrackContextEvents<TrackMetadata>["encodingChanged"] = () => cb();
+    const trackCb: TrackContextEvents<PeerMetadata, TrackMetadata>["encodingChanged"] = () => cb();
 
-    const trackAddedCb: WebRTCEndpointEvents<TrackMetadata>["trackAdded"] = (context) => {
+    const trackAddedCb: WebRTCEndpointEvents<PeerMetadata, TrackMetadata>["trackAdded"] = (context) => {
       context.on("encodingChanged", () => trackCb);
       context.on("voiceActivityChanged", () => trackCb);
 
       callback();
     };
 
-    const removeCb: WebRTCEndpointEvents<TrackMetadata>["trackRemoved"] = (context) => {
+    const removeCb: WebRTCEndpointEvents<any, TrackMetadata>["trackRemoved"] = (context) => {
       context.removeListener("encodingChanged", () => trackCb);
       context.removeListener("voiceActivityChanged", () => trackCb);
 
@@ -49,6 +58,9 @@ class RemoteTracksStore {
     this.webrtc.on("trackAdded", trackAddedCb);
     this.webrtc.on("trackReady", cb);
     this.webrtc.on("trackUpdated", cb);
+    this.webrtc.on("endpointAdded", cb);
+    this.webrtc.on("endpointRemoved", cb);
+    this.webrtc.on("endpointUpdated", cb);
     this.webrtc.on("trackRemoved", removeCb);
 
     return () => {
@@ -73,7 +85,7 @@ class RemoteTracksStore {
 // Assign a random client ID to make it easier to distinguish their messages
 const clientId = Math.floor(Math.random() * 100);
 
-const webrtc = new WebRTCEndpoint({trackMetadataValidator: trackMetadataValidator});
+const webrtc = new WebRTCEndpoint({ peerMetadataValidator, trackMetadataValidator: trackMetadataValidator });
 (window as typeof window & { webrtc: WebRTCEndpoint }).webrtc = webrtc;
 const remoteTracksStore = new RemoteTracksStore(webrtc);
 
@@ -145,7 +157,7 @@ async function addScreenshareTrack(): Promise<string> {
   const stream = await window.navigator.mediaDevices.getDisplayMedia();
   const track = stream.getVideoTracks()[0];
 
-  const trackMetadata: TrackMetadata = {test: "screenshare"};
+  const trackMetadata: TrackMetadata = { test: "screenshare" };
   const simulcastConfig = { enabled: false, activeEncodings: [] };
   const maxBandwidth = 0;
 
@@ -192,23 +204,33 @@ export function App() {
       <div id="connection-status">{connected ? "true" : "false"}</div>
       <MockComponent webrtc={webrtc} />
       <div style={{ width: "100%" }}>
-        {Object.values(remoteTracks).map(({ stream, trackId, endpoint, metadata, rawMetadata, metadataValidationError }) => (
-          <div key={trackId} data-endpoint-id={endpoint.id} data-stream-id={stream?.id}>
-            <div>Endpoint id: {endpoint.id}</div>
-            Metadata: <code>{JSON.stringify(metadata, null, 2)}</code><br/>
-            Raw: <code>{JSON.stringify(rawMetadata)}</code><br/>
-            Error: <code>{metadataValidationError}</code>
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <VideoPlayerWithDetector id={endpoint.id} stream={stream ?? undefined} />
+        {Object.values(remoteTracks).map(
+          ({ stream, trackId, endpoint, metadata, rawMetadata, metadataValidationError }) => (
+            <div key={trackId} data-endpoint-id={endpoint.id} data-stream-id={stream?.id}>
+              <div>Endpoint id: {endpoint.id}</div>
+              Metadata: <code>{JSON.stringify(metadata, null, 2)}</code>
+              <br />
+              Raw: <code>{JSON.stringify(rawMetadata)}</code>
+              <br />
+              Error: <code>{metadataValidationError}</code>
+              <hr />
+              Metadata: <code>{JSON.stringify(endpoint.metadata, null, 2)}</code>
+              <br />
+              Raw: <code>{JSON.stringify(endpoint.rawMetadata)}</code>
+              <br />
+              Error: <code>{endpoint.metadataValidationError}</code>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <VideoPlayerWithDetector id={endpoint.id} stream={stream ?? undefined} />
+              </div>
+              <div data-name="stream-id">{stream?.id}</div>
+              <div>
+                <button onClick={() => setEncoding(trackId, "l")}>l</button>
+                <button onClick={() => setEncoding(trackId, "m")}>m</button>
+                <button onClick={() => setEncoding(trackId, "h")}>h</button>
+              </div>
             </div>
-            <div data-name="stream-id">{stream?.id}</div>
-            <div>
-              <button onClick={() => setEncoding(trackId, "l")}>l</button>
-              <button onClick={() => setEncoding(trackId, "m")}>m</button>
-              <button onClick={() => setEncoding(trackId, "h")}>h</button>
-            </div>
-          </div>
-        ))}
+          ),
+        )}
       </div>
     </>
   );

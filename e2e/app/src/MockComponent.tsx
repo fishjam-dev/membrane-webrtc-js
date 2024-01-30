@@ -13,11 +13,11 @@ type Props = {
 };
 
 export const MockComponent = ({ webrtc }: Props) => {
-  const heartId = useRef<string | null>(null);
-  const brainId = useRef<string | null>(null);
+  const heartId = useRef<Promise<string> | null>(null);
+  const brainId = useRef<Promise<string> | null>(null);
   const [replaceStatus, setReplaceStatus] = useState<"unknown" | "success" | "failure">("unknown");
 
-  const addHeart = () => {
+  const addHeart = async () => {
     const stream = heartMock.stream;
     const track = stream.getVideoTracks()[0];
 
@@ -25,16 +25,16 @@ export const MockComponent = ({ webrtc }: Props) => {
     heartId.current = webrtc.addTrack(track, stream, trackMetadata);
   };
 
-  const removeHeart = () => {
+  const removeHeart = async () => {
     if (!heartId.current) throw Error("Heart id is undefined");
 
-    webrtc.removeTrack(heartId.current);
+    webrtc.removeTrack(await heartId.current);
   };
 
-  const removeBrain = () => {
+  const removeBrain = async () => {
     if (!brainId.current) throw Error("Brain id is undefined");
 
-    webrtc.removeTrack(brainId.current);
+    webrtc.removeTrack(await brainId.current);
   };
 
   const replaceHeart = async () => {
@@ -45,8 +45,8 @@ export const MockComponent = ({ webrtc }: Props) => {
 
     const trackMetadata = { name: "Heart" };
 
-    const result = await webrtc.replaceTrack(heartId.current, track, trackMetadata);
-    setReplaceStatus(result ? "success" : "failure");
+    await webrtc.replaceTrack(await heartId.current, track, trackMetadata);
+    setReplaceStatus("success");
   };
 
   const replaceBrain = async () => {
@@ -57,7 +57,7 @@ export const MockComponent = ({ webrtc }: Props) => {
 
     const trackMetadata = { name: "Heart" };
 
-    await webrtc.replaceTrack(brainId.current, track, trackMetadata);
+    await webrtc.replaceTrack(await brainId.current, track, trackMetadata);
   };
 
   const addBrain = () => {

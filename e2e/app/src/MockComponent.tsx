@@ -1,12 +1,12 @@
-import { createStream } from "./mocks.ts";
+import { createWorkerStream } from "./mocks.ts";
 import { WebRTCEndpoint } from "@jellyfish-dev/membrane-webrtc-js";
 import { VideoPlayer } from "./VideoPlayer.tsx";
 import { useRef, useState } from "react";
 
-const brainMock = createStream("🧠", "white", "high", 24);
-const brain2Mock = createStream("🤯", "#00ff00", "high", 24);
-const heartMock = createStream("🫀", "white", "high", 24);
-const heart2Mock = createStream("💝", "#FF0000", "high", 24);
+const brainMock = createWorkerStream("🧠", "white", "high", 24);
+const brain2Mock = createWorkerStream("🤯", "#00ff00", "high", 24);
+const heartMock = createWorkerStream("🫀", "white", "high", 24);
+const heart2Mock = createWorkerStream("💝", "#FF0000", "high", 24);
 
 type Props = {
   webrtc: WebRTCEndpoint;

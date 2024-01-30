@@ -10,8 +10,6 @@ const QUALITY_MULTIPLIER: Record<Quality, QualityMultiplier> = {
   high: 4,
 };
 
-const backgroundColor = "black";
-
 let intervalId: NodeJS.Timeout;
 
 self.onmessage = (event) => {
@@ -20,6 +18,7 @@ self.onmessage = (event) => {
     const canvasElement = event.data.canvas;
     const quality: Quality = event.data.quality;
     const frameRate: number = event.data.frameRate;
+    const backgroundColor: string = event.data.backgroundColor;
 
     const multiplier = QUALITY_MULTIPLIER[quality];
     const currentCanvasWidth = canvasWidth * multiplier;

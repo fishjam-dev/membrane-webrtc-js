@@ -169,14 +169,13 @@ export interface TrackContextEvents {
   voiceActivityChanged: (context: TrackContext) => void;
 }
 
-export interface TrackContext extends TrackContextFields, TypedEmitter<Required<TrackContextEvents>> {}
+export interface TrackContext extends TrackContextFields, TypedEmitter<Required<TrackContextEvents>> { }
 
 type TrackNegotiationStatus = "awaiting" | "offered" | "done";
 
 class TrackContextImpl
   extends (EventEmitter as new () => TypedEmitter<Required<TrackContextEvents>>)
-  implements TrackContext
-{
+  implements TrackContext {
   endpoint: Endpoint;
   trackId: string;
   track: MediaStreamTrack | null = null;
@@ -1232,7 +1231,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     params!.encodings.filter((en) => en.rid == encoding)[0].active = true;
     sender?.setParameters(params!);
 
-    const mediaEvent = generateMediaEvent("trackEncodingEnabled", { trackId: trackId, encoding: encoding });
+    const mediaEvent = generateMediaEvent("enableTrackEncoding", { trackId: trackId, encoding: encoding });
     this.sendMediaEvent(mediaEvent);
   }
 
@@ -1254,7 +1253,7 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
     params!.encodings.filter((en) => en.rid == encoding)[0].active = false;
     sender?.setParameters(params!);
 
-    const mediaEvent = generateMediaEvent("trackEncodingDisabled", { trackId: trackId, encoding: encoding });
+    const mediaEvent = generateMediaEvent("disableTrackEncoding", { trackId: trackId, encoding: encoding });
     this.sendMediaEvent(mediaEvent);
   }
 

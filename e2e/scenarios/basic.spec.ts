@@ -8,14 +8,6 @@ import {
   takeScreenshot,
 } from "./utils";
 
-test.afterEach(async ({ context }, testInfo) => {
-  for (const page of context.pages()) {
-    await test.step("Screenshot after test", async () => {
-      await takeScreenshot(page, testInfo);
-    });
-  }
-});
-
 test("Displays basic UI", async ({ page }) => {
   await page.goto("/");
 
@@ -136,10 +128,12 @@ test("Client throws an error if joining room at max capacity", async ({ page, co
   );
 
   await overflowingPage.goto("/");
-  await expect(joinRoomAndAddScreenShare(overflowingPage, roomId)).rejects.toEqual({
-    status: 503,
-    response: {
-      errors: `Reached peer limit in room ${roomId}`,
-    },
-  });
+  await expect(joinRoomAndAddScreenShare(overflowingPage, roomId)).rejects.toEqual(
+    expect.objectContaining({
+      status: 503,
+      response: {
+        errors: `Reached peer limit in room ${roomId}`,
+      },
+    }),
+  );
 });

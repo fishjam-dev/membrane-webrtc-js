@@ -23,7 +23,6 @@ export type TrackMetadata = {
 };
 
 function endpointMetadataParser(a: any): EndpointMetadata {
-  console.log(a);
   if (typeof a !== "object" || a === null || !("goodStuff" in a) || typeof a.goodStuff !== "string")
     throw "Invalid metadata!!!";
   return { goodStuff: a.goodStuff };
@@ -129,7 +128,6 @@ function connect(token: string, metadata: EndpointMetadata) {
     const uint8Array = new Uint8Array(event.data);
     try {
       const data = PeerMessage.decode(uint8Array);
-      console.log(data);
       if (data?.mediaEvent) {
         // @ts-ignore
         const mediaEvent = JSON.parse(data?.mediaEvent?.data);
@@ -139,7 +137,6 @@ function connect(token: string, metadata: EndpointMetadata) {
       }
 
       if (data.authenticated !== undefined) {
-        console.log(metadata, endpointMetadataParser(metadata));
         webrtc.connect(metadata);
       } else if (data.authRequest !== undefined) {
         console.warn("Received unexpected control message: authRequest");

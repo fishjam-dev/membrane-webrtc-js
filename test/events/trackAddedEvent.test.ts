@@ -38,6 +38,65 @@ it("Connect to room with one endpoint then addTrack produce event", () =>
     expect(Object.values(remoteTracks).length).toBe(1);
   }));
 
+it("Correctly parses track metadata", () =>
+  new Promise((done) => {
+    // Given
+    type TrackMetadata = { goodStuff: string };
+    function trackMetadataParser(data: any): TrackMetadata {
+      return { goodStuff: data.goodStuff };
+    }
+    const webRTCEndpoint = new WebRTCEndpoint({trackMetadataParser});
+
+    webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEventWithOneEndpoint()));
+
+    const trackAddedEvent: TracksAddedMediaEvent = createAddTrackMediaEvent(
+      createConnectedEventWithOneEndpoint().data.otherEndpoints[0].id,
+      trackId,
+      { goodStuff: "ye", extraFluff: "nah" }
+    );
+
+    webRTCEndpoint.on("trackAdded", (ctx) => {
+      // Then
+      expect(ctx.rawMetadata).toEqual({goodStuff: "ye", extraFluff: "nah"});
+      expect(ctx.metadata).toEqual({goodStuff: "ye"});
+      expect(ctx.metadataParsingError).toBeUndefined();
+      done("");
+    });
+
+    // When
+    webRTCEndpoint.receiveMediaEvent(JSON.stringify(trackAddedEvent));
+  }));
+
+it("Correctly handles incorrect metadata", () =>
+  new Promise((done) => {
+    // Given
+    type TrackMetadata = { validMetadata: true };
+    function trackMetadataParser(data: any): TrackMetadata {
+      if (!data?.validMetadata) throw "Invalid";
+      return { validMetadata: true };
+    }
+    const webRTCEndpoint = new WebRTCEndpoint({trackMetadataParser});
+
+    webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEventWithOneEndpoint()));
+
+    const trackAddedEvent: TracksAddedMediaEvent = createAddTrackMediaEvent(
+      createConnectedEventWithOneEndpoint().data.otherEndpoints[0].id,
+      trackId,
+      { validMetadata: false }
+    );
+
+    webRTCEndpoint.on("trackAdded", (ctx) => {
+      // Then
+      expect(ctx.rawMetadata).toEqual({validMetadata: false});
+      expect(ctx.metadata).toBeUndefined();
+      expect(ctx.metadataParsingError).toBe("Invalid");
+      done("");
+    });
+
+    // When
+    webRTCEndpoint.receiveMediaEvent(JSON.stringify(trackAddedEvent));
+  }));
+
 it("tracksAdded -> handle offerData with one video track from server", () =>
   new Promise((done) => {
     // Given

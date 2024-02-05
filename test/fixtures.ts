@@ -41,8 +41,8 @@ export const mockTrack = new FakeMediaStreamTrack({ kind: "video" });
 const MediaStreamMock = vi.fn().mockImplementation(() => {});
 export const stream = new MediaStreamMock();
 
-export const createSimulcastTrack = (): Track => ({
-  metadata: {},
+export const createSimulcastTrack = (metadata: any = undefined): Track => ({
+  metadata,
   simulcastConfig: {
     enabled: true,
     activeEncodings: ["h", "m", "l"],
@@ -121,11 +121,11 @@ export const createTrackUpdatedEvent = (trackId: string, endpointId: string, met
     type: "trackUpdated",
   });
 
-export const createEndpointAdded = (endpointId: string): EndpointAddedWebrtcEvent =>
+export const createEndpointAdded = (endpointId: string, metadata: any = undefined): EndpointAddedWebrtcEvent =>
   EndpointAddedWebrtcEventSchema.parse({
     data: {
       id: endpointId,
-      metadata: undefined,
+      metadata,
       type: "webrtc",
     },
     type: "endpointAdded",
@@ -164,13 +164,13 @@ export const createConnectedEventWithOneEndpointWithOneTrack = (
   return ConnectedMediaEventSchema.parse(connectedEvent);
 };
 
-export const createAddTrackMediaEvent = (endpointId: string, trackId: string): TracksAddedMediaEvent =>
+export const createAddTrackMediaEvent = (endpointId: string, trackId: string, metadata: any = undefined): TracksAddedMediaEvent =>
   TracksAddedMediaEventSchema.parse({
     type: "tracksAdded",
     data: {
       endpointId: endpointId,
       tracks: {
-        [trackId]: createSimulcastTrack(),
+        [trackId]: createSimulcastTrack(metadata),
       },
       trackIdToMetadata: {
         [trackId]: {},

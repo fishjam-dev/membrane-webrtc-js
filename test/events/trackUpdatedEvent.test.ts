@@ -50,13 +50,13 @@ it("Correctly parses track metadata", () => {
   function trackMetadataParser(data: any): TrackMetadata {
     return { goodStuff: data.goodStuff };
   }
-  const webRTCEndpoint = new WebRTCEndpoint({trackMetadataParser});
+  const webRTCEndpoint = new WebRTCEndpoint({ trackMetadataParser });
 
   setupRoom(webRTCEndpoint, endpointId, trackId);
 
   const metadata = {
     goodStuff: "ye",
-    extraFluff: "nah"
+    extraFluff: "nah",
   };
 
   // When
@@ -65,8 +65,8 @@ it("Correctly parses track metadata", () => {
 
   // Then
   const track = webRTCEndpoint.getRemoteTracks()[trackId];
-  expect(track.metadata).toEqual({goodStuff: "ye"});
-  expect(track.rawMetadata).toEqual({goodStuff: "ye", extraFluff: "nah"});
+  expect(track.metadata).toEqual({ goodStuff: "ye" });
+  expect(track.rawMetadata).toEqual({ goodStuff: "ye", extraFluff: "nah" });
   expect(track.metadataParsingError).toBeUndefined();
 });
 
@@ -77,7 +77,7 @@ it("Correctly handles incorrect metadata", () => {
     if (!data.validMetadata) throw "Invalid";
     return { validMetadata: true };
   }
-  const webRTCEndpoint = new WebRTCEndpoint({trackMetadataParser});
+  const webRTCEndpoint = new WebRTCEndpoint({ trackMetadataParser });
 
   setupRoom(webRTCEndpoint, endpointId, trackId);
 
@@ -92,8 +92,8 @@ it("Correctly handles incorrect metadata", () => {
   // Then
   const track = webRTCEndpoint.getRemoteTracks()[trackId];
   expect(track.metadata).toBeUndefined();
-  expect(track.rawMetadata).toEqual({validMetadata: false});
-  expect(track.metadataParsingError).toBe("Invalid")
+  expect(track.rawMetadata).toEqual({ validMetadata: false });
+  expect(track.metadataParsingError).toBe("Invalid");
 });
 
 it.todo(`Webrtc endpoint skips updating local endpoint metadata`, () => {

@@ -175,7 +175,9 @@ type TrackNegotiationStatus = "awaiting" | "offered" | "done";
 
 class TrackContextImpl<EndpointMetadata, ParsedMetadata>
   extends (EventEmitter as {
-    new <EndpointMetadata, ParsedMetadata>(): TypedEmitter<Required<TrackContextEvents<EndpointMetadata, ParsedMetadata>>>;
+    new <EndpointMetadata, ParsedMetadata>(): TypedEmitter<
+      Required<TrackContextEvents<EndpointMetadata, ParsedMetadata>>
+    >;
   })<EndpointMetadata, ParsedMetadata>
   implements TrackContext<EndpointMetadata, ParsedMetadata>
 {
@@ -321,10 +323,13 @@ export interface WebRTCEndpointEvents<EndpointMetadata, TrackMetadata> {
  * Main class that is responsible for connecting to the RTC Engine, sending and receiving media.
  */
 export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends (EventEmitter as {
-  new <EndpointMetadata, trackMetadata>(): TypedEmitter<Required<WebRTCEndpointEvents<EndpointMetadata, trackMetadata>>>;
+  new <EndpointMetadata, trackMetadata>(): TypedEmitter<
+    Required<WebRTCEndpointEvents<EndpointMetadata, trackMetadata>>
+  >;
 })<EndpointMetadata, TrackMetadata> {
   private trackIdToTrack: Map<string, TrackContextImpl<EndpointMetadata, TrackMetadata>> = new Map();
-  private connection?: RTCPeerConnection; private idToEndpoint: Map<string, Endpoint<EndpointMetadata, TrackMetadata>> = new Map();
+  private connection?: RTCPeerConnection;
+  private idToEndpoint: Map<string, Endpoint<EndpointMetadata, TrackMetadata>> = new Map();
   private localEndpoint: Endpoint<EndpointMetadata, TrackMetadata> = {
     id: "",
     type: "webrtc",
@@ -415,7 +420,7 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
         const endpoints: any[] = deserializedMediaEvent.data.otherEndpoints;
         const otherEndpoints: Endpoint<EndpointMetadata, TrackMetadata>[] = endpoints.map((endpoint) => {
           endpoint.tracks = this.mapMediaEventTracksToTrackContextImpl(Array.from(endpoint.tracks), endpoint);
-          
+
           endpoint.rawMetadata = endpoint.metadata;
           try {
             endpoint.metadata = this.endpointMetadataParser(endpoint.rawMetadata);
@@ -880,7 +885,9 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
     return { direction: "sendonly" };
   }
 
-  private createVideoTransceiverConfig(trackContext: TrackContext<EndpointMetadata, TrackMetadata>): RTCRtpTransceiverInit {
+  private createVideoTransceiverConfig(
+    trackContext: TrackContext<EndpointMetadata, TrackMetadata>,
+  ): RTCRtpTransceiverInit {
     let transceiverConfig: RTCRtpTransceiverInit;
     if (trackContext.simulcastConfig!.enabled) {
       transceiverConfig = simulcastTransceiverConfig;
@@ -1304,7 +1311,7 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
 
     const mediaEvent = generateMediaEvent("updateTrackMetadata", {
       trackId,
-      trackMetadata
+      trackMetadata,
     });
 
     switch (trackContext.negotiationStatus) {

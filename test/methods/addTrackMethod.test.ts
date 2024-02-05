@@ -65,10 +65,10 @@ it("Adding track with invalid metadata throws error", async () => {
     return { validMetadata: true };
   }
   mockRTCPeerConnection();
-  const webRTCEndpoint = new WebRTCEndpoint({trackMetadataParser});
+  const webRTCEndpoint = new WebRTCEndpoint({ trackMetadataParser });
 
   // When
-  await expect(() => webRTCEndpoint.addTrack(mockTrack, stream, {validMetadata: false} as unknown as TrackMetadata)).rejects.toThrow(
-    "Invalid",
-  );
+  await expect(() =>
+    webRTCEndpoint.addTrack(mockTrack, stream, { validMetadata: false } as unknown as TrackMetadata),
+  ).rejects.toThrow("Invalid");
 });

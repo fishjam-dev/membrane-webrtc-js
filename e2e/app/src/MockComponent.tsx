@@ -23,8 +23,6 @@ export const MockComponent = ({ webrtc }: Props) => {
     const stream = heartMock.stream;
     const track = stream.getVideoTracks()[0];
 
-    // const trackMetadata = { test: "Heart" };
-    console.log(trackMetadataInput);
     heartId.current = webrtc.addTrack(track, stream, JSON.parse(trackMetadataInput));
   };
 
@@ -46,8 +44,6 @@ export const MockComponent = ({ webrtc }: Props) => {
     const stream = heart2Mock.stream;
     const track = stream.getVideoTracks()[0];
 
-    // const trackMetadata = { name: "Heart" };
-
     await webrtc.replaceTrack(await heartId.current, track, JSON.parse(trackMetadataInput));
     setReplaceStatus("success");
   };
@@ -58,8 +54,6 @@ export const MockComponent = ({ webrtc }: Props) => {
     const stream = brain2Mock.stream;
     const track = stream.getVideoTracks()[0];
 
-    // const trackMetadata = { name: "Heart" };
-
     await webrtc.replaceTrack(await brainId.current, track, JSON.parse(trackMetadataInput));
   };
 
@@ -67,7 +61,6 @@ export const MockComponent = ({ webrtc }: Props) => {
     const stream = brainMock.stream;
     const track = stream.getVideoTracks()[0];
 
-    // const trackMetadata = { test: "Brain" };
     const simulcastConfig = { enabled: false, activeEncodings: [] };
     const maxBandwidth = 0;
 
@@ -88,7 +81,7 @@ export const MockComponent = ({ webrtc }: Props) => {
     addHeart();
     removeHeart();
   };
-  
+
   const updateMetadataOnLastTrack = async () => {
     const awaitedHeartId = await heartId.current;
     if (!awaitedHeartId) return;
@@ -97,12 +90,12 @@ export const MockComponent = ({ webrtc }: Props) => {
 
   return (
     <div>
-          <input
-            value={trackMetadataInput}
-            onChange={(e) => setTrackMetadataInput(e.target.value)}
-            placeholder="track metadata"
-          />
-          <button onClick={updateMetadataOnLastTrack}>Update metadata on heart track</button>
+      <input
+        value={trackMetadataInput}
+        onChange={(e) => setTrackMetadataInput(e.target.value)}
+        placeholder="track metadata"
+      />
+      <button onClick={updateMetadataOnLastTrack}>Update metadata on heart track</button>
       <div>
         <VideoPlayer stream={heartMock.stream} />
         <button onClick={addHeart}>Add a heart</button>

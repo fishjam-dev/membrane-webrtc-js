@@ -45,20 +45,20 @@ it("Correctly parses track metadata", () =>
     function trackMetadataParser(data: any): TrackMetadata {
       return { goodStuff: data.goodStuff };
     }
-    const webRTCEndpoint = new WebRTCEndpoint({trackMetadataParser});
+    const webRTCEndpoint = new WebRTCEndpoint({ trackMetadataParser });
 
     webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEventWithOneEndpoint()));
 
     const trackAddedEvent: TracksAddedMediaEvent = createAddTrackMediaEvent(
       createConnectedEventWithOneEndpoint().data.otherEndpoints[0].id,
       trackId,
-      { goodStuff: "ye", extraFluff: "nah" }
+      { goodStuff: "ye", extraFluff: "nah" },
     );
 
     webRTCEndpoint.on("trackAdded", (ctx) => {
       // Then
-      expect(ctx.rawMetadata).toEqual({goodStuff: "ye", extraFluff: "nah"});
-      expect(ctx.metadata).toEqual({goodStuff: "ye"});
+      expect(ctx.rawMetadata).toEqual({ goodStuff: "ye", extraFluff: "nah" });
+      expect(ctx.metadata).toEqual({ goodStuff: "ye" });
       expect(ctx.metadataParsingError).toBeUndefined();
       done("");
     });
@@ -75,19 +75,19 @@ it("Correctly handles incorrect metadata", () =>
       if (!data?.validMetadata) throw "Invalid";
       return { validMetadata: true };
     }
-    const webRTCEndpoint = new WebRTCEndpoint({trackMetadataParser});
+    const webRTCEndpoint = new WebRTCEndpoint({ trackMetadataParser });
 
     webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEventWithOneEndpoint()));
 
     const trackAddedEvent: TracksAddedMediaEvent = createAddTrackMediaEvent(
       createConnectedEventWithOneEndpoint().data.otherEndpoints[0].id,
       trackId,
-      { validMetadata: false }
+      { validMetadata: false },
     );
 
     webRTCEndpoint.on("trackAdded", (ctx) => {
       // Then
-      expect(ctx.rawMetadata).toEqual({validMetadata: false});
+      expect(ctx.rawMetadata).toEqual({ validMetadata: false });
       expect(ctx.metadata).toBeUndefined();
       expect(ctx.metadataParsingError).toBe("Invalid");
       done("");

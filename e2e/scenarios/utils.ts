@@ -30,7 +30,12 @@ export const createAndJoinPeer = async (page: Page, roomId: string): Promise<str
     }
   });
 
-export const joinRoom = async (page: Page, roomId: string, metadata?: any, waitForConnection: boolean = true): Promise<string> =>
+export const joinRoom = async (
+  page: Page,
+  roomId: string,
+  metadata?: any,
+  waitForConnection: boolean = true,
+): Promise<string> =>
   test.step("Join room", async () => {
     const peerRequest = await createPeer(page, roomId);
     try {
@@ -47,8 +52,8 @@ export const joinRoom = async (page: Page, roomId: string, metadata?: any, waitF
       }
       await page.getByRole("button", { name: "Connect", exact: true }).click();
       if (waitForConnection) {
-      await expect(page.locator("#connection-status")).toContainText("true");
-}
+        await expect(page.locator("#connection-status")).toContainText("true");
+      }
 
       return peerId;
     } catch (e) {

@@ -94,7 +94,7 @@ it("Parse metadata on endpoint update", () => {
     return { goodStuff: data.goodStuff };
   }
   mockRTCPeerConnection();
-  const webRTCEndpoint = new WebRTCEndpoint({endpointMetadataParser});
+  const webRTCEndpoint = new WebRTCEndpoint({ endpointMetadataParser });
 
   const connectedMediaEvent = createConnectedEventWithOneEndpoint(endpointId);
   webRTCEndpoint.receiveMediaEvent(JSON.stringify(connectedMediaEvent));
@@ -102,7 +102,7 @@ it("Parse metadata on endpoint update", () => {
   // When
   const metadata = {
     goodStuff: "ye",
-    extraFluff: "nah"
+    extraFluff: "nah",
   };
 
   webRTCEndpoint.receiveMediaEvent(JSON.stringify(createEndpointUpdated(endpointId, metadata)));
@@ -110,9 +110,9 @@ it("Parse metadata on endpoint update", () => {
   // Then
   const endpoints = webRTCEndpoint.getRemoteEndpoints();
   const addedEndpoint = Object.values(endpoints)[0];
-  expect(addedEndpoint.metadata).toEqual({goodStuff: "ye"});
+  expect(addedEndpoint.metadata).toEqual({ goodStuff: "ye" });
   expect(addedEndpoint.metadataParsingError).toBeUndefined();
-  expect(addedEndpoint.rawMetadata).toEqual({goodStuff: "ye", extraFluff: "nah"});
+  expect(addedEndpoint.rawMetadata).toEqual({ goodStuff: "ye", extraFluff: "nah" });
 });
 
 it("Correctly handle incorrect metadata on endpoint update", () => {
@@ -121,16 +121,16 @@ it("Correctly handle incorrect metadata on endpoint update", () => {
   function endpointMetadataParser(data: any): EndpointMetadata {
     if (!data?.validMetadata) throw "Invalid";
     return { validMetadata: true };
-  } 
+  }
   mockRTCPeerConnection();
-  const webRTCEndpoint = new WebRTCEndpoint({endpointMetadataParser});
+  const webRTCEndpoint = new WebRTCEndpoint({ endpointMetadataParser });
 
   const connectedMediaEvent = createConnectedEventWithOneEndpoint(endpointId);
   webRTCEndpoint.receiveMediaEvent(JSON.stringify(connectedMediaEvent));
 
   // When
   const metadata = {
-    trash: "metadata"
+    trash: "metadata",
   };
 
   webRTCEndpoint.receiveMediaEvent(JSON.stringify(createEndpointUpdated(endpointId, metadata)));

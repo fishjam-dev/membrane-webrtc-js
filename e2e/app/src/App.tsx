@@ -30,7 +30,8 @@ function endpointMetadataParser(a: any): EndpointMetadata {
 }
 
 function trackMetadataParser(a: any): TrackMetadata {
-  if (typeof a !== "object" || a === null || !("goodTrack" in a) || typeof a.goodTrack !== "string") throw "Invalid track metadata!!!";
+  if (typeof a !== "object" || a === null || !("goodTrack" in a) || typeof a.goodTrack !== "string")
+    throw "Invalid track metadata!!!";
   return { goodTrack: a.goodTrack };
 }
 
@@ -191,7 +192,8 @@ export function App() {
     localStorage.setItem("token", tokenInput);
   }, [tokenInput]);
 
-  const handleConnect = () => connect(tokenInput, endpointMetadataInput !== "" ? JSON.parse(endpointMetadataInput) : undefined);
+  const handleConnect = () =>
+    connect(tokenInput, endpointMetadataInput !== "" ? JSON.parse(endpointMetadataInput) : undefined);
   const handleStartScreenshare = () => addScreenshareTrack();
   const handleUpdateEndpointMetadata = () => webrtc.updateEndpointMetadata(JSON.parse(endpointMetadataInput));
 
@@ -229,7 +231,7 @@ export function App() {
           <button onClick={handleUpdateEndpointMetadata}>Update metadata</button>
         </div>
         <div id="connection-status">{connected ? "true" : "false"}</div>
-        <hr/ >
+        <hr />
         <MockComponent webrtc={webrtc} />
         <div style={{ width: "100%" }}>
           {Object.values(remoteTracks).map(

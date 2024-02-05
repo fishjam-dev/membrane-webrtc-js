@@ -56,9 +56,9 @@ it("Method 'connect' throws when metadata is incorrect", () => {
   type EndpointMetadata = { validMetadata: true };
   function endpointMetadataParser(data: any): EndpointMetadata {
     if (!data?.validMetadata) throw "Invalid";
-    return {validMetadata: true};
+    return { validMetadata: true };
   }
-  const webRTCEndpoint = new WebRTCEndpoint({endpointMetadataParser});
+  const webRTCEndpoint = new WebRTCEndpoint({ endpointMetadataParser });
 
   const peerMetadata = { validMetadata: false };
 

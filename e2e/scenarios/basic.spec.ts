@@ -5,7 +5,6 @@ import {
   createRoom,
   joinRoomAndAddScreenShare,
   throwIfRemoteTracksAreNotPresent,
-  takeScreenshot,
 } from "./utils";
 
 test("Displays basic UI", async ({ page }) => {

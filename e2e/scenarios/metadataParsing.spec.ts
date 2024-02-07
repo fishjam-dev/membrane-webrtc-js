@@ -12,7 +12,7 @@ test("Endpoint metadata gets correctly parsed", async ({ page: firstPage, contex
   await joinRoom(secondPage, roomId, { goodStuff: "ye" });
 
   await hasEqualObject(secondPage.locator(`#metadata-${firstClientId}`), { goodStuff: "ye" });
-  await hasEqualObject(secondPage.locator(`#raw-metadata-${firstClientId}`), { goodStuff: "ye", extraFluff: "nah" });
+  await hasEqualObject(secondPage.locator(`#raw-metadata-${firstClientId}`), { goodStuff: "ye" });
   await expect(secondPage.locator(`#metadata-parsing-error-${firstClientId}`)).toBeEmpty();
 });
 

@@ -378,7 +378,6 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
    * ```
    */
   public connect = (metadata: EndpointMetadata): void => {
-    this.localEndpoint.rawMetadata = metadata;
     try {
       this.localEndpoint.metadata = this.endpointMetadataParser(metadata);
       this.localEndpoint.metadataParsingError = undefined;
@@ -387,8 +386,9 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
       this.localEndpoint.metadataParsingError = error;
       throw error;
     }
+    this.localEndpoint.rawMetadata = metadata;
     const mediaEvent = generateMediaEvent("connect", {
-      metadata: metadata,
+      metadata: this.localEndpoint.metadata,
     });
     this.sendMediaEvent(mediaEvent);
   };
@@ -1272,10 +1272,10 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
    */
   public updateEndpointMetadata = (metadata: any): void => {
     this.localEndpoint.metadata = this.endpointMetadataParser(metadata);
-    this.localEndpoint.rawMetadata = metadata;
+    this.localEndpoint.rawMetadata = this.localEndpoint.metadata;
     this.localEndpoint.metadataParsingError = undefined;
     const mediaEvent = generateMediaEvent("updateEndpointMetadata", {
-      metadata: metadata,
+      metadata: this.localEndpoint.metadata,
     });
     this.sendMediaEvent(mediaEvent);
   };
@@ -1291,8 +1291,6 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
   public updateTrackMetadata = (trackId: string, trackMetadata: any): void => {
     const trackContext = this.localTrackIdToTrack.get(trackId)!;
     const prevTrack = this.localEndpoint.tracks.get(trackId)!;
-    trackContext.rawMetadata = trackMetadata;
-    this.localEndpoint.tracks.set(trackId, { ...prevTrack, rawMetadata: trackMetadata });
     try {
       trackContext.metadata = this.trackMetadataParser(trackMetadata);
       trackContext.metadataParsingError = undefined;
@@ -1307,6 +1305,8 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
       this.localEndpoint.tracks.set(trackId, { ...prevTrack, metadata: undefined, metadataParsingError: error });
       throw error;
     }
+    trackContext.rawMetadata = trackContext.metadata;
+    this.localEndpoint.tracks.set(trackId, { ...prevTrack, rawMetadata: trackContext.metadata });
     this.localTrackIdToTrack.set(trackId, trackContext);
 
     const mediaEvent = generateMediaEvent("updateTrackMetadata", {

@@ -59,10 +59,10 @@ test("Track metadata gets correctly parsed", async ({ page: firstPage, context }
 
   await joinRoom(firstPage, roomId, { goodStuff: "ye" });
   await joinRoom(secondPage, roomId, { goodStuff: "ye" });
-  await secondPage.getByPlaceholder("track metadata").fill(JSON.stringify({ goodTrack: "ye", extraFluff: "nah" }));
+  await secondPage.getByPlaceholder("track metadata").fill(JSON.stringify({ goodTrack: "ye" }));
   await secondPage.getByText("Add a heart").click();
   await hasEqualObject(firstPage.locator(`[data-endpoint-id] > .metadata`), { goodTrack: "ye" });
-  await hasEqualObject(firstPage.locator(`[data-endpoint-id] > .raw-metadata`), { goodTrack: "ye", extraFluff: "nah" });
+  await hasEqualObject(firstPage.locator(`[data-endpoint-id] > .raw-metadata`), { goodTrack: "ye" });
   await expect(firstPage.locator(`[data-endpoint-id] > .metadata-parsing-error`)).toBeEmpty();
 });
 

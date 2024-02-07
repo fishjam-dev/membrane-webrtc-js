@@ -6,7 +6,7 @@ import {
   SerializedMediaEvent,
   serializeMediaEvent,
 } from "./mediaEvent";
-import { v4 as uuidv4 } from "uuid";
+import { parse, v4 as uuidv4 } from "uuid";
 import EventEmitter from "events";
 import TypedEmitter from "typed-emitter";
 import { defaultBitrates, defaultSimulcastBitrates, simulcastTransceiverConfig } from "./const";
@@ -741,13 +741,13 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
     const trackId = this.getTrackId(uuidv4());
 
     try {
-      this.trackMetadataParser(trackMetadata);
+      const parsedMetadata = this.trackMetadataParser(trackMetadata);
       this.pushCommand({
         commandType: "ADD-TRACK",
         trackId,
         track,
         stream,
-        trackMetadata: trackMetadata as TrackMetadata,
+        trackMetadata: parsedMetadata,
         simulcastConfig,
         maxBandwidth,
         resolutionNotifier,
@@ -863,7 +863,7 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
     const transceiverConfig = this.createTransceiverConfig(trackContext);
     const track = trackContext.track!;
     // @ts-ignore
-    trackContext.metadata = trackContext.rawMetadata;
+    // trackContext.metadata = trackContext.rawMetadata;
     this.connection!.addTransceiver(track, transceiverConfig);
   };
 
@@ -1014,7 +1014,7 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
   public async replaceTrack(trackId: string, newTrack: MediaStreamTrack, newTrackMetadata?: any): Promise<void> {
     const resolutionNotifier = new Deferred<void>();
     try {
-      const parsedTrackMetadata = newTrackMetadata && this.trackMetadataParser(newTrackMetadata);
+      const parsedTrackMetadata = this.trackMetadataParser(newTrackMetadata);
       this.pushCommand({
         commandType: "REPLACE-TRACK",
         trackId,
@@ -1294,7 +1294,7 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
     trackContext.rawMetadata = trackMetadata;
     this.localEndpoint.tracks.set(trackId, { ...prevTrack, rawMetadata: trackMetadata });
     try {
-      trackContext.metadata = trackMetadata && this.trackMetadataParser(trackMetadata);
+      trackContext.metadata = this.trackMetadataParser(trackMetadata);
       trackContext.metadataParsingError = undefined;
       this.localEndpoint.tracks.set(trackId, {
         ...prevTrack,
@@ -1311,7 +1311,7 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
 
     const mediaEvent = generateMediaEvent("updateTrackMetadata", {
       trackId,
-      trackMetadata,
+      trackMetadata: trackContext.metadata,
     });
 
     switch (trackContext.negotiationStatus) {
@@ -1496,7 +1496,7 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
 
       this.connection.getTransceivers().forEach((transceiver) => (transceiver.direction = "sendonly"));
     } else {
-      await this.connection.restartIce();
+      this.connection.restartIce();
     }
 
     this.addTransceiversIfNeeded(offerData);

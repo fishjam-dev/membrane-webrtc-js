@@ -6,7 +6,7 @@ export type AddTrackCommand<TrackMetadata> = {
   trackId: string;
   track: MediaStreamTrack;
   stream: MediaStream;
-  trackMetadata: TrackMetadata;
+  trackMetadata?: TrackMetadata;
   simulcastConfig: SimulcastConfig;
   maxBandwidth: TrackBandwidthLimit; // unlimited bandwidth
   resolutionNotifier: Deferred<void>;

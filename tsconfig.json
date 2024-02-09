@@ -15,8 +15,8 @@
     "target": "es2018",
     "isolatedModules": true,
     "noEmit": true,
-    "lib": ["DOM", "DOM.Iterable", "ES2019"]
+    "lib": ["DOM", "DOM.Iterable", "ES2019"],
   },
   "include": ["./src/**/*", "./e2e/**/*", "./test/**/*"],
-  "exclude": ["e2e/app/**/*"]
+  "exclude": ["e2e/app/**/*"],
 }

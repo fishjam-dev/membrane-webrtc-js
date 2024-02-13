@@ -868,8 +868,6 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
   private addTrackToConnection = (trackContext: TrackContext<EndpointMetadata, TrackMetadata>) => {
     const transceiverConfig = this.createTransceiverConfig(trackContext);
     const track = trackContext.track!;
-    // @ts-ignore
-    // trackContext.metadata = trackContext.rawMetadata;
     this.connection!.addTransceiver(track, transceiverConfig);
   };
 

@@ -13,7 +13,7 @@ import { defaultBitrates, defaultSimulcastBitrates, simulcastTransceiverConfig }
 import { AddTrackCommand, Command, RemoveTrackCommand, ReplaceTackCommand } from "./commands";
 import { Deferred } from "./deferred";
 
-export type MetadataParser<ParsedMetadata> = (rawMetadata: any) => ParsedMetadata;
+export type MetadataParser<ParsedMetadata> = (rawMetadata: unknown) => ParsedMetadata;
 
 /**
  * Interface describing Endpoint.
@@ -365,12 +365,12 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
 
   constructor(config?: Config<EndpointMetadata, TrackMetadata>) {
     super();
-    this.endpointMetadataParser = config?.endpointMetadataParser ?? ((x) => x);
-    this.trackMetadataParser = config?.trackMetadataParser ?? ((x) => x);
+    this.endpointMetadataParser = config?.endpointMetadataParser ?? ((x) => x as EndpointMetadata);
+    this.trackMetadataParser = config?.trackMetadataParser ?? ((x) => x as TrackMetadata);
   }
 
   /**
-   * Tries to connect to the RTC Engine. If user is succesfully connected then {@link WebRTCEndpointEvents.connected}
+   * Tries to connect to the RTC Engine. If user is successfully connected then {@link WebRTCEndpointEvents.connected}
    * will be emitted.
    *
    * @param metadata - Any information that other endpoints will receive in {@link WebRTCEndpointEvents.endpointAdded}

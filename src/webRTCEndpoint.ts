@@ -352,7 +352,7 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
   };
 
   /**
-   * Indicates if an ongoing renegotiation is active
+   * Indicates if an ongoing renegotiation is active.
    * During renegotiation, both parties are expected to actively exchange events: renegotiateTracks, offerData, sdpOffer, sdpAnswer.
    */
   private ongoingRenegotiation: boolean = false;

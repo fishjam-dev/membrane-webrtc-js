@@ -13,7 +13,7 @@ import { defaultBitrates, defaultSimulcastBitrates, simulcastTransceiverConfig }
 import { AddTrackCommand, Command, RemoveTrackCommand, ReplaceTackCommand } from "./commands";
 import { Deferred } from "./deferred";
 
-type MetadataParser<ParsedMetadata> = (rawMetadata: any) => ParsedMetadata;
+export type MetadataParser<ParsedMetadata> = (rawMetadata: any) => ParsedMetadata;
 
 /**
  * Interface describing Endpoint.
@@ -319,12 +319,17 @@ export interface WebRTCEndpointEvents<EndpointMetadata, TrackMetadata> {
   bandwidthEstimationChanged: (estimation: bigint) => void;
 }
 
+export type Config<EndpointMetadata, TrackMetadata> = {
+  endpointMetadataParser?: MetadataParser<EndpointMetadata>;
+  trackMetadataParser?: MetadataParser<TrackMetadata>;
+};
+
 /**
  * Main class that is responsible for connecting to the RTC Engine, sending and receiving media.
  */
 export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends (EventEmitter as {
-  new <EndpointMetadata, trackMetadata>(): TypedEmitter<
-    Required<WebRTCEndpointEvents<EndpointMetadata, trackMetadata>>
+  new <EndpointMetadata, TrackMetadata>(): TypedEmitter<
+    Required<WebRTCEndpointEvents<EndpointMetadata, TrackMetadata>>
   >;
 })<EndpointMetadata, TrackMetadata> {
   private trackIdToTrack: Map<string, TrackContextImpl<EndpointMetadata, TrackMetadata>> = new Map();
@@ -346,19 +351,19 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
     iceTransportPolicy: "relay",
   };
 
-  // indicates that the ongoingRenegotiation of renegotiation is ongoing (renegotiateTracks, offerData, sdpOffer, sdpAnswer)
+  /**
+   * Indicates if an ongoing renegotiation is active
+   * During renegotiation, both parties are expected to actively exchange events: renegotiateTracks, offerData, sdpOffer, sdpAnswer.
+   */
   private ongoingRenegotiation: boolean = false;
   private ongoingTrackReplacement: boolean = false;
   private commandsQueue: Command<TrackMetadata>[] = [];
   private commandResolutionNotifier: Deferred<void> | null = null;
 
-  private endpointMetadataParser: MetadataParser<EndpointMetadata>;
-  private trackMetadataParser: MetadataParser<TrackMetadata>;
+  private readonly endpointMetadataParser: MetadataParser<EndpointMetadata>;
+  private readonly trackMetadataParser: MetadataParser<TrackMetadata>;
 
-  constructor(config?: {
-    endpointMetadataParser?: MetadataParser<EndpointMetadata>;
-    trackMetadataParser?: MetadataParser<TrackMetadata>;
-  }) {
+  constructor(config?: Config<EndpointMetadata, TrackMetadata>) {
     super();
     this.endpointMetadataParser = config?.endpointMetadataParser ?? ((x) => x);
     this.trackMetadataParser = config?.trackMetadataParser ?? ((x) => x);
@@ -620,6 +625,7 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
         } catch (error) {
           newTrack = { ...newTrack, metadata: undefined, metadataParsingError: error };
           trackContext.metadataParsingError = error;
+          trackContext.metadata = undefined;
         }
         newTrack = { ...newTrack, rawMetadata: trackMetadata };
         trackContext.rawMetadata = trackMetadata;

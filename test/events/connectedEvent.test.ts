@@ -46,8 +46,7 @@ it("Connecting to room with one peer", () =>
     webRTCEndpoint.receiveMediaEvent(JSON.stringify(connectedEvent));
   }));
 
-// TODO enable this test after fixing mapping from
-it.skip("Connecting to room with one peer with one track", () =>
+it("Connecting to room with one peer with one track", () =>
   new Promise((done) => {
     // Given
     const webRTCEndpoint = new WebRTCEndpoint();

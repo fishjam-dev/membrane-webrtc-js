@@ -12,7 +12,7 @@ it(`Updating existing track emits events`, () =>
 
     webRTCEndpoint.on("trackUpdated", (context) => {
       // Then
-      expect(context.metadata).toMatchObject(metadata);
+      expect(context.metadata).toEqual(metadata);
       done("");
     });
 
@@ -41,10 +41,62 @@ it(`Updating existing track changes track metadata`, () => {
 
   // Then
   const track = webRTCEndpoint.getRemoteTracks()[trackId];
-  expect(track.metadata).toMatchObject(metadata);
+  expect(track.metadata).toEqual(metadata);
 });
 
-it(`Webrtc endpoint skips updating local endpoint metadata`, () => {
+it("Correctly parses track metadata", () => {
+  // Given
+  type TrackMetadata = { goodStuff: string };
+  function trackMetadataParser(data: any): TrackMetadata {
+    return { goodStuff: data.goodStuff };
+  }
+  const webRTCEndpoint = new WebRTCEndpoint({ trackMetadataParser });
+
+  setupRoom(webRTCEndpoint, endpointId, trackId);
+
+  const metadata = {
+    goodStuff: "ye",
+    extraFluff: "nah",
+  };
+
+  // When
+  const trackUpdated = createTrackUpdatedEvent(trackId, endpointId, metadata);
+  webRTCEndpoint.receiveMediaEvent(JSON.stringify(trackUpdated));
+
+  // Then
+  const track = webRTCEndpoint.getRemoteTracks()[trackId];
+  expect(track.metadata).toEqual({ goodStuff: "ye" });
+  expect(track.rawMetadata).toEqual({ goodStuff: "ye", extraFluff: "nah" });
+  expect(track.metadataParsingError).toBeUndefined();
+});
+
+it("Correctly handles incorrect metadata", () => {
+  // Given
+  type TrackMetadata = { validMetadata: true };
+  function trackMetadataParser(data: any): TrackMetadata {
+    if (!data.validMetadata) throw "Invalid";
+    return { validMetadata: true };
+  }
+  const webRTCEndpoint = new WebRTCEndpoint({ trackMetadataParser });
+
+  setupRoom(webRTCEndpoint, endpointId, trackId);
+
+  const metadata = {
+    validMetadata: false,
+  };
+
+  // When
+  const trackUpdated = createTrackUpdatedEvent(trackId, endpointId, metadata);
+  webRTCEndpoint.receiveMediaEvent(JSON.stringify(trackUpdated));
+
+  // Then
+  const track = webRTCEndpoint.getRemoteTracks()[trackId];
+  expect(track.metadata).toBeUndefined();
+  expect(track.rawMetadata).toEqual({ validMetadata: false });
+  expect(track.metadataParsingError).toBe("Invalid");
+});
+
+it.todo(`Webrtc endpoint skips updating local endpoint metadata`, () => {
   // Given
   const webRTCEndpoint = new WebRTCEndpoint();
 
@@ -59,13 +111,12 @@ it(`Webrtc endpoint skips updating local endpoint metadata`, () => {
   webRTCEndpoint.receiveMediaEvent(JSON.stringify(trackUpdated));
 
   // Then
-  const track = webRTCEndpoint.getRemoteTracks()[trackId];
   // todo How should empty metadata be handled?
   //  - empty object {}
   //  - null
   //  - undefined
   // expect(track.metadata).toBe(value.data.otherEndpoints[0].metadata as any)
-  expect(track.metadata).toMatchObject({});
+  // TODO: write the rest of the test once we expose webrtc.getLocalEndpoints() function
 });
 
 it(`Updating track with invalid endpoint id throws error`, () => {

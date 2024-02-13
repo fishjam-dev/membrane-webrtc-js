@@ -10,6 +10,8 @@ export type {
   TrackEncoding,
   VadStatus,
   EncodingReason,
+  Config,
+  MetadataParser,
 } from "./webRTCEndpoint";
 
 export { WebRTCEndpoint } from "./webRTCEndpoint";

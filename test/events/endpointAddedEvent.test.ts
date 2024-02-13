@@ -58,3 +58,50 @@ it("Add endpoint produces event", () =>
     // When
     webRTCEndpoint.receiveMediaEvent(JSON.stringify(addEndpointEvent));
   }));
+
+it("Parses the metadata", () => {
+  // Given
+  type EndpointMetadata = { goodStuff: string };
+  function endpointMetadataParser(data: any): EndpointMetadata {
+    return { goodStuff: data.goodStuff };
+  }
+  mockRTCPeerConnection();
+  const webRTCEndpoint = new WebRTCEndpoint({ endpointMetadataParser });
+
+  webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEvent()));
+
+  // When
+  webRTCEndpoint.receiveMediaEvent(
+    JSON.stringify(createEndpointAdded(endpointId, { goodStuff: "ye", extraFluff: "nah" })),
+  );
+
+  // Then
+  const endpoints = webRTCEndpoint.getRemoteEndpoints();
+  const addedEndpoint = Object.values(endpoints)[0];
+  expect(addedEndpoint.metadata).toEqual({ goodStuff: "ye" });
+  expect(addedEndpoint.metadataParsingError).toBeUndefined();
+  expect(addedEndpoint.rawMetadata).toEqual({ goodStuff: "ye", extraFluff: "nah" });
+});
+
+it("Properly handles incorrect metadata", () => {
+  // Given
+  type EndpointMetadata = { validMetadata: true };
+  function endpointMetadataParser(data: any): EndpointMetadata {
+    if (!data?.validMetadata) throw "Invalid";
+    return { validMetadata: true };
+  }
+  mockRTCPeerConnection();
+  const webRTCEndpoint = new WebRTCEndpoint({ endpointMetadataParser });
+
+  webRTCEndpoint.receiveMediaEvent(JSON.stringify(createConnectedEvent()));
+
+  // When
+  webRTCEndpoint.receiveMediaEvent(JSON.stringify(createEndpointAdded(endpointId, { trash: "metadata" })));
+
+  // Then
+  const endpoints = webRTCEndpoint.getRemoteEndpoints();
+  const addedEndpoint = Object.values(endpoints)[0];
+  expect(addedEndpoint.metadata).toBeUndefined();
+  expect(addedEndpoint.metadataParsingError).toBe("Invalid");
+  expect(addedEndpoint.rawMetadata).toEqual({ trash: "metadata" });
+});

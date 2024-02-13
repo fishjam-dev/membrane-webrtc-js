@@ -1,12 +1,12 @@
 import { SimulcastConfig, TrackBandwidthLimit } from "./webRTCEndpoint";
 import { Deferred } from "./deferred";
 
-export type AddTrackCommand = {
+export type AddTrackCommand<TrackMetadata> = {
   commandType: "ADD-TRACK";
   trackId: string;
   track: MediaStreamTrack;
   stream: MediaStream;
-  trackMetadata: any;
+  trackMetadata?: TrackMetadata;
   simulcastConfig: SimulcastConfig;
   maxBandwidth: TrackBandwidthLimit; // unlimited bandwidth
   resolutionNotifier: Deferred<void>;
@@ -18,12 +18,15 @@ export type RemoveTrackCommand = {
   resolutionNotifier: Deferred<void>;
 };
 
-export type ReplaceTackCommand = {
+export type ReplaceTackCommand<TrackMetadata> = {
   commandType: "REPLACE-TRACK";
   trackId: string;
   newTrack: MediaStreamTrack;
-  newTrackMetadata?: any;
+  newTrackMetadata?: TrackMetadata;
   resolutionNotifier: Deferred<void>;
 };
 
-export type Command = AddTrackCommand | RemoveTrackCommand | ReplaceTackCommand;
+export type Command<TrackMetadata> =
+  | AddTrackCommand<TrackMetadata>
+  | RemoveTrackCommand
+  | ReplaceTackCommand<TrackMetadata>;

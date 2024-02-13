@@ -329,12 +329,12 @@ export interface WebRTCEndpointEvents<EndpointMetadata, TrackMetadata> {
   /**
    * Emitted each time track encoding has been disabled.
    */
-  trackEncodingDisabled: (context: TrackContext, encoding: string) => void;
+  trackEncodingDisabled: (context: TrackContext<EndpointMetadata, TrackMetadata>, encoding: string) => void;
 
   /**
    * Emitted each time track encoding has been enabled.
    */
-  trackEncodingEnabled: (context: TrackContext, encoding: string) => void;
+  trackEncodingEnabled: (context: TrackContext<EndpointMetadata, TrackMetadata>, encoding: string) => void;
 }
 
 export type Config<EndpointMetadata, TrackMetadata> = {
@@ -788,7 +788,7 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
     track: MediaStreamTrack,
     stream: MediaStream,
     trackMetadata?: TrackMetadata,
-    simulcastConfig: SimulcastConfig = { enabled: false, activeEncodings: [] },
+    simulcastConfig: SimulcastConfig = { enabled: false, activeEncodings: [], disabledEncodings: [] },
     maxBandwidth: TrackBandwidthLimit = 0, // unlimited bandwidth
   ): Promise<string> {
     const resolutionNotifier = new Deferred<void>();

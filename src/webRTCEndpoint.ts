@@ -169,14 +169,13 @@ export interface TrackContextEvents {
   voiceActivityChanged: (context: TrackContext) => void;
 }
 
-export interface TrackContext extends TrackContextFields, TypedEmitter<Required<TrackContextEvents>> {}
+export interface TrackContext extends TrackContextFields, TypedEmitter<Required<TrackContextEvents>> { }
 
 type TrackNegotiationStatus = "awaiting" | "offered" | "done";
 
 class TrackContextImpl
   extends (EventEmitter as new () => TypedEmitter<Required<TrackContextEvents>>)
-  implements TrackContext
-{
+  implements TrackContext {
   endpoint: Endpoint;
   trackId: string;
   track: MediaStreamTrack | null = null;
@@ -548,6 +547,9 @@ export class WebRTCEndpoint extends (EventEmitter as new () => TypedEmitter<Requ
         break;
 
       case "trackUpdated": {
+
+        console.log("Track updated")
+
         if (this.getEndpointId() === deserializedMediaEvent.data.endpointId) return;
 
         endpoint = this.idToEndpoint.get(deserializedMediaEvent.data.endpointId)!;

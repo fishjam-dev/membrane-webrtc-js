@@ -438,27 +438,41 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
       case "connected": {
         this.localEndpoint.id = deserializedMediaEvent.data.id;
 
-        this.emit("connected", deserializedMediaEvent.data.id, deserializedMediaEvent.data.otherEndpoints);
-
         const endpoints: any[] = deserializedMediaEvent.data.otherEndpoints;
+
         const otherEndpoints: Endpoint<EndpointMetadata, TrackMetadata>[] = endpoints.map((endpoint) => {
-          endpoint.tracks = this.mapMediaEventTracksToTrackContextImpl(Array.from(endpoint.tracks), endpoint);
+          const tracks = this.mapMediaEventTracksToTrackContextImpl(
+            new Map<string, any>(Object.entries(endpoint.tracks)),
+            endpoint,
+          );
 
-          endpoint.rawMetadata = endpoint.metadata;
           try {
-            endpoint.metadata = this.endpointMetadataParser(endpoint.rawMetadata);
-            endpoint.metadataParsingError = undefined;
+            return {
+              id: endpoint.id,
+              type: endpoint.type,
+              metadata: this.endpointMetadataParser(endpoint.metadata),
+              rawMetadata: endpoint.metadata,
+              metadataParsingError: undefined,
+              tracks,
+            } satisfies Endpoint<EndpointMetadata, TrackMetadata>;
           } catch (error) {
-            endpoint.metadata = undefined;
-            endpoint.metadataParsingError = error;
+            return {
+              id: endpoint.id,
+              type: endpoint.type,
+              metadata: undefined,
+              rawMetadata: endpoint.metadata,
+              metadataParsingError: error,
+              tracks,
+            } satisfies Endpoint<EndpointMetadata, TrackMetadata>;
           }
-
-          this.addEndpoint(endpoint);
-          return endpoint;
         });
 
+        this.emit("connected", deserializedMediaEvent.data.id, otherEndpoints);
+
+        otherEndpoints.forEach((endpoint) => this.idToEndpoint.set(endpoint.id, endpoint));
+
         otherEndpoints.forEach((endpoint) => {
-          Array.from(endpoint.tracks.entries()).forEach(([trackId, ctx]) => {
+          endpoint.tracks.forEach((ctx, trackId) => {
             this.trackIdToTrack.set(trackId, ctx);
 
             this.emit("trackAdded", ctx);
@@ -1704,7 +1718,7 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
   private getEndpointId = () => this.localEndpoint.id;
 
   private mapMediaEventTracksToTrackContextImpl = (
-    tracks: [string, any][],
+    tracks: Map<string, any>,
     endpoint: Endpoint<EndpointMetadata, TrackMetadata>,
   ): Map<string, TrackContextImpl<EndpointMetadata, TrackMetadata>> => {
     const mappedTracks: Array<[string, TrackContextImpl<EndpointMetadata, TrackMetadata>]> = Array.from(tracks).map(

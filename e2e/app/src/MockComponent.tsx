@@ -3,6 +3,7 @@ import { WebRTCEndpoint } from "@jellyfish-dev/membrane-webrtc-js";
 import { VideoPlayer } from "./VideoPlayer.tsx";
 import { useRef, useState } from "react";
 import { EndpointMetadata, TrackMetadata } from "./App.tsx";
+import { BandwidthLimit, SimulcastConfig } from "@jellyfish-dev/membrane-webrtc-js";
 
 const brainMock = createStream("🧠", "white", "low", 24);
 const brain2Mock = createStream("🤯", "#00ff00", "low", 24);
@@ -61,8 +62,8 @@ export const MockComponent = ({ webrtc }: Props) => {
     const stream = brainMock.stream;
     const track = stream.getVideoTracks()[0];
 
-    const simulcastConfig = { enabled: false, activeEncodings: [] };
-    const maxBandwidth = 0;
+    const simulcastConfig: SimulcastConfig = { enabled: false, activeEncodings: [], disabledEncodings: [] };
+    const maxBandwidth: BandwidthLimit = 0;
 
     brainId.current = webrtc.addTrack(track, stream, JSON.parse(trackMetadataInput), simulcastConfig, maxBandwidth);
   };

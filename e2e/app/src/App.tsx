@@ -9,8 +9,8 @@ import { PeerMessage } from "./protos/jellyfish/peer_notifications";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { MockComponent } from "./MockComponent.tsx";
 import { VideoPlayerWithDetector } from "./VideoPlayerWithDetector.tsx";
-import { WebRTCEndpointEvents } from "../../../dist/membrane-webrtc-js";
-import { TrackContextEvents } from "../../../src";
+import { WebRTCEndpointEvents, TrackContextEvents } from "@jellyfish-dev/membrane-webrtc-js";
+import { BandwidthLimit, SimulcastConfig } from "../../../src";
 
 /* eslint-disable no-console */
 
@@ -174,8 +174,8 @@ async function addScreenshareTrack(): Promise<string> {
   const track = stream.getVideoTracks()[0];
 
   const trackMetadata: TrackMetadata = { goodTrack: "screenshare" };
-  const simulcastConfig = { enabled: false, activeEncodings: [] };
-  const maxBandwidth = 0;
+  const simulcastConfig: SimulcastConfig = { enabled: false, activeEncodings: [], disabledEncodings: [] };
+  const maxBandwidth: BandwidthLimit = 0;
 
   return webrtc.addTrack(track, stream, trackMetadata, simulcastConfig, maxBandwidth);
 }

@@ -9,8 +9,7 @@ import { PeerMessage } from "./protos/jellyfish/peer_notifications";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { MockComponent } from "./MockComponent.tsx";
 import { VideoPlayerWithDetector } from "./VideoPlayerWithDetector.tsx";
-import { WebRTCEndpointEvents, TrackContextEvents } from "@jellyfish-dev/membrane-webrtc-js";
-import { BandwidthLimit, SimulcastConfig } from "../../../src";
+import { WebRTCEndpointEvents, TrackContextEvents, BandwidthLimit, SimulcastConfig } from "@jellyfish-dev/membrane-webrtc-js";
 
 /* eslint-disable no-console */
 

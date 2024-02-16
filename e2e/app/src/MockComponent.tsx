@@ -2,6 +2,8 @@ import { createWorkerStream } from "./mocks.ts";
 import { WebRTCEndpoint } from "@jellyfish-dev/membrane-webrtc-js";
 import { VideoPlayer } from "./VideoPlayer.tsx";
 import { useRef, useState } from "react";
+import { EndpointMetadata, TrackMetadata } from "./App.tsx";
+import { BandwidthLimit, SimulcastConfig } from "@jellyfish-dev/membrane-webrtc-js";
 
 const brainMock = createWorkerStream("🧠", "white", "high", 24);
 const brain2Mock = createWorkerStream("🤯", "#00ff00", "high", 24);
@@ -9,32 +11,32 @@ const heartMock = createWorkerStream("🫀", "white", "high", 24);
 const heart2Mock = createWorkerStream("💝", "#FF0000", "high", 24);
 
 type Props = {
-  webrtc: WebRTCEndpoint;
+  webrtc: WebRTCEndpoint<EndpointMetadata, TrackMetadata>;
 };
 
 export const MockComponent = ({ webrtc }: Props) => {
-  const heartId = useRef<string | null>(null);
-  const brainId = useRef<string | null>(null);
+  const heartId = useRef<Promise<string> | null>(null);
+  const brainId = useRef<Promise<string> | null>(null);
   const [replaceStatus, setReplaceStatus] = useState<"unknown" | "success" | "failure">("unknown");
+  const [trackMetadataInput, setTrackMetadataInput] = useState(JSON.stringify({ goodTrack: "ye" }));
 
-  const addHeart = () => {
+  const addHeart = async () => {
     const stream = heartMock.stream;
     const track = stream.getVideoTracks()[0];
 
-    const trackMetadata = { name: "Heart" };
-    heartId.current = webrtc.addTrack(track, stream, trackMetadata);
+    heartId.current = webrtc.addTrack(track, stream, JSON.parse(trackMetadataInput));
   };
 
-  const removeHeart = () => {
+  const removeHeart = async () => {
     if (!heartId.current) throw Error("Heart id is undefined");
 
-    webrtc.removeTrack(heartId.current);
+    webrtc.removeTrack(await heartId.current);
   };
 
-  const removeBrain = () => {
+  const removeBrain = async () => {
     if (!brainId.current) throw Error("Brain id is undefined");
 
-    webrtc.removeTrack(brainId.current);
+    webrtc.removeTrack(await brainId.current);
   };
 
   const replaceHeart = async () => {
@@ -43,10 +45,8 @@ export const MockComponent = ({ webrtc }: Props) => {
     const stream = heart2Mock.stream;
     const track = stream.getVideoTracks()[0];
 
-    const trackMetadata = { name: "Heart" };
-
-    const result = await webrtc.replaceTrack(heartId.current, track, trackMetadata);
-    setReplaceStatus(result ? "success" : "failure");
+    await webrtc.replaceTrack(await heartId.current, track, JSON.parse(trackMetadataInput));
+    setReplaceStatus("success");
   };
 
   const replaceBrain = async () => {
@@ -55,20 +55,17 @@ export const MockComponent = ({ webrtc }: Props) => {
     const stream = brain2Mock.stream;
     const track = stream.getVideoTracks()[0];
 
-    const trackMetadata = { name: "Heart" };
-
-    await webrtc.replaceTrack(brainId.current, track, trackMetadata);
+    await webrtc.replaceTrack(await brainId.current, track, JSON.parse(trackMetadataInput));
   };
 
   const addBrain = () => {
     const stream = brainMock.stream;
     const track = stream.getVideoTracks()[0];
 
-    const trackMetadata = { name: "Brain" };
-    const simulcastConfig = { enabled: false, activeEncodings: [] };
-    const maxBandwidth = 0;
+    const simulcastConfig: SimulcastConfig = { enabled: false, activeEncodings: [], disabledEncodings: [] };
+    const maxBandwidth: BandwidthLimit = 0;
 
-    brainId.current = webrtc.addTrack(track, stream, trackMetadata, simulcastConfig, maxBandwidth);
+    brainId.current = webrtc.addTrack(track, stream, JSON.parse(trackMetadataInput), simulcastConfig, maxBandwidth);
   };
 
   const addBoth = () => {
@@ -86,8 +83,20 @@ export const MockComponent = ({ webrtc }: Props) => {
     removeHeart();
   };
 
+  const updateMetadataOnLastTrack = async () => {
+    const awaitedHeartId = await heartId.current;
+    if (!awaitedHeartId) return;
+    webrtc.updateTrackMetadata(awaitedHeartId, JSON.parse(trackMetadataInput));
+  };
+
   return (
     <div>
+      <input
+        value={trackMetadataInput}
+        onChange={(e) => setTrackMetadataInput(e.target.value)}
+        placeholder="track metadata"
+      />
+      <button onClick={updateMetadataOnLastTrack}>Update metadata on heart track</button>
       <div>
         <VideoPlayer stream={heartMock.stream} />
         <button onClick={addHeart}>Add a heart</button>

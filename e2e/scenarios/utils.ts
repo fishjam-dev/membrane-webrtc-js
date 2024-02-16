@@ -30,6 +30,37 @@ export const createAndJoinPeer = async (page: Page, roomId: string): Promise<str
     }
   });
 
+export const joinRoom = async (
+  page: Page,
+  roomId: string,
+  metadata?: any,
+  waitForConnection: boolean = true,
+): Promise<string> =>
+  test.step("Join room", async () => {
+    const peerRequest = await createPeer(page, roomId);
+    try {
+      const {
+        peer: { id: peerId },
+        token: peerToken,
+      } = (await peerRequest.json()).data;
+
+      await page.getByPlaceholder("token").fill(peerToken);
+      if (metadata !== undefined) {
+        await page.getByPlaceholder("endpoint metadata").fill(JSON.stringify(metadata));
+      } else {
+        await page.getByPlaceholder("endpoint metadata").clear();
+      }
+      await page.getByRole("button", { name: "Connect", exact: true }).click();
+      if (waitForConnection) {
+        await expect(page.locator("#connection-status")).toContainText("true");
+      }
+
+      return peerId;
+    } catch (e) {
+      throw { status: peerRequest.status(), response: await peerRequest.json() };
+    }
+  });
+
 export const joinRoomAndAddScreenShare = async (page: Page, roomId: string): Promise<string> =>
   test.step("Join room and add track", async () => {
     const peerRequest = await createPeer(page, roomId);

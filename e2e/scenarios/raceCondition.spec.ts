@@ -15,14 +15,6 @@ import {
   takeScreenshot,
 } from "./utils";
 
-test.afterEach(async ({ context }, testInfo) => {
-  for (const page of context.pages()) {
-    await test.step("Screenshot after test", async () => {
-      await takeScreenshot(page, testInfo, "After test Screenshot");
-    });
-  }
-});
-
 /*
  * Test in this file should be run a few times in a row to be sure that there is no race conditions.
  * To run a test multiple times use command:

@@ -485,6 +485,13 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
     }
   };
 
+  // todo add doc
+  public async getStats(selector?: MediaStreamTrack | null): Promise<RTCStatsReport> {
+    if(!this.connection) throw Error("Connection not established")
+
+    return this.connection?.getStats(selector);
+  }
+
   /**
    * Returns a snapshot of currently received remote tracks.
    *

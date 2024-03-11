@@ -485,11 +485,17 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
     }
   };
 
-  // todo add doc
-  public async getStats(selector?: MediaStreamTrack | null): Promise<RTCStatsReport> {
-    if(!this.connection) throw Error("Connection not established")
-
-    return this.connection?.getStats(selector);
+  /**
+   * Retrieves statistics related to the RTCPeerConnection.
+   * These statistics provide insights into the performance and status of the connection.
+   *
+   * @return {Promise<RTCStatsReport>}
+   *
+   * @external RTCPeerConnection#getStats()
+   * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getStats | MDN Web Docs: RTCPeerConnection.getStats()}
+   */
+  public async getStatistics(selector?: MediaStreamTrack | null): Promise<RTCStatsReport> {
+    return (await this.connection?.getStats(selector)) ?? new Map();
   }
 
   /**

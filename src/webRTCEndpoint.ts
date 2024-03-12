@@ -520,7 +520,7 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
   }
 
   // todo change to read only
-  public getLocalEndpoints(): Endpoint<EndpointMetadata, TrackMetadata> {
+  public getLocalEndpoint(): Endpoint<EndpointMetadata, TrackMetadata> {
     return this.localEndpoint;
   }
 

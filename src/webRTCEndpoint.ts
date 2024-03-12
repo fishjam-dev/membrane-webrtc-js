@@ -368,6 +368,8 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
     iceServers: [],
     iceTransportPolicy: "relay",
   };
+  private bandwidthEstimation: bigint = BigInt(0);
+  // private status: "new" | "connected" | "joined" | "error";
 
   /**
    * Indicates if an ongoing renegotiation is active.
@@ -515,6 +517,15 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
    */
   public getRemoteEndpoints(): Record<string, Endpoint<EndpointMetadata, TrackMetadata>> {
     return Object.fromEntries(this.idToEndpoint.entries());
+  }
+
+  // todo change to read only
+  public getLocalEndpoints(): Endpoint<EndpointMetadata, TrackMetadata> {
+    return this.localEndpoint;
+  }
+
+  public getBandwidthEstimation(): bigint {
+    return this.bandwidthEstimation;
   }
 
   private handleMediaEvent = (deserializedMediaEvent: MediaEvent) => {
@@ -755,9 +766,9 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
       }
 
       case "bandwidthEstimation": {
-        const estimation = deserializedMediaEvent.data.estimation;
+        this.bandwidthEstimation = deserializedMediaEvent.data.estimation;
 
-        this.emit("bandwidthEstimationChanged", estimation as bigint);
+        this.emit("bandwidthEstimationChanged", this.bandwidthEstimation);
         break;
       }
 

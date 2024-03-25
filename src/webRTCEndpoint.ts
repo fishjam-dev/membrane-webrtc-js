@@ -1453,20 +1453,20 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
     const prevTrack = this.localEndpoint.tracks.get(trackId)!;
     try {
       trackContext.metadata = this.trackMetadataParser(trackMetadata);
+      trackContext.rawMetadata = trackMetadata;
       trackContext.metadataParsingError = undefined;
-      this.localEndpoint.tracks.set(trackId, {
-        ...prevTrack,
-        metadata: trackContext.metadata,
-        metadataParsingError: undefined,
-      });
+
+      // todo delete
+      this.localEndpoint.tracks.delete(trackId);
+
+      this.localEndpoint.tracks.set(trackId, trackContext);
     } catch (error) {
       trackContext.metadata = undefined;
       trackContext.metadataParsingError = error;
       this.localEndpoint.tracks.set(trackId, { ...prevTrack, metadata: undefined, metadataParsingError: error });
       throw error;
     }
-    trackContext.rawMetadata = trackContext.metadata;
-    this.localEndpoint.tracks.set(trackId, { ...prevTrack, rawMetadata: trackContext.metadata });
+
     this.localTrackIdToTrack.set(trackId, trackContext);
 
     const mediaEvent = generateMediaEvent("updateTrackMetadata", {
@@ -1477,6 +1477,7 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
     switch (trackContext.negotiationStatus) {
       case "done":
         this.sendMediaEvent(mediaEvent);
+
         this.emit("localTrackMetadataChanged", {
           trackId,
           trackMetadata,
@@ -1521,7 +1522,7 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
   public disconnect = () => {
     const mediaEvent = generateMediaEvent("disconnect");
     this.sendMediaEvent(mediaEvent);
-    this.emit("disconnectRequested", {})
+    this.emit("disconnectRequested", {});
     this.cleanUp();
   };
 
@@ -1754,14 +1755,11 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
 
       const trackContext = this.trackIdToTrack.get(trackId)!;
 
-      console.log({ name: "before", trackContext, endpoints: this.trackIdToTrack });
-
       trackContext.stream = stream;
       trackContext.track = event.track;
 
       this.idToEndpoint.get(trackContext.endpoint.id)?.tracks.set(trackId, trackContext);
 
-      console.log({ name: "after", trackContext, endpoints: this.trackIdToTrack });
       this.emit("trackReady", trackContext);
     };
   };

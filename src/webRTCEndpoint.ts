@@ -218,6 +218,8 @@ class TrackContextImpl<EndpointMetadata, ParsedMetadata>
     this.endpoint = endpoint;
     this.trackId = trackId;
     try {
+      console.log("trackMetadataParser 5");
+
       this.metadata = metadataParser(metadata);
     } catch (error) {
       this.metadataParsingError = error;
@@ -690,6 +692,7 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
         let newTrack = endpoint.tracks.get(trackId)!;
         const trackContext = this.trackIdToTrack.get(trackId)!;
         try {
+          console.log("trackMetadataParser 1");
           const parsedMetadata = this.trackMetadataParser(trackMetadata);
           newTrack = { ...newTrack, metadata: parsedMetadata, metadataParsingError: undefined };
           trackContext.metadata = parsedMetadata;
@@ -763,6 +766,7 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
         break;
 
       case "error":
+        console.log({ name: "Event error", deserializedMediaEvent });
         this.emit("connectionError", deserializedMediaEvent.data.message);
 
         this.disconnect();
@@ -850,6 +854,7 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
 
     let metadata: any;
     try {
+      console.log("trackMetadataParser 2");
       const parsedMetadata = this.trackMetadataParser(trackMetadata);
       metadata = parsedMetadata;
       this.pushCommand({
@@ -1133,14 +1138,25 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
   public async replaceTrack(trackId: string, newTrack: MediaStreamTrack, newTrackMetadata?: any): Promise<void> {
     const resolutionNotifier = new Deferred<void>();
     try {
-      const parsedTrackMetadata = this.trackMetadataParser(newTrackMetadata);
-      this.pushCommand({
-        commandType: "REPLACE-TRACK",
-        trackId,
-        newTrack,
-        newTrackMetadata: parsedTrackMetadata,
-        resolutionNotifier,
-      });
+      console.log("trackMetadataParser 3");
+      if (newTrackMetadata !== undefined) {
+        const parsedTrackMetadata = this.trackMetadataParser(newTrackMetadata);
+        this.pushCommand({
+          commandType: "REPLACE-TRACK",
+          trackId,
+          newTrack,
+          newTrackMetadata: parsedTrackMetadata,
+          resolutionNotifier,
+        });
+      } else {
+        this.pushCommand({
+          commandType: "REPLACE-TRACK",
+          trackId,
+          newTrack,
+          newTrackMetadata: undefined,
+          resolutionNotifier,
+        });
+      }
     } catch (error) {
       resolutionNotifier.reject(error);
     }
@@ -1163,9 +1179,11 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
       sender
         .replaceTrack(newTrack)
         .then(() => {
-          const trackMetadata = newTrackMetadata || this.localTrackIdToTrack.get(trackId)!.metadata;
           trackContext.track = newTrack;
-          this.updateTrackMetadata(trackId, trackMetadata);
+
+          if (newTrackMetadata) {
+            this.updateTrackMetadata(trackId, newTrackMetadata);
+          }
         })
         .finally(() => {
           this.resolvePreviousCommand();
@@ -1452,6 +1470,7 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
     const trackContext = this.localTrackIdToTrack.get(trackId)!;
     const prevTrack = this.localEndpoint.tracks.get(trackId)!;
     try {
+      console.log("trackMetadataParser 4");
       trackContext.metadata = this.trackMetadataParser(trackMetadata);
       trackContext.rawMetadata = trackMetadata;
       trackContext.metadataParsingError = undefined;
@@ -1708,7 +1727,7 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
         this.processNextCommand();
         break;
       case "failed":
-        this.emit("connectionError", "Connection failed");
+        this.emit("connectionError", "RTCPeerConnection failed");
         break;
     }
   };

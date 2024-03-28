@@ -218,8 +218,6 @@ class TrackContextImpl<EndpointMetadata, ParsedMetadata>
     this.endpoint = endpoint;
     this.trackId = trackId;
     try {
-      console.log("trackMetadataParser 5");
-
       this.metadata = metadataParser(metadata);
     } catch (error) {
       this.metadataParsingError = error;
@@ -692,7 +690,6 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
         let newTrack = endpoint.tracks.get(trackId)!;
         const trackContext = this.trackIdToTrack.get(trackId)!;
         try {
-          console.log("trackMetadataParser 1");
           const parsedMetadata = this.trackMetadataParser(trackMetadata);
           newTrack = { ...newTrack, metadata: parsedMetadata, metadataParsingError: undefined };
           trackContext.metadata = parsedMetadata;
@@ -766,7 +763,6 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
         break;
 
       case "error":
-        console.log({ name: "Event error", deserializedMediaEvent });
         this.emit("connectionError", deserializedMediaEvent.data.message);
 
         this.disconnect();
@@ -1138,7 +1134,6 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
   public async replaceTrack(trackId: string, newTrack: MediaStreamTrack, newTrackMetadata?: any): Promise<void> {
     const resolutionNotifier = new Deferred<void>();
     try {
-      console.log("trackMetadataParser 3");
       if (newTrackMetadata !== undefined) {
         const parsedTrackMetadata = this.trackMetadataParser(newTrackMetadata);
         this.pushCommand({
@@ -1470,7 +1465,6 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
     const trackContext = this.localTrackIdToTrack.get(trackId)!;
     const prevTrack = this.localEndpoint.tracks.get(trackId)!;
     try {
-      console.log("trackMetadataParser 4");
       trackContext.metadata = this.trackMetadataParser(trackMetadata);
       trackContext.rawMetadata = trackMetadata;
       trackContext.metadataParsingError = undefined;

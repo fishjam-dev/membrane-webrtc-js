@@ -850,7 +850,6 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
 
     let metadata: any;
     try {
-      console.log("trackMetadataParser 2");
       const parsedMetadata = this.trackMetadataParser(trackMetadata);
       metadata = parsedMetadata;
       this.pushCommand({
@@ -1134,24 +1133,15 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
   public async replaceTrack(trackId: string, newTrack: MediaStreamTrack, newTrackMetadata?: any): Promise<void> {
     const resolutionNotifier = new Deferred<void>();
     try {
-      if (newTrackMetadata !== undefined) {
-        const parsedTrackMetadata = this.trackMetadataParser(newTrackMetadata);
-        this.pushCommand({
-          commandType: "REPLACE-TRACK",
-          trackId,
-          newTrack,
-          newTrackMetadata: parsedTrackMetadata,
-          resolutionNotifier,
-        });
-      } else {
-        this.pushCommand({
-          commandType: "REPLACE-TRACK",
-          trackId,
-          newTrack,
-          newTrackMetadata: undefined,
-          resolutionNotifier,
-        });
-      }
+      const newMetadata = newTrackMetadata !== undefined ? this.trackMetadataParser(newTrackMetadata) : undefined;
+
+      this.pushCommand({
+        commandType: "REPLACE-TRACK",
+        trackId,
+        newTrack,
+        newTrackMetadata: newMetadata,
+        resolutionNotifier,
+      });
     } catch (error) {
       resolutionNotifier.reject(error);
     }

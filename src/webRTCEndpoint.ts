@@ -336,21 +336,31 @@ export interface WebRTCEndpointEvents<EndpointMetadata, TrackMetadata> {
    */
   trackEncodingEnabled: (context: TrackContext<EndpointMetadata, TrackMetadata>, encoding: string) => void;
 
-  // new
-  targetTrackEncodingRequested: (event: any) => void;
+  targetTrackEncodingRequested: (event: { trackId: string; variant: TrackEncoding }) => void;
 
-  // local events
-  localTrackAdded: (event: any) => void;
-  localTrackRemoved: (event: any) => void;
-  localTrackReplaced: (event: any) => void;
-  localTrackBandwidthSet: (event: any) => void;
+  disconnectRequested: (event: any) => void;
+
+  localTrackAdded: (event: {
+    trackId: string;
+    track: MediaStreamTrack;
+    stream: MediaStream;
+    trackMetadata?: TrackMetadata;
+    simulcastConfig: SimulcastConfig;
+    maxBandwidth: TrackBandwidthLimit; // unlimited bandwidth
+  }) => void;
+
+  localTrackRemoved: (event: { trackId: string }) => void;
+
+  localTrackReplaced: (event: { trackId: string; track: MediaStreamTrack; metadata?: TrackMetadata }) => void;
+
+  localTrackBandwidthSet: (event: { trackId: string; bandwidth: BandwidthLimit }) => void;
+
   localTrackEncodingBandwidthSet: (event: any) => void;
+
   localTrackEncodingEnabled: (event: any) => void;
   localTrackEncodingDisabled: (event: any) => void;
   localEndpointMetadataChanged: (event: any) => void;
   localTrackMetadataChanged: (event: any) => void;
-
-  disconnectRequested: (event: any) => void;
 }
 
 export type Config<EndpointMetadata, TrackMetadata> = {
@@ -1148,8 +1158,8 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
     return resolutionNotifier.promise.then(() => {
       this.emit("localTrackReplaced", {
         trackId,
-        newTrack,
-        newTrackMetadata,
+        track: newTrack,
+        metadata: newTrackMetadata,
       });
     });
   }

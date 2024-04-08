@@ -355,12 +355,15 @@ export interface WebRTCEndpointEvents<EndpointMetadata, TrackMetadata> {
 
   localTrackBandwidthSet: (event: { trackId: string; bandwidth: BandwidthLimit }) => void;
 
-  localTrackEncodingBandwidthSet: (event: any) => void;
+  localTrackEncodingBandwidthSet: (event: { trackId: string; rid: string; bandwidth: BandwidthLimit }) => void;
 
-  localTrackEncodingEnabled: (event: any) => void;
-  localTrackEncodingDisabled: (event: any) => void;
-  localEndpointMetadataChanged: (event: any) => void;
-  localTrackMetadataChanged: (event: any) => void;
+  localTrackEncodingEnabled: (event: { trackId: string; encoding: TrackEncoding }) => void;
+
+  localTrackEncodingDisabled: (event: { trackId: string; encoding: TrackEncoding }) => void;
+
+  localEndpointMetadataChanged: (event: { metadata: EndpointMetadata }) => void;
+
+  localTrackMetadataChanged: (event: { trackId: string; metadata: TrackMetadata }) => void;
 }
 
 export type Config<EndpointMetadata, TrackMetadata> = {
@@ -1339,37 +1342,37 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
   }
 
   /**
-   * Sets track encoding that server should send to the client library.
+   * Sets track variant that server should send to the client library.
    *
-   * The encoding will be sent whenever it is available.
-   * If chosen encoding is temporarily unavailable, some other encoding
-   * will be sent until the chosen encoding becomes active again.
+   * The variant will be sent whenever it is available.
+   * If chosen variant is temporarily unavailable, some other variant
+   * will be sent until the chosen variant becomes active again.
    *
    * @param {string} trackId - id of track
-   * @param {TrackEncoding} encoding - encoding to receive
+   * @param {TrackEncoding} variant - variant to receive
    * @example
    * ```ts
    * webrtc.setTargetTrackEncoding(incomingTrackCtx.trackId, "l")
    * ```
    */
-  public setTargetTrackEncoding(trackId: string, encoding: TrackEncoding) {
+  public setTargetTrackEncoding(trackId: string, variant: TrackEncoding) {
     const trackContext = this.trackIdToTrack.get(trackId);
-    if (!trackContext?.simulcastConfig?.enabled || !trackContext.simulcastConfig.activeEncodings.includes(encoding)) {
-      console.warn("The track does not support changing its target encoding");
+    if (!trackContext?.simulcastConfig?.enabled || !trackContext.simulcastConfig.activeEncodings.includes(variant)) {
+      console.warn("The track does not support changing its target variant");
       return;
     }
     const mediaEvent = generateCustomEvent({
       type: "setTargetTrackVariant",
       data: {
         trackId: trackId,
-        variant: encoding,
+        variant,
       },
     });
 
     this.sendMediaEvent(mediaEvent);
     this.emit("targetTrackEncodingRequested", {
       trackId,
-      encoding,
+      variant,
     });
   }
 
@@ -1493,7 +1496,7 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
 
         this.emit("localTrackMetadataChanged", {
           trackId,
-          trackMetadata,
+          metadata: trackMetadata,
         });
         break;
 

@@ -1552,6 +1552,13 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
       this.connection.onconnectionstatechange = null;
       this.connection.onicecandidateerror = null;
       this.connection.oniceconnectionstatechange = null;
+      this.connection.close();
+
+      this.commandResolutionNotifier?.reject("Disconnected");
+      this.commandResolutionNotifier = null;
+      this.commandsQueue = [];
+      this.ongoingTrackReplacement = false;
+      this.ongoingRenegotiation = false;
     }
 
     this.connection = undefined;
@@ -1598,10 +1605,25 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
   };
 
   private async createAndSendOffer() {
-    if (!this.connection) return;
+    const connection = this.connection
+    if (!connection) return;
+
     try {
-      const offer = await this.connection.createOffer();
-      await this.connection.setLocalDescription(offer);
+      const offer = await connection.createOffer();
+
+      // todo
+      //  handle new connection !== old connection
+      //  this.connection !== connection
+      if (!this.connection) {
+        console.warn("RTCPeerConnection stopped or restarted");
+        return;
+      }
+      await connection.setLocalDescription(offer);
+
+      if (!this.connection) {
+        console.warn("RTCPeerConnection stopped or restarted");
+        return;
+      }
 
       const mediaEvent = generateCustomEvent({
         type: "sdpOffer",

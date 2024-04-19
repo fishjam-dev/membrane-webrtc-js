@@ -898,6 +898,7 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
   }
 
   private handleCommand(command: Command<TrackMetadata>) {
+    console.log({ name: "Handle command", command });
     switch (command.commandType) {
       case "ADD-TRACK":
         this.addTrackHandler(command);
@@ -959,37 +960,41 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
       return;
     }
 
-    this.ongoingRenegotiation = true;
+    try {
+      this.ongoingRenegotiation = true;
 
-    const trackContext = new TrackContextImpl(
-      this.localEndpoint,
-      trackId,
-      trackMetadata,
-      simulcastConfig,
-      this.trackMetadataParser,
-    );
+      const trackContext = new TrackContextImpl(
+        this.localEndpoint,
+        trackId,
+        trackMetadata,
+        simulcastConfig,
+        this.trackMetadataParser,
+      );
 
-    trackContext.track = track;
-    trackContext.stream = stream;
-    trackContext.maxBandwidth = maxBandwidth;
+      trackContext.track = track;
+      trackContext.stream = stream;
+      trackContext.maxBandwidth = maxBandwidth;
 
-    this.localEndpoint.tracks.set(trackId, trackContext);
+      this.localEndpoint.tracks.set(trackId, trackContext);
 
-    this.localTrackIdToTrack.set(trackId, trackContext);
+      this.localTrackIdToTrack.set(trackId, trackContext);
 
-    if (this.connection) {
-      this.addTrackToConnection(trackContext);
+      if (this.connection) {
+        this.addTrackToConnection(trackContext);
 
-      this.connection
-        .getTransceivers()
-        .forEach(
-          (transceiver) =>
-            (transceiver.direction = transceiver.direction === "sendrecv" ? "sendonly" : transceiver.direction),
-        );
+        this.connection
+          .getTransceivers()
+          .forEach(
+            (transceiver) =>
+              (transceiver.direction = transceiver.direction === "sendrecv" ? "sendonly" : transceiver.direction),
+          );
+      }
+
+      const mediaEvent = generateCustomEvent({ type: "renegotiateTracks" });
+      this.sendMediaEvent(mediaEvent);
+    } catch (error) {
+      console.log({ name: "Add track error", error });
     }
-
-    const mediaEvent = generateCustomEvent({ type: "renegotiateTracks" });
-    this.sendMediaEvent(mediaEvent);
   }
 
   private addTrackToConnection = (trackContext: TrackContext<EndpointMetadata, TrackMetadata>) => {
@@ -1605,11 +1610,10 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
   };
 
   private async createAndSendOffer() {
-    const connection = this.connection
-    if (!connection) return;
+    if (!this.connection) return;
 
     try {
-      const offer = await connection.createOffer();
+      const offer = await this.connection.createOffer();
 
       // todo
       //  handle new connection !== old connection
@@ -1618,7 +1622,7 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
         console.warn("RTCPeerConnection stopped or restarted");
         return;
       }
-      await connection.setLocalDescription(offer);
+      await this.connection.setLocalDescription(offer);
 
       if (!this.connection) {
         console.warn("RTCPeerConnection stopped or restarted");

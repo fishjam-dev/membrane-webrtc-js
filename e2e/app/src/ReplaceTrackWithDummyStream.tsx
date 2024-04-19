@@ -70,9 +70,57 @@ export const ReplaceTrackWithDummyStream = ({ webrtc }: Props) => {
   const videoStreamIdRef = useRef<string | null>(null);
   const [simulcastCheckbox, setSimulcastCheckbox] = useState<boolean>(true);
 
+  const startAndAddCamera = async () => {
+    const mediaStream = await navigator.mediaDevices.getUserMedia({ video: VIDEO_TRACK_CONSTRAINTS, audio: false });
+    console.log({
+      mediaStream,
+      settings: mediaStream.getVideoTracks()[0].getSettings(),
+      tracks: videoStream?.getVideoTracks(),
+    });
+
+    setVideoStream(mediaStream);
+
+    const track = mediaStream.getVideoTracks()[0];
+
+    if(videoStreamIdRef.current) {
+      console.log("Replacing with null")
+
+      webrtc.replaceTrack(videoStreamIdRef.current, track, mediaStream)
+    } else {
+      console.log("Adding track")
+
+      videoStreamIdRef.current = await webrtc.addTrack(
+        track,
+        mediaStream,
+        { source: "camera" },
+        simulcastCheckbox
+          ? {
+            enabled: true,
+            activeEncodings: ["l", "m", "h"],
+            disabledEncodings: [],
+          }
+          : undefined,
+      );
+    }
+  };
+
+  const stopCameraAndReplaceWithNull = () => {
+    videoStream?.getTracks().forEach((track) => {
+      track.stop();
+    });
+
+    if(videoStreamIdRef.current) {
+      webrtc.replaceTrack(videoStreamIdRef.current, null, null)
+    }
+  };
+
   const startCamera = async () => {
     const mediaStream = await navigator.mediaDevices.getUserMedia({ video: VIDEO_TRACK_CONSTRAINTS, audio: false });
-    console.log({ mediaStream, settings: mediaStream.getVideoTracks()[0].getSettings(), tracks: videoStream?.getVideoTracks() });
+    console.log({
+      mediaStream,
+      settings: mediaStream.getVideoTracks()[0].getSettings(),
+      tracks: videoStream?.getVideoTracks(),
+    });
     setVideoStream(mediaStream);
   };
 
@@ -158,6 +206,21 @@ export const ReplaceTrackWithDummyStream = ({ webrtc }: Props) => {
           onChange={() => setSimulcastCheckbox(!simulcastCheckbox)}
         />
       </div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          flexWrap: "wrap",
+          gap: "8px",
+          borderStyle: "dashed",
+          borderColor: "blue",
+          borderWidth: "2px"
+        }}
+      >
+        <button onClick={startAndAddCamera}>Start and add camera track</button>
+        <button onClick={stopCameraAndReplaceWithNull}>Stop camera and replace with null</button>
+      </div>
+
       <div style={{ display: "flex", flexDirection: "row", flexWrap: "wrap", gap: "8px" }}>
         <button onClick={startCamera}>Start a camera</button>
         <button onClick={addCameraTrack}>Add a camera track</button>

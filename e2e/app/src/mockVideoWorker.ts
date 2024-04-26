@@ -10,14 +10,14 @@ const QUALITY_MULTIPLIER: Record<Quality, QualityMultiplier> = {
   high: 4,
 };
 
-let intervalId: NodeJS.Timeout;
+let run: boolean;
 
 self.onmessage = (event) => {
   if (event.data.action === "start") {
+    run = true;
     const emoji = event.data.emoji;
     const canvasElement = event.data.canvas;
     const quality: Quality = event.data.quality;
-    const frameRate: number = event.data.frameRate;
     const backgroundColor: string = event.data.backgroundColor;
 
     const multiplier = QUALITY_MULTIPLIER[quality];
@@ -33,12 +33,11 @@ self.onmessage = (event) => {
 
     let degree = 0;
 
-    const drawEmoji = () => {
-      if (degree > 360) {
-        degree = 0;
-      }
+    let prevTimestamp: number = 0;
+    const drawEmoji = (time: DOMHighResTimeStamp) => {
+      const dt = time - prevTimestamp;
 
-      const radian = (degree * Math.PI) / 180;
+      const radian = (degree / 360) * 2 * Math.PI;
       const translateX = currentCanvasWidth / 2;
       const translateY = currentCanvasHeight / 2;
 
@@ -52,17 +51,15 @@ self.onmessage = (event) => {
       ctx.fillText(emoji, -fontSize / 2, +fontSize / 2);
       ctx.rotate(-radian);
       ctx.translate(-translateX, -translateY);
-      degree++;
-      // window.requestAnimationFrame(drawEmoji);
+      degree += dt / 10;
+      prevTimestamp = time;
+      if (run) {
+        requestAnimationFrame(drawEmoji);
+      }
     };
 
-    intervalId = setInterval(() => {
-      drawEmoji();
-    }, 1000 / frameRate);
-
-    // window.requestAnimationFrame(drawEmoji);
-    // }
+    requestAnimationFrame(drawEmoji);
   } else if (event.data.action === "stop") {
-    clearInterval(intervalId);
+    run = false;
   }
 };

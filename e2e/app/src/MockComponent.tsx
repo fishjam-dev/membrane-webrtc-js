@@ -5,10 +5,10 @@ import { useRef, useState } from "react";
 import { EndpointMetadata, TrackMetadata } from "./App.tsx";
 import { BandwidthLimit, SimulcastConfig } from "@jellyfish-dev/membrane-webrtc-js";
 
-const brainMock = createWorkerStream("🧠", "white", "high", 24);
-const brain2Mock = createWorkerStream("🤯", "#00ff00", "high", 24);
-const heartMock = createWorkerStream("🫀", "white", "high", 24);
-const heart2Mock = createWorkerStream("💝", "#FF0000", "high", 24);
+const brainMock = createWorkerStream("🧠", "white", "high");
+const brain2Mock = createWorkerStream("🤯", "#00ff00", "high");
+const heartMock = createWorkerStream("🫀", "white", "high");
+const heart2Mock = createWorkerStream("💝", "#FF0000", "high");
 
 type Props = {
   webrtc: WebRTCEndpoint<EndpointMetadata, TrackMetadata>;

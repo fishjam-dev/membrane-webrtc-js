@@ -37,7 +37,6 @@ export const createWorkerStream: (
   emoji: string,
   backgroundColor: string,
   quality: Quality,
-  frameRate: number,
 ) => {
   stop: () => void;
   stream: MediaStream;
@@ -52,7 +51,6 @@ export const createWorkerStream: (
       emoji,
       backgroundColor,
       quality,
-      frameRate,
     },
     [canvasWorker],
   );

@@ -36,7 +36,7 @@ type Props = {
   webrtc: WebRTCEndpoint;
 };
 
-const blackDummyStream = createWorkerStream("🤖", "black", "high", 60);
+const blackDummyStream = createWorkerStream("🤖", "black", "high");
 
 const createDummyStream = (
   width: number = 1280,

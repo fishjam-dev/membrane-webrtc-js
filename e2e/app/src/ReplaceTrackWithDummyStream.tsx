@@ -83,9 +83,9 @@ export const ReplaceTrackWithDummyStream = ({ webrtc }: Props) => {
     const track = mediaStream.getVideoTracks()[0];
 
     if(videoStreamIdRef.current) {
-      console.log("Replacing with null")
+      console.log("Replacing with camera");
 
-      webrtc.replaceTrack(videoStreamIdRef.current, track, mediaStream)
+      webrtc.replaceTrack(videoStreamIdRef.current, track, mediaStream, "unmute");
     } else {
       console.log("Adding track")
 
@@ -109,8 +109,10 @@ export const ReplaceTrackWithDummyStream = ({ webrtc }: Props) => {
       track.stop();
     });
 
+    console.log("replacing with null", videoStreamIdRef.current);
+
     if(videoStreamIdRef.current) {
-      webrtc.replaceTrack(videoStreamIdRef.current, null, null)
+      webrtc.replaceTrack(videoStreamIdRef.current, null, null, "mute")
     }
   };
 

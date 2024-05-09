@@ -1079,7 +1079,7 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
    *   })
    * ```
    */
-  public async replaceTrack(trackId: string, newTrack: MediaStreamTrack | null, newTrackMetadata?: any): Promise<void> {
+  public async replaceTrack(trackId: string, newTrack: MediaStreamTrack | null, newTrackMetadata?: any, muteAction?: "mute" | "unmute"): Promise<void> {
     const resolutionNotifier = new Deferred<void>();
     try {
       const parsedTrackMetadata = this.trackMetadataParser(newTrackMetadata);
@@ -1090,6 +1090,21 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
         newTrackMetadata: parsedTrackMetadata,
         resolutionNotifier,
       });
+
+      console.log("muteAction", muteAction);
+
+      if (muteAction == "mute") {
+        const mediaEvent = generateMediaEvent("muteTrack", { trackId: trackId });
+        this.sendMediaEvent(mediaEvent);
+        console.log("sent mute event");
+      }
+
+      if (muteAction == "unmute") {
+        const mediaEvent = generateMediaEvent("unmuteTrack", { trackId: trackId });
+        this.sendMediaEvent(mediaEvent);
+        console.log("sent unmute event");
+      }
+
     } catch (error) {
       resolutionNotifier.reject(error);
     }

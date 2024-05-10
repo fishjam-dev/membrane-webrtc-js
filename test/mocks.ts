@@ -58,7 +58,7 @@ export const mockRTCPeerConnection = (): {
       getSenders: (): RTCRtpSender[] => {
         return senders;
       },
-      close: () => {}
+      close: () => {},
     };
     return newVar;
   });

@@ -1605,7 +1605,7 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
   };
 
   private async createAndSendOffer() {
-    const connection = this.connection
+    const connection = this.connection;
     if (!connection) return;
 
     try {

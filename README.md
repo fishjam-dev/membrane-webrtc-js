@@ -1,3 +1,8 @@
+> [!IMPORTANT]  
+> This repository is now archived.
+>
+> All `membrane-webrtc-js` functionality is now available as part of [`ts-client-sdk`](https://github.com/jellyfish-dev/ts-client-sdk)
+
 # membrane-webrtc-js
 
 [![NPM version](https://img.shields.io/npm/v/@jellyfish-dev/membrane-webrtc-js)](https://www.npmjs.com/package/@jellyfish-dev/membrane-webrtc-js)

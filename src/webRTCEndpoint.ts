@@ -346,7 +346,7 @@ export interface WebRTCEndpointEvents<EndpointMetadata, TrackMetadata> {
     stream: MediaStream;
     trackMetadata?: TrackMetadata;
     simulcastConfig: SimulcastConfig;
-    maxBandwidth: TrackBandwidthLimit; // unlimited bandwidth
+    maxBandwidth: TrackBandwidthLimit;
   }) => void;
 
   localTrackRemoved: (event: { trackId: string }) => void;
@@ -398,7 +398,6 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
     iceTransportPolicy: "relay",
   };
   private bandwidthEstimation: bigint = BigInt(0);
-  // private status: "new" | "connected" | "joined" | "error";
 
   /**
    * Indicates if an ongoing renegotiation is active.
@@ -548,7 +547,6 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
     return Object.fromEntries(this.idToEndpoint.entries());
   }
 
-  // todo change to read only
   public getLocalEndpoint(): Endpoint<EndpointMetadata, TrackMetadata> {
     return this.localEndpoint;
   }
@@ -856,7 +854,7 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
     stream: MediaStream,
     trackMetadata?: TrackMetadata,
     simulcastConfig: SimulcastConfig = { enabled: false, activeEncodings: [], disabledEncodings: [] },
-    maxBandwidth: TrackBandwidthLimit = 0, // unlimited bandwidth
+    maxBandwidth: TrackBandwidthLimit = 0,
   ): Promise<string> {
     const resolutionNotifier = new Deferred<void>();
     const trackId = this.getTrackId(uuidv4());
@@ -1472,9 +1470,6 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
       trackContext.rawMetadata = trackMetadata;
       trackContext.metadataParsingError = undefined;
 
-      // todo delete
-      this.localEndpoint.tracks.delete(trackId);
-
       this.localEndpoint.tracks.set(trackId, trackContext);
     } catch (error) {
       trackContext.metadata = undefined;
@@ -1501,7 +1496,6 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
         break;
 
       case "offered":
-        // todo what happend in this case
         trackContext.pendingMetadataUpdate = true;
         break;
 
@@ -1611,9 +1605,6 @@ export class WebRTCEndpoint<EndpointMetadata = any, TrackMetadata = any> extends
     try {
       const offer = await connection.createOffer();
 
-      // todo
-      //  handle new connection !== old connection
-      //  this.connection !== connection
       if (!this.connection) {
         console.warn("RTCPeerConnection stopped or restarted");
         return;
